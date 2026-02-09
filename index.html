@@ -144,22 +144,7 @@
         vertical-align: middle !important;
     }
 
-    /* STICKY COLUMN: Kolom Nama Personil tetap diam saat di-scroll */
-    .table-responsive thead th:first-child,
-    .table-responsive tbody td:first-child {
-        position: sticky;
-        left: 0;
-        background-color: #fff;
-        z-index: 10;
-        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-    }
-    /* Khusus header agar z-index di atas body */
-    .table-responsive thead th:first-child {
-        z-index: 11; 
-        background-color: #f8f9fc;
-    }
-    
-    /* GANTT STYLES */
+    /* --- GANTT STYLES --- */
     .custom-gantt-wrapper { display: flex; flex-direction: column; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; max-width: 100%; font-family: 'Segoe UI', sans-serif; }
     .custom-gantt-wrapper::-webkit-scrollbar { height: 8px; width: 8px; }
     .custom-gantt-wrapper::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 0 0 10px 10px; }
@@ -652,11 +637,12 @@
                  fetchAPI('getDataSKK'),
                  fetchAPI('getDataPenugasan')
              ]);
+             // MODIFIKASI: Assign dataTugas DULUAN, baru renderSKK dipanggil.
+             // Karena renderSKK sekarang butuh dataTugas untuk cross-check status.
              dataSKK = resSKK; 
              dataTugas = resTugas; 
              
-             // Render SKK sesudah dataTugas tersedia (utk cross-check)
-             renderSKK(dataSKK); 
+             renderSKK(dataSKK); // Render SKK sesudah dataTugas tersedia
              renderTugas(dataTugas);
           }
           if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "TEKNIS") {
@@ -747,6 +733,7 @@
           let isUsed = false;
           let hasActive = false;
           let usedProjectName = ""; 
+          let spreadsheetUsedText = ""; // Variable untuk menyimpan teks asli dr spreadsheet
 
           // Cek Data Internal SKK Terlebih Dahulu (Prioritas Teks dari Spreadsheet)
           person.items.forEach(item => {
@@ -755,9 +742,8 @@
               
               if (s.includes('used') || k.includes('used')) {
                   isUsed = true;
-                  // MODIFIKASI: Ambil teks langsung dari Kolom Status (K) atau Keterangan jika Status kosong
-                  // Ini memastikan teksnya "Used in Kabupaten Gianyar" sesuai spreadsheet
-                  usedProjectName = item.statusRaw.toLowerCase().includes('used') ? item.statusRaw : item.ketRaw;
+                  // Priority 1: Ambil teks langsung dari Kolom Status (K)
+                  spreadsheetUsedText = item.statusRaw; 
               }
               if (s.includes('active') || s.includes('available')) {
                   hasActive = true;
@@ -765,13 +751,17 @@
           });
 
           // Fallback Cross-Check: Jika di SKK tidak terdeteksi Used, cek di Data Penugasan
-          // Jika ternyata orang ini punya tugas aktif (walaupun SKK expired), status tetap Used
           if (!isUsed) {
               const activeJobFromTugas = activeAssignmentsMap[person.nama.trim()];
               if (activeJobFromTugas) {
                   isUsed = true;
-                  usedProjectName = `Used in ${activeJobFromTugas}`; // Fallback text jika di spreadsheet SKK tidak ada info
+                  // Jika deteksi via cross-check, kita generate teksnya
+                  usedProjectName = `Used in ${activeJobFromTugas}`; 
               }
+          } else {
+              // Jika terdeteksi via spreadsheet, pakai teks spreadsheet
+              // Jika kosong, baru fallback ke Keterangan atau default "Used"
+              usedProjectName = spreadsheetUsedText ? spreadsheetUsedText : "Used";
           }
 
           // Tentukan Badge Status Akhir
