@@ -108,7 +108,7 @@
     .status-used { background-color: #fff4e5; color: #cc7700; border: 1px solid #ffeebb; } 
     .status-not-started { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
 
-    /* --- STYLES KHUSUS UNTUK TABEL GROUPING SKK --- */
+    /* --- STYLES KHUSUS UNTUK TABLE GROUPING --- */
     .nested-cell {
         display: flex;
         align-items: center;
@@ -360,14 +360,14 @@
               <table class="table table-hover align-middle">
                 <thead>
                   <tr>
-                    <th>Nama Personil</th>
-                    <th>Nama Paket Pekerjaan</th>
+                    <th style="min-width: 180px;">Nama Personil</th>
+                    <th style="min-width: 200px;">Nama Paket Pekerjaan</th>
                     <th class="text-center">LPSE</th> 
-                    <th>PL/Tender</th>
-                    <th>Jenis Kontrak</th>
-                    <th>Sertifikat</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
+                    <th class="text-center">PL/Tender</th>
+                    <th class="text-center">Jenis Kontrak</th>
+                    <th>Sertifikat Digunakan</th>
+                    <th class="text-center">Start Date</th>
+                    <th class="text-center">End Date</th>
                     <th class="text-center">Status</th>
                   </tr>
                 </thead>
@@ -636,14 +636,14 @@
 
     // --- RENDER LOGIC ---
 
-    // FUNGSI RENDER SKK YANG SUDAH DI-UPDATE UNTUK GROUPING
+    // FUNGSI RENDER SKK (GROUPED)
     function renderSKK(data) {
       const tbody = document.getElementById('bodySkk'); 
       tbody.innerHTML = '';
       
       let expired = 0, usedSet = new Set();
       
-      // 1. Hitung Statistik (tetap menggunakan data mentah agar akurat)
+      // 1. Hitung Statistik
       data.forEach(row => {
           const status = (row[10]||"").toLowerCase(); 
           const ket = (row[11]||"").toLowerCase(); 
@@ -664,25 +664,23 @@
           document.getElementById('msgSkk').classList.add('d-none');
       }
 
-      // 2. GROUPING DATA BERDASARKAN NAMA PERSONIL
+      // 2. GROUPING DATA
       const groupedData = {};
       
       data.forEach((row, originalIndex) => {
           const nama = row[1];
           if (!nama) return;
 
-          // Jika nama belum ada di group, buat object baru
           if (!groupedData[nama]) {
               groupedData[nama] = {
                   nama: row[1],
                   hp: row[2],
-                  perusahaan: row[4], // Ambil perusahaan dari data pertama
-                  bidang: row[3],     // Ambil bidang dari data pertama
-                  items: []           // Array untuk menampung sertifikat
+                  perusahaan: row[4], 
+                  bidang: row[3],
+                  items: [] 
               };
           }
 
-          // Generate Badge Status untuk item ini
           let statusRaw = (row[10]||"").toLowerCase();
           let ketRaw = (row[11]||"").toLowerCase();
           let badge = `<span class="badge-status bg-light text-dark border">${row[10]||'Available'}</span>`;
@@ -692,21 +690,19 @@
           else if (statusRaw.includes('used')) badge = `<span class="badge-status status-used">${row[10]}</span>`;
           else if (statusRaw.includes('active') || statusRaw.includes('available')) badge = `<span class="badge-status status-active">${row[10]||'Available'}</span>`;
 
-          // Masukkan detail sertifikat ke array items
           groupedData[nama].items.push({
               sertifikat: row[5],
               jenjang: row[6],
               sisaWaktu: row[9],
               statusBadge: badge,
               keterangan: row[11],
-              originalIndex: originalIndex // Penting untuk tombol Edit
+              originalIndex: originalIndex
           });
       });
 
-      // 3. RENDER DATA YANG SUDAH DI-GROUP
+      // 3. RENDER DATA GROUPED
       Object.values(groupedData).forEach(person => {
           
-          // Render Kolom Kontak (WA)
           let btnWA = "-";
           if(person.hp && person.hp.match(/\d+/)) {
               let cleanNum = person.hp.toString().replace(/\D/g, ''); 
@@ -718,18 +714,15 @@
               }
           }
 
-          // Siapkan HTML untuk kolom-kolom yang berisi list (Sertifikat, Jenjang, dll)
           let htmlSertifikat = '', htmlJenjang = '', htmlSisa = '', htmlStatus = '', htmlKet = '', htmlAksi = '';
 
           person.items.forEach(item => {
-              // Kita bungkus setiap item dengan div .nested-cell agar tingginya sama dan sejajar
               htmlSertifikat += `<div class="nested-cell fw-bold" title="${item.sertifikat}">${item.sertifikat}</div>`;
               htmlJenjang += `<div class="nested-cell text-center justify-content-center">${item.jenjang || '-'}</div>`;
               htmlSisa += `<div class="nested-cell text-center justify-content-center small">${item.sisaWaktu || '-'}</div>`;
               htmlStatus += `<div class="nested-cell text-center justify-content-center">${item.statusBadge}</div>`;
               htmlKet += `<div class="nested-cell small text-muted" title="${item.keterangan || ''}">${item.keterangan || '-'}</div>`;
               
-              // Tombol Edit per item sertifikat
               if (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT") {
                   htmlAksi += `<div class="nested-cell nested-cell-action">
                       <button class="btn btn-sm btn-outline-primary rounded-circle" onclick="openModalEdit(${item.originalIndex})" style="width: 24px; height: 24px; padding: 0;" title="Edit Sertifikat Ini">
@@ -739,10 +732,8 @@
               }
           });
 
-          // Tentukan apakah kolom aksi ditampilkan
           const styleAksi = (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT") ? '' : 'display:none;';
 
-          // Render Baris Tabel
           tbody.innerHTML += `
             <tr>
               <td class="align-middle-person">
@@ -751,32 +742,96 @@
               </td>
               <td class="text-center align-middle-person">${btnWA}</td>
               <td class="align-middle-person small">${person.bidang || '-'}</td>
-              
               <td style="padding-top:0; padding-bottom:0;">${htmlSertifikat}</td>
               <td style="padding-top:0; padding-bottom:0;">${htmlJenjang}</td>
               <td style="padding-top:0; padding-bottom:0;">${htmlSisa}</td>
               <td style="padding-top:0; padding-bottom:0;">${htmlStatus}</td>
               <td style="padding-top:0; padding-bottom:0;">${htmlKet}</td>
-              
               <td class="text-center" style="padding-top:0; padding-bottom:0; ${styleAksi}">${htmlAksi}</td>
             </tr>
           `;
       });
     }
 
+    // FUNGSI RENDER TUGAS (GROUPED)
     function renderTugas(data) {
-       const tbody = document.getElementById('bodyTugas'); tbody.innerHTML = '';
-       let active = 0; const filtered = data.filter(row => (row[12]||"").toLowerCase() !== 'completed');
-       if(filtered.length === 0) { document.getElementById('msgTugas').classList.remove('d-none'); } 
-       else {
-         document.getElementById('msgTugas').classList.add('d-none');
-         filtered.forEach(row => {
-            if((row[12]||"").toLowerCase().includes('active')) active++;
-            let bClass = (row[12]||"").toLowerCase().includes('active') ? 'status-active' : ((row[12]||"").toLowerCase().includes('not started') ? 'status-not-started' : 'status-expired');
-            tbody.innerHTML += `<tr><td class="fw-bold">${row[1]}</td><td>${row[2]}</td><td>${row[5] || '-'}</td> <td><span class="badge bg-secondary rounded-pill">${row[3]}</span></td><td>${row[4]}</td><td>${row[6]}</td><td>${row[9]}</td><td>${row[10]}</td><td class="text-center"><span class="badge-status ${bClass}">${row[12]}</span></td></tr>`;
-         });
+       const tbody = document.getElementById('bodyTugas'); 
+       tbody.innerHTML = '';
+       
+       let active = 0; 
+       const filtered = data.filter(row => (row[12]||"").toLowerCase() !== 'completed');
+       
+       filtered.forEach(row => {
+          if((row[12]||"").toLowerCase().includes('active')) active++;
+       });
+       
+       animateValue("tugas-total", 0, new Set(data.map(r=>r[2])).size, 800); 
+       animateValue("tugas-active", 0, active, 800);
+
+       if(filtered.length === 0) { 
+           document.getElementById('msgTugas').classList.remove('d-none');
+           return;
+       } else {
+           document.getElementById('msgTugas').classList.add('d-none');
        }
-       animateValue("tugas-total", 0, new Set(data.map(r=>r[2])).size, 800); animateValue("tugas-active", 0, active, 800);
+
+       const groupedData = {};
+
+       filtered.forEach(row => {
+           const nama = row[1];
+           if(!nama) return;
+
+           if (!groupedData[nama]) {
+               groupedData[nama] = {
+                   nama: nama,
+                   items: []
+               };
+           }
+
+           let status = (row[12]||"").toLowerCase();
+           let bClass = status.includes('active') ? 'status-active' : (status.includes('not started') ? 'status-not-started' : 'status-expired');
+           let badgeHTML = `<span class="badge-status ${bClass}">${row[12]}</span>`;
+
+           groupedData[nama].items.push({
+               pekerjaan: row[2],
+               lpse: row[5] || '-',
+               metode: row[3],
+               kontrak: row[4],
+               sertifikat: row[6],
+               start: row[9],
+               end: row[10],
+               statusBadge: badgeHTML
+           });
+       });
+
+       Object.values(groupedData).forEach(person => {
+           let hPekerjaan = '', hLpse = '', hMetode = '', hKontrak = '', hSertifikat = '', hStart = '', hEnd = '', hStatus = '';
+
+           person.items.forEach(item => {
+               hPekerjaan += `<div class="nested-cell fw-bold" title="${item.pekerjaan}">${item.pekerjaan}</div>`;
+               hLpse += `<div class="nested-cell text-center justify-content-center">${item.lpse}</div>`;
+               hMetode += `<div class="nested-cell text-center justify-content-center"><span class="badge bg-secondary rounded-pill" style="font-size:0.7rem;">${item.metode}</span></div>`;
+               hKontrak += `<div class="nested-cell text-center justify-content-center small">${item.kontrak}</div>`;
+               hSertifikat += `<div class="nested-cell small" title="${item.sertifikat}">${item.sertifikat}</div>`;
+               hStart += `<div class="nested-cell text-center justify-content-center small text-muted">${item.start}</div>`;
+               hEnd += `<div class="nested-cell text-center justify-content-center small text-muted">${item.end}</div>`;
+               hStatus += `<div class="nested-cell text-center justify-content-center">${item.statusBadge}</div>`;
+           });
+
+           tbody.innerHTML += `
+             <tr>
+               <td class="align-middle-person fw-bold text-primary">${person.nama}</td>
+               <td style="padding-top:0; padding-bottom:0;">${hPekerjaan}</td>
+               <td style="padding-top:0; padding-bottom:0;">${hLpse}</td>
+               <td style="padding-top:0; padding-bottom:0;">${hMetode}</td>
+               <td style="padding-top:0; padding-bottom:0;">${hKontrak}</td>
+               <td style="padding-top:0; padding-bottom:0;">${hSertifikat}</td>
+               <td style="padding-top:0; padding-bottom:0;">${hStart}</td>
+               <td style="padding-top:0; padding-bottom:0;">${hEnd}</td>
+               <td style="padding-top:0; padding-bottom:0;">${hStatus}</td>
+             </tr>
+           `;
+       });
     }
 
     function renderProject(data) {
