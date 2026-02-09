@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   
-  <title>Monitoring Proyek - Gaharu Sempana</title>
+  <title>SIDAMON Gaharu Sempana Group</title>
   <link rel="icon" type="image/png" href="Light Transparant.PNG">
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -246,7 +246,7 @@
             <div class="row g-3 mb-4 justify-content-center">
               <div class="col-12 col-sm-6 col-lg-4">
                   <div class="stat-card bg-gradient-primary p-3 d-flex justify-content-between align-items-center">
-                      <div><div class="stat-label">Total Sertifikat</div><div class="stat-value" id="skk-total">0</div></div>
+                      <div><div class="stat-label">Total Personil</div><div class="stat-value" id="skk-total">0</div></div>
                       <i class="bi bi-people-fill fs-1 opacity-50"></i>
                   </div>
               </div>
@@ -284,7 +284,7 @@
             <table class="table table-hover align-middle">
               <thead>
                   <tr>
-                      <th style="width: 250px;">Nama Personil & Perusahaan</th>
+                      <th style="width: 250px;">Nama Personil</th>
                       <th class="text-center">Kontak (WA)</th>
                       <th>Jenjang & Bidang Ilmu</th> 
                       <th>Sertifikat</th>
@@ -570,7 +570,7 @@
             document.body.classList.remove('login-mode');
             document.body.style.position = ''; 
             document.body.style.overflow = 'auto'; 
-            document.title = "Monitoring Proyek - Gaharu Sempana"; // JUDUL BROWSER SAAT LOGIN
+            document.title = "SIDAMON Gaharu Sempana Group"; // JUDUL BROWSER SAAT LOGIN
             
             applyRoleAccess(currentUserRole);
             loadAllData(); 
@@ -653,7 +653,10 @@
           else if (status.includes('used') || ket.includes('used')) { if(nama) usedSet.add(nama); }
       });
       
-      animateValue("skk-total", 0, data.length, 800); 
+      // MODIFIKASI: Hitung Total Personil Unik untuk Card Statistik
+      const totalUniquePersonil = new Set(data.map(r => r[1])).size;
+      animateValue("skk-total", 0, totalUniquePersonil, 800); 
+      
       animateValue("skk-expired", 0, expired, 800); 
       animateValue("skk-used", 0, usedSet.size, 800);
 
@@ -706,7 +709,9 @@
               
               if (s.includes('used') || k.includes('used')) {
                   isUsed = true;
-                  usedProjectName = item.statusRaw.includes('used') ? item.statusRaw : item.ketRaw;
+                  // Ambil teks lengkap dari kolom status atau keterangan jika statusnya used
+                  // Ini menjawab requirement "Keterangan used biarkan secara lengkap seperti diawal"
+                  usedProjectName = item.statusRaw.toLowerCase().includes('used') ? item.statusRaw : item.ketRaw;
               }
               if (s.includes('active') || s.includes('available')) {
                   hasActive = true;
@@ -717,8 +722,8 @@
           let finalBadge = "";
           
           if (isUsed) {
-              // Prioritas 1: Jika ada yg terpakai, status orangnya "Used"
-              finalBadge = `<span class="badge-status status-used" title="${usedProjectName}">Used</span>`; 
+              // Prioritas 1: Jika ada yg terpakai, status orangnya "Used" + Nama Proyek Lengkap
+              finalBadge = `<span class="badge-status status-used">${usedProjectName}</span>`; 
           } else if (hasActive) {
               // Prioritas 2: Jika tidak ada yg terpakai, tapi ada yg aktif, status "Available"
               finalBadge = `<span class="badge-status status-active">Available</span>`;
