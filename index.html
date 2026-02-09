@@ -56,16 +56,43 @@
     /* --- DASHBOARD STYLES --- */
     #dashboard-section { display: none; padding-bottom: 50px; }
     
-    /* ANIMASI GREETING */
+    /* === NEW: ANIMASI GREETING ELEGAN === */
     @keyframes slideInSmooth { 
       from { opacity: 0; transform: translateY(-10px); } 
       to { opacity: 1; transform: translateY(0); } 
     }
+    
     .greeting-wrapper {
       animation: slideInSmooth 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-      /* border-left: 1px solid rgba(255,255,255,0.2);  <-- DIHAPUS GARIS PEMISAHNYA */
-      padding-left: 15px;
+      padding: 6px 16px;
       margin-left: 15px;
+      border-radius: 12px;
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); /* Transisi halus untuk hover */
+      cursor: default;
+      /* Border kiri dihapus agar menyatu */
+    }
+
+    /* Efek Hover Container */
+    .greeting-wrapper:hover {
+        background: rgba(255, 255, 255, 0.15); /* Tint putih transparan */
+        transform: translateY(-2px) scale(1.02); /* Sedikit naik & membesar */
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15); /* Shadow lembut */
+        backdrop-filter: blur(6px); /* Efek kaca buram */
+        border: 1px solid rgba(255,255,255,0.1); /* Border sangat tipis saat hover */
+    }
+
+    /* Efek Hover pada Teks */
+    .greeting-wrapper:hover #greeting-role {
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Text glow */
+    }
+
+    /* Efek Hover pada Ikon (Matahari/Bulan) */
+    .greeting-wrapper i {
+        display: inline-block;
+        transition: transform 0.5s ease;
+    }
+    .greeting-wrapper:hover i {
+        transform: rotate(20deg) scale(1.2); /* Ikon berputar sedikit */
     }
     
     /* NAV PILLS */
@@ -287,7 +314,7 @@
               </div>
               <div class="col-12 col-sm-6 col-lg-4">
                   <div class="stat-card bg-gradient-danger p-3 d-flex justify-content-between align-items-center">
-                      <div><div class="stat-label">Sertifikat Expired</div><div class="stat-value" id="skk-expired">0</div></div>
+                      <div><div class="stat-label">Expired</div><div class="stat-value" id="skk-expired">0</div></div>
                       <i class="bi bi-exclamation-triangle-fill fs-1 opacity-50"></i>
                   </div>
               </div>
@@ -830,7 +857,7 @@
           } else if (hasActive) {
               finalBadge = `<span class="badge-status status-active">Available</span>`;
           } else {
-              finalBadge = `<span class="badge-status status-expired">Personil Tidak Bisa Digunakan</span>`;
+              finalBadge = `<span class="badge-status status-expired">Expired</span>`;
           }
 
           // --- RENDER VISUAL TABEL ---
@@ -1382,4 +1409,3 @@
   </script>
 </body>
 </html>
-
