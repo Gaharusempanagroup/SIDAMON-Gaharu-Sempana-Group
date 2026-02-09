@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   
   <title>SIDAMON Gaharu Sempana Group</title>
   <link rel="icon" type="image/png" href="Light Transparant.PNG">
@@ -21,9 +21,24 @@
     /* --- CSS GLOBAL --- */
     :root { --primary-color: #000080; --bg-light: #f4f6f9; --text-dark: #333; }
     
-    html, body { height: 100%; margin: 0; padding: 0; }
-    body.login-mode { overflow: hidden; position: fixed; width: 100%; }
-    body { background-color: var(--bg-light); font-family: 'Poppins', 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+    /* RESET & BODY FIXES FOR MOBILE */
+    html, body { 
+        height: 100%; 
+        margin: 0; 
+        padding: 0; 
+        width: 100%;
+        overscroll-behavior: none; /* Mencegah efek bounce pada iOS */
+    }
+    
+    body { background-color: var(--bg-light); font-family: 'Poppins', 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
+    
+    /* Khusus Login Mode: Kunci Scroll total */
+    body.login-mode { 
+        overflow: hidden; 
+        position: fixed; 
+        width: 100%; 
+        height: 100%; 
+    }
     
     .bg-primary { background-color: var(--primary-color) !important; }
     .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }
@@ -31,23 +46,79 @@
 
     /* LOADING INITIAL */
     #root-loading {
-        height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; 
+        height: 100dvh; display: flex; flex-direction: column; justify-content: center; align-items: center; 
         color: #555; text-align: center; padding: 20px;
     }
 
-    /* LOGIN PAGE */
-    #login-section { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(-45deg, #000428, #004e92, #000080, #1cb5e0); background-size: 400% 400%; animation: gradientBG 15s ease infinite; z-index: 9999; padding: 20px; }
+    /* === LOGIN PAGE MOBILE FIX === */
+    #login-section { 
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        /* GANTI 100vh MENJADI 100dvh AGAR PAS DI LAYAR HP (Dynamic Viewport Height) */
+        height: 100vh; 
+        height: 100dvh; 
+        display: flex; 
+        flex-direction: column; /* Stack vertikal */
+        align-items: center; 
+        justify-content: center; /* Center Card */
+        background: linear-gradient(-45deg, #000428, #004e92, #000080, #1cb5e0); 
+        background-size: 400% 400%; 
+        animation: gradientBG 15s ease infinite; 
+        z-index: 9999; 
+        padding: 20px; 
+        /* Padding bawah memperhitungkan Safe Area iPhone */
+        padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    }
     @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     
-    .login-card { width: 100%; max-width: 420px; padding: 40px; border-radius: 20px; background: rgba(255, 255, 255, 0.15); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.18); text-align: center; animation: fadeInUp 0.8s ease-out; }
+    .login-card { 
+        width: 100%; 
+        max-width: 420px; 
+        padding: 30px; /* Sedikit dikurangi agar muat di HP kecil */
+        border-radius: 20px; 
+        background: rgba(255, 255, 255, 0.15); 
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); 
+        backdrop-filter: blur(20px); 
+        border: 1px solid rgba(255, 255, 255, 0.18); 
+        text-align: center; 
+        animation: fadeInUp 0.8s ease-out;
+        /* Pastikan card tidak pernah lebih tinggi dari layar */
+        max-height: calc(100dvh - 80px);
+        overflow-y: auto; /* Scroll dalam card saja jika layar terlalu pendek */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin-bottom: 30px; /* Beri jarak untuk footer */
+    }
+    /* Hide scrollbar on login card */
+    .login-card::-webkit-scrollbar { display: none; }
+    .login-card { -ms-overflow-style: none; scrollbar-width: none; }
+
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     
-    .login-logo { height: 90px; margin-bottom: 20px; animation: breathing 3s ease-in-out infinite; }
+    .login-logo { height: 80px; margin-bottom: 15px; animation: breathing 3s ease-in-out infinite; }
     @keyframes breathing { 0% { transform: scale(1); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); } 50% { transform: scale(1.08); filter: drop-shadow(0 8px 12px rgba(0,0,0,0.4)); } 100% { transform: scale(1); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); } }
 
     .login-title { color: #ffffff; font-weight: 700; margin-bottom: 5px; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-    .login-subtitle { color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; margin-bottom: 30px; font-weight: 300; }
-    .login-footer { position: absolute; bottom: 20px; left: 0; width: 100%; text-align: center; color: rgba(255, 255, 255, 0.5); font-size: 0.75rem; pointer-events: none; letter-spacing: 1px; font-weight: 300; }
+    .login-subtitle { color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; margin-bottom: 25px; font-weight: 300; }
+    
+    /* === FOOTER MOBILE FIX === */
+    .login-footer { 
+        position: absolute; 
+        /* Gunakan calc untuk mengangkat footer di atas Home Bar iPhone */
+        bottom: calc(15px + env(safe-area-inset-bottom)); 
+        left: 0; 
+        width: 100%; 
+        text-align: center; 
+        color: rgba(255, 255, 255, 0.5); 
+        font-size: 0.7rem; 
+        pointer-events: none; 
+        letter-spacing: 1px; 
+        font-weight: 300; 
+        padding: 0 10px;
+    }
     
     /* INPUTS */
     .form-floating > .form-control { border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.6); height: 55px; background: rgba(255, 255, 255, 0.25); color: #fff; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
@@ -474,6 +545,13 @@
       const [modalData, setModalData] = useState(null);
       const [dropdowns, setDropdowns] = useState({ nama: [], perusahaan: [], sertifikat: [], jenjang: [] });
 
+      // REMOVE LOGIN SCROLL LOCK WHEN DASHBOARD LOADS
+      useEffect(() => {
+        document.body.classList.remove('login-mode');
+        document.body.style.overflow = 'auto'; // Enable scroll on dashboard
+        document.body.style.position = 'static';
+      }, []);
+
       useEffect(() => {
         const loadData = async () => {
           setLoading(true);
@@ -773,7 +851,7 @@
                               <thead className="table-light text-center"><tr><th>Pekerjaan</th><th>Kordinator</th><th>Link</th><th>Priority</th><th>Deadline Kontrak</th><th>Deadline Schedule</th><th>Status</th><th>Keterangan</th></tr></thead>
                               <tbody>
                                  {dataProject.filter(r=>(!search || (r[2]||"").toLowerCase().includes(search.toLowerCase()))).map((row, i) => {
-                                    /* === PERBAIKAN LOGIKA WARNA BADGE === */
+                                    /* LOGIKA WARNA BADGE DIPERBAIKI */
                                     const statusText = row[16] || "";
                                     const rawStatus = statusText.toLowerCase().trim();
                                     const isDone = rawStatus.includes('done') || rawStatus.includes('selesai');
@@ -855,6 +933,17 @@
 
     const App = () => {
       const [userRole, setUserRole] = useState(null);
+      // Auto-unlock scroll if user is already logged in (persistence logic can be added here)
+      useEffect(() => {
+        if (userRole) {
+            document.body.classList.remove('login-mode');
+            document.body.style.overflow = 'auto';
+            document.body.style.position = 'static';
+        } else {
+            document.body.classList.add('login-mode');
+        }
+      }, [userRole]);
+
       if (!userRole) return <LoginSection onLogin={setUserRole} />;
       return <Dashboard userRole={userRole} logout={() => setUserRole(null)} />;
     };
