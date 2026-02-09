@@ -56,17 +56,21 @@
     /* --- DASHBOARD STYLES --- */
     #dashboard-section { display: none; padding-bottom: 50px; }
     
-    /* === LOGO WRAPPER (CLEAN - TANPA BACKGROUND) === */
+    /* === LOGO WRAPPER (BERSIH TOTAL) === */
     .logo-wrapper { 
-        /* Background & border dihapus agar menyatu */
-        padding: 0; 
+        background: transparent !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        border-radius: 0 !important;
         margin-right: 15px; 
         display: flex; 
         align-items: center; 
         justify-content: center; 
     }
 
-    /* === ANIMASI GREETING (CLEAN - MENYATU) === */
+    /* === ANIMASI GREETING (BERSIH TOTAL) === */
     @keyframes slideInSmooth { 
       from { opacity: 0; transform: translateY(-10px); } 
       to { opacity: 1; transform: translateY(0); } 
@@ -74,24 +78,26 @@
     
     .greeting-wrapper {
       animation: slideInSmooth 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-      padding: 6px 0; /* Padding kiri/kanan dihapus agar lebih rapat ke kanan jika perlu */
+      padding: 6px 0;
       margin-left: 15px;
+      border: none !important; /* Memastikan tidak ada border */
+      border-left: none !important; /* Memastikan tidak ada border kiri */
       transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
       cursor: default;
-      /* Border kiri dihapus total */
     }
 
-    /* Efek Hover Text Only (Tanpa Kotak) */
+    /* Efek Hover Text Only */
     .greeting-wrapper:hover {
-        /* Background dihapus */
-        background: transparent;
-        /* Hanya gerakan halus */
+        background: transparent !important; /* Tidak ada background saat hover */
+        border: none !important; /* Tidak ada border saat hover */
+        box-shadow: none !important; /* Tidak ada shadow kotak */
+        backdrop-filter: none !important;
         transform: translateY(-2px); 
     }
 
     /* Efek Hover pada Teks (Glowing) */
     .greeting-wrapper:hover #greeting-role {
-        text-shadow: 0 0 12px rgba(255, 255, 255, 0.6); 
+        text-shadow: 0 0 12px rgba(255, 255, 255, 0.8); 
     }
 
     /* Efek Hover pada Ikon (Berputar & Membesar Sedikit) */
