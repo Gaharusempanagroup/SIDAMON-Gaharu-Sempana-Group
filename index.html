@@ -100,7 +100,7 @@
     .search-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #aaa; z-index: 5; font-size: 1.1rem; }
     
     .table-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: none; }
-    .table thead th { background-color: #f8f9fc; color: #5a5c69; font-weight: 600; vertical-align: middle; }
+    .table thead th { background-color: #f8f9fc; color: #5a5c69; font-weight: 600; white-space: nowrap; }
     
     .badge-status { padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; white-space: normal; text-align: left; display: inline-block; }
     .status-expired { background-color: #ffe5e5; color: #cc0000; border: 1px solid #ffcccc; }
@@ -112,33 +112,28 @@
     .table-responsive {
         display: block;
         width: 100%;
-        overflow-x: auto !important; /* Forces horizontal scroll if needed */
+        overflow-x: auto !important; /* Forces horizontal scroll */
         -webkit-overflow-scrolling: touch;
         margin-bottom: 10px;
-        border: 1px solid #f0f0f0; 
+        border: 1px solid #f0f0f0; /* Optional: visual clue */
     }
     
+    /* Force table cells to single line to trigger scrolling */
     .table th, .table td {
+        white-space: nowrap !important; /* Force Single Line */
         vertical-align: middle;
     }
-    
-    /* Non-Sticky Column Fix */
-    .table th:first-child, 
-    .table td:first-child {
-        position: static !important;
-        background-color: transparent !important;
-        left: auto !important;
-        box-shadow: none !important;
-        z-index: auto !important;
-    }
 
-    /* Nested Cell untuk Grouping agar rapi */
+    /* Nested Cell untuk Grouping agar rapi (MODIFIED: REMOVED DASHED BORDER) */
     .nested-cell {
         display: flex;
         align-items: center;
         min-height: 45px; 
-        border-bottom: 1px dashed #eee;
+        /* border-bottom: 1px dashed #eee;  <-- DIHAPUS agar tidak ada titik-titik samar */
         padding: 4px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .nested-cell:last-child {
         border-bottom: none;
@@ -303,17 +298,17 @@
         <div class="table-card">
           <div class="table-responsive">
             <table class="table table-hover align-middle">
-              <thead class="table-light">
+              <thead>
                   <tr>
-                      <th style="width: 20%; min-width: 200px;">Nama Personil & Perusahaan</th>
-                      <th class="text-center" style="width: 10%;">Kontak</th>
-                      <th style="width: 20%; min-width: 150px;">Jenjang & Bidang Ilmu</th> 
-                      <th style="width: 20%; min-width: 150px;">Sertifikat</th>
-                      <th class="text-center" style="width: 8%;">Jenjang</th>
-                      <th class="text-center" style="width: 8%;">Sisa Waktu</th>
-                      <th class="text-center" style="width: 10%;">Status</th>
-                      <th style="width: 15%;">Keterangan</th>
-                      <th class="text-center" id="th-aksi-skk" style="width: 5%;">Aksi</th>
+                      <th style="width: 250px;">Nama Personil</th>
+                      <th class="text-center">Kontak (WA)</th>
+                      <th>Jenjang & Bidang Ilmu</th> 
+                      <th>Sertifikat</th>
+                      <th class="text-center" style="min-width: 100px;">Jenjang</th>
+                      <th class="text-center" style="min-width: 120px;">Sisa Waktu</th>
+                      <th class="text-center">Status</th>
+                      <th>Keterangan</th>
+                      <th class="text-center" id="th-aksi-skk">Aksi</th>
                   </tr>
               </thead>
               <tbody id="bodySkk"></tbody>
@@ -661,15 +656,15 @@
 
     // --- RENDER LOGIC ---
 
-    // FUNGSI RENDER SKK (FIX: TABEL PROPORSIONAL & CROSS CHECK LPSE PRIORITAS UTAMA)
+    // FUNGSI RENDER SKK (DIPERBAIKI: HILANGKAN "-" JIKA KETERANGAN KOSONG)
     function renderSKK(data) {
       const tbody = document.getElementById('bodySkk'); 
       tbody.innerHTML = '';
       
       // Reset Variabel Statistik
-      let statTotal = 0;
-      let statUsed = 0;
-      let statExpired = 0;
+      let statTotal = 0;   // Menghitung Jumlah Orang
+      let statUsed = 0;    // Menghitung Jumlah Orang yang Terpakai
+      let statExpired = 0; // Menghitung JUMLAH SERTIFIKAT yang Expired
       
       if(data.length === 0) {
           document.getElementById('msgSkk').classList.remove('d-none');
@@ -686,17 +681,17 @@
       if(dataTugas && dataTugas.length > 0) {
           dataTugas.forEach(row => {
               const pName = (row[1] || "").trim();
-              const pLpse = row[5] || ""; // MENGAMBIL KOLOM LPSE (Index 5)
+              const pProject = row[2] || "";
               const pStatus = (row[12] || "").toLowerCase();
-              
               if (pName && pStatus.includes('active')) {
-                  activeAssignmentsMap[pName] = pLpse;
+                  activeAssignmentsMap[pName] = pProject;
               }
           });
       }
 
       // 2. GROUPING DATA SKK
       const groupedData = {};
+      
       data.forEach((row, originalIndex) => {
           const nama = row[1];
           if (!nama) return;
@@ -716,7 +711,7 @@
               jenjang: row[6],
               sisaWaktu: row[9],
               statusRaw: row[10], // Kolom K
-              ketRaw: row[11],    // Kolom L
+              ketRaw: row[11],    
               originalIndex: originalIndex
           });
       });
@@ -731,7 +726,7 @@
           let usedProjectName = ""; 
           let spreadsheetUsedText = ""; 
 
-          // Cek Data Internal SKK (Manual Spreadsheet)
+          // Cek Data Internal SKK & HITUNG EXPIRED PER ITEM
           person.items.forEach(item => {
               let s = (item.statusRaw || "").toLowerCase();
               let k = (item.ketRaw || "").toLowerCase();
@@ -741,8 +736,7 @@
               }
 
               if (s.includes('used') || k.includes('used')) {
-                  isUsed = true; // Tandai used sementara dari sheet
-                  // Simpan teks manual sebagai cadangan
+                  isUsed = true;
                   if(item.statusRaw && item.statusRaw.toLowerCase().includes('used')) {
                       spreadsheetUsedText = item.statusRaw;
                   } else if (item.ketRaw) {
@@ -754,17 +748,14 @@
               }
           });
 
-          // LOGIKA UTAMA (DIPERBAIKI):
-          // Cek Data Penugasan DULU (Prioritas Tinggi). 
-          // Jika ada di penugasan, paksa gunakan Nama LPSE, abaikan teks manual.
-          const activeJobFromTugas = activeAssignmentsMap[person.nama.trim()];
-
-          if (activeJobFromTugas) {
-              isUsed = true;
-              usedProjectName = `Used in ${activeJobFromTugas}`; // Pakai Nama LPSE
-          } else if (isUsed) {
-              // Jika TIDAK ada di penugasan, tapi di sheet SKK statusnya 'Used',
-              // baru gunakan teks manual dari sheet SKK.
+          // Fallback Cross-Check: Cek Data Penugasan
+          if (!isUsed) {
+              const activeJobFromTugas = activeAssignmentsMap[person.nama.trim()];
+              if (activeJobFromTugas) {
+                  isUsed = true;
+                  usedProjectName = `Used in ${activeJobFromTugas}`; 
+              }
+          } else {
               usedProjectName = spreadsheetUsedText ? spreadsheetUsedText : "Used";
           }
 
@@ -773,8 +764,7 @@
           
           if (isUsed) {
               statUsed++; 
-              // Tambahkan style white-space: normal agar teks panjang turun ke bawah
-              finalBadge = `<span class="badge-status status-used" style="white-space: normal;">${usedProjectName}</span>`; 
+              finalBadge = `<span class="badge-status status-used">${usedProjectName}</span>`; 
           } else if (hasActive) {
               finalBadge = `<span class="badge-status status-active">Available</span>`;
           } else {
@@ -801,11 +791,11 @@
                   sisaStyle = "color: #dc3545; font-weight: 700;"; 
               }
 
-              // MODIFIKASI: Menambahkan style white-space: normal agar teks panjang turun ke bawah
-              htmlSertifikat += `<div class="nested-cell fw-bold" title="${item.sertifikat}" style="white-space: normal; line-height: 1.3;">${item.sertifikat}</div>`;
+              htmlSertifikat += `<div class="nested-cell fw-bold" title="${item.sertifikat}">${item.sertifikat}</div>`;
               htmlJenjang += `<div class="nested-cell text-center justify-content-center">${item.jenjang || '-'}</div>`;
               htmlSisa += `<div class="nested-cell text-center justify-content-center small" style="${sisaStyle}">${item.sisaWaktu || '-'}</div>`;
-              htmlKet += `<div class="nested-cell small text-muted" title="${item.ketRaw || ''}" style="white-space: normal; line-height: 1.2;">${item.ketRaw || ''}</div>`;
+              // MODIFIKASI: Hilangkan '-' jika kosong
+              htmlKet += `<div class="nested-cell small text-muted" title="${item.ketRaw || ''}">${item.ketRaw || ''}</div>`;
               
               if (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT") {
                   htmlAksi += `<div class="nested-cell nested-cell-action">
@@ -818,23 +808,22 @@
 
           const styleAksi = (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT") ? '' : 'display:none;';
 
-          // MODIFIKASI PADA BARIS TR: Menambahkan !important pada white-space di kolom Nama dan Bidang
           tbody.innerHTML += `
             <tr>
-              <td class="align-middle-person" style="white-space: normal !important; word-wrap: break-word;">
+              <td class="align-middle-person">
                   <div class="fw-bold text-dark">${person.nama}</div>
-                  <div class="small text-muted" style="line-height: 1.2;"><i class="bi bi-building me-1"></i>${person.perusahaan || '-'}</div>
+                  <div class="small text-muted"><i class="bi bi-building me-1"></i>${person.perusahaan || '-'}</div>
               </td>
               <td class="text-center align-middle-person">${btnWA}</td>
-              <td class="align-middle-person small" style="white-space: normal !important; word-wrap: break-word; line-height: 1.3;">${person.bidang || '-'}</td>
+              <td class="align-middle-person small">${person.bidang || '-'}</td>
               
-              <td style="padding-top:0; padding-bottom:0; white-space: normal !important;">${htmlSertifikat}</td>
+              <td style="padding-top:0; padding-bottom:0;">${htmlSertifikat}</td>
               <td style="padding-top:0; padding-bottom:0;">${htmlJenjang}</td>
               <td style="padding-top:0; padding-bottom:0;">${htmlSisa}</td>
               
-              <td class="text-center align-middle-person" style="white-space: normal !important;">${finalBadge}</td>
+              <td class="text-center align-middle-person">${finalBadge}</td>
 
-              <td style="padding-top:0; padding-bottom:0; white-space: normal !important;">${htmlKet}</td>
+              <td style="padding-top:0; padding-bottom:0;">${htmlKet}</td>
               <td class="text-center" style="padding-top:0; padding-bottom:0; ${styleAksi}">${htmlAksi}</td>
             </tr>
           `;
@@ -927,7 +916,7 @@
        });
     }
 
-    // FUNGSI RENDER PROJECT
+    // FUNGSI RENDER PROJECT (DIPERBAIKI: TAMBAH KOLOM KETERANGAN DARI KOLOM S/INDEX 18)
     function renderProject(data) {
       const tbody = document.getElementById('bodyProject'); tbody.innerHTML = '';
       let counts = { total: 0, expired: 0, done: 0 }; const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -939,7 +928,7 @@
         const priority = (row[7] || "").trim();
         let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13];
         const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim();
-        const notes = row[18] || ""; 
+        const notes = row[18] || ""; // Ambil data dari Kolom S (Index 18)
 
         const isDone = rawStatus.includes('done') || rawStatus.includes('selesai');
 
