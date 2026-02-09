@@ -623,12 +623,11 @@
                  fetchAPI('getDataSKK'),
                  fetchAPI('getDataPenugasan')
              ]);
-             // MODIFIKASI: Assign dataTugas DULUAN, baru renderSKK dipanggil.
-             // Karena renderSKK sekarang butuh dataTugas untuk cross-check status.
              dataSKK = resSKK; 
              dataTugas = resTugas; 
              
-             renderSKK(dataSKK); // Render SKK sesudah dataTugas tersedia
+             // Render SKK sesudah dataTugas tersedia (utk cross-check)
+             renderSKK(dataSKK); 
              renderTugas(dataTugas);
           }
           if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "TEKNIS") {
@@ -673,17 +672,13 @@
       }
 
       // 2.a. PREPARE MAP DARI DATA PENUGASAN (CROSS-CHECK)
-      // Kita buat map: Nama Personil -> Nama Proyek (jika aktif)
       const activeAssignmentsMap = {};
       if(dataTugas && dataTugas.length > 0) {
           dataTugas.forEach(row => {
               const pName = (row[1] || "").trim();
               const pProject = row[2] || "";
               const pStatus = (row[12] || "").toLowerCase();
-              
               if (pName && pStatus.includes('active')) {
-                  // Jika personil ini punya tugas aktif, simpan nama proyeknya
-                  // Jika ada lebih dari 1 tugas, ambil yg terakhir atau gabung (disini ambil yg terakhir overwrite)
                   activeAssignmentsMap[pName] = pProject;
               }
           });
@@ -710,7 +705,7 @@
               sertifikat: row[5],
               jenjang: row[6],
               sisaWaktu: row[9],
-              statusRaw: row[10], 
+              statusRaw: row[10], // Penting: Simpan status mentah per item (Kolom K)
               ketRaw: row[11],    
               originalIndex: originalIndex
           });
@@ -724,35 +719,37 @@
           let hasActive = false;
           let usedProjectName = ""; 
 
-          // 1. Cek dulu di Data Penugasan (Prioritas Tertinggi / Override)
-          const activeJobFromTugas = activeAssignmentsMap[person.nama.trim()];
-          
-          if (activeJobFromTugas) {
-              // KASUS KHUSUS: Meskipun semua sertifikat expired, kalau ada di Penugasan Aktif -> Status USED
-              isUsed = true;
-              usedProjectName = `Used in ${activeJobFromTugas}`;
-          } else {
-              // 2. Jika tidak ada di Penugasan, baru cek status internal sertifikat
-              person.items.forEach(item => {
-                  let s = (item.statusRaw || "").toLowerCase();
-                  let k = (item.ketRaw || "").toLowerCase();
-                  
-                  if (s.includes('used') || k.includes('used')) {
-                      isUsed = true;
-                      // Ambil teks lengkap dari kolom status atau keterangan
-                      usedProjectName = item.statusRaw.toLowerCase().includes('used') ? item.statusRaw : item.ketRaw;
-                  }
-                  if (s.includes('active') || s.includes('available')) {
-                      hasActive = true;
-                  }
-              });
+          // Cek Data Internal SKK Terlebih Dahulu (Prioritas Teks dari Spreadsheet)
+          person.items.forEach(item => {
+              let s = (item.statusRaw || "").toLowerCase();
+              let k = (item.ketRaw || "").toLowerCase();
+              
+              if (s.includes('used') || k.includes('used')) {
+                  isUsed = true;
+                  // MODIFIKASI: Ambil teks langsung dari Kolom Status (K) atau Keterangan jika Status kosong
+                  // Ini memastikan teksnya "Used in Kabupaten Gianyar" sesuai spreadsheet
+                  usedProjectName = item.statusRaw && item.statusRaw.toLowerCase().includes('used') ? item.statusRaw : item.ketRaw;
+              }
+              if (s.includes('active') || s.includes('available')) {
+                  hasActive = true;
+              }
+          });
+
+          // Fallback Cross-Check: Jika di SKK tidak terdeteksi Used, cek di Data Penugasan
+          // Jika ternyata orang ini punya tugas aktif (walaupun SKK expired), status tetap Used
+          if (!isUsed) {
+              const activeJobFromTugas = activeAssignmentsMap[person.nama.trim()];
+              if (activeJobFromTugas) {
+                  isUsed = true;
+                  usedProjectName = `Used in ${activeJobFromTugas}`; // Fallback text jika di spreadsheet SKK tidak ada info
+              }
           }
 
           // Tentukan Badge Status Akhir
           let finalBadge = "";
           
           if (isUsed) {
-              // Prioritas 1: USED (Baik dari Penugasan maupun Manual SKK)
+              // Prioritas 1: USED 
               finalBadge = `<span class="badge-status status-used">${usedProjectName}</span>`; 
           } else if (hasActive) {
               // Prioritas 2: Available
