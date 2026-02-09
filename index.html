@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   
-  <title>SIDAMON Gaharu Sempana Group</title>
+  <title>Monitoring Proyek - Gaharu Sempana</title>
   <link rel="icon" type="image/png" href="Light Transparant.PNG">
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -252,7 +252,7 @@
               </div>
               <div class="col-12 col-sm-6 col-lg-4">
                   <div class="stat-card bg-gradient-danger p-3 d-flex justify-content-between align-items-center">
-                      <div><div class="stat-label">Sertifikat Expired</div><div class="stat-value" id="skk-expired">0</div></div>
+                      <div><div class="stat-label">Expired</div><div class="stat-value" id="skk-expired">0</div></div>
                       <i class="bi bi-exclamation-triangle-fill fs-1 opacity-50"></i>
                   </div>
               </div>
@@ -570,7 +570,7 @@
             document.body.classList.remove('login-mode');
             document.body.style.position = ''; 
             document.body.style.overflow = 'auto'; 
-            document.title = "SIDAMON Gaharu Sempana Group"; // JUDUL BROWSER SAAT LOGIN
+            document.title = "Monitoring Proyek - Gaharu Sempana"; // JUDUL BROWSER SAAT LOGIN
             
             applyRoleAccess(currentUserRole);
             loadAllData(); 
@@ -623,8 +623,13 @@
                  fetchAPI('getDataSKK'),
                  fetchAPI('getDataPenugasan')
              ]);
-             dataSKK = resSKK; renderSKK(dataSKK);
-             dataTugas = resTugas; renderTugas(dataTugas);
+             // MODIFIKASI: Assign dataTugas DULUAN, baru renderSKK dipanggil.
+             // Karena renderSKK sekarang butuh dataTugas untuk cross-check status.
+             dataSKK = resSKK; 
+             dataTugas = resTugas; 
+             
+             renderSKK(dataSKK); // Render SKK sesudah dataTugas tersedia
+             renderTugas(dataTugas);
           }
           if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "TEKNIS") {
              dataProject = await fetchAPI('getDataProject');
@@ -636,7 +641,7 @@
 
     // --- RENDER LOGIC ---
 
-    // FUNGSI RENDER SKK (GROUPED & LOGIKA PRIORITAS STATUS)
+    // FUNGSI RENDER SKK (GROUPED & LOGIKA PRIORITAS STATUS CROSS-CHECK)
     function renderSKK(data) {
       const tbody = document.getElementById('bodySkk'); 
       tbody.innerHTML = '';
@@ -667,7 +672,24 @@
           document.getElementById('msgSkk').classList.add('d-none');
       }
 
-      // 2. GROUPING DATA
+      // 2.a. PREPARE MAP DARI DATA PENUGASAN (CROSS-CHECK)
+      // Kita buat map: Nama Personil -> Nama Proyek (jika aktif)
+      const activeAssignmentsMap = {};
+      if(dataTugas && dataTugas.length > 0) {
+          dataTugas.forEach(row => {
+              const pName = (row[1] || "").trim();
+              const pProject = row[2] || "";
+              const pStatus = (row[12] || "").toLowerCase();
+              
+              if (pName && pStatus.includes('active')) {
+                  // Jika personil ini punya tugas aktif, simpan nama proyeknya
+                  // Jika ada lebih dari 1 tugas, ambil yg terakhir atau gabung (disini ambil yg terakhir overwrite)
+                  activeAssignmentsMap[pName] = pProject;
+              }
+          });
+      }
+
+      // 2.b. GROUPING DATA SKK
       const groupedData = {};
       
       data.forEach((row, originalIndex) => {
@@ -684,18 +706,17 @@
               };
           }
 
-          // Simpan data raw status ke dalam item untuk dicek nanti
           groupedData[nama].items.push({
               sertifikat: row[5],
               jenjang: row[6],
               sisaWaktu: row[9],
-              statusRaw: row[10], // Penting: Simpan status mentah per item
-              ketRaw: row[11],    // Penting: Simpan keterangan mentah per item
+              statusRaw: row[10], 
+              ketRaw: row[11],    
               originalIndex: originalIndex
           });
       });
 
-      // 3. RENDER DATA GROUPED DENGAN LOGIKA PRIORITAS
+      // 3. RENDER DATA GROUPED DENGAN LOGIKA PRIORITAS & CROSS-CHECK
       Object.values(groupedData).forEach(person => {
           
           // --- A. LOGIKA PENENTUAN STATUS GLOBAL PERSONIL ---
@@ -703,33 +724,42 @@
           let hasActive = false;
           let usedProjectName = ""; 
 
-          person.items.forEach(item => {
-              let s = (item.statusRaw || "").toLowerCase();
-              let k = (item.ketRaw || "").toLowerCase();
-              
-              if (s.includes('used') || k.includes('used')) {
-                  isUsed = true;
-                  // Ambil teks lengkap dari kolom status atau keterangan jika statusnya used
-                  // Ini menjawab requirement "Keterangan used biarkan secara lengkap seperti diawal"
-                  usedProjectName = item.statusRaw.toLowerCase().includes('used') ? item.statusRaw : item.ketRaw;
-              }
-              if (s.includes('active') || s.includes('available')) {
-                  hasActive = true;
-              }
-          });
+          // 1. Cek dulu di Data Penugasan (Prioritas Tertinggi / Override)
+          const activeJobFromTugas = activeAssignmentsMap[person.nama.trim()];
+          
+          if (activeJobFromTugas) {
+              // KASUS KHUSUS: Meskipun semua sertifikat expired, kalau ada di Penugasan Aktif -> Status USED
+              isUsed = true;
+              usedProjectName = `Used in ${activeJobFromTugas}`;
+          } else {
+              // 2. Jika tidak ada di Penugasan, baru cek status internal sertifikat
+              person.items.forEach(item => {
+                  let s = (item.statusRaw || "").toLowerCase();
+                  let k = (item.ketRaw || "").toLowerCase();
+                  
+                  if (s.includes('used') || k.includes('used')) {
+                      isUsed = true;
+                      // Ambil teks lengkap dari kolom status atau keterangan
+                      usedProjectName = item.statusRaw.toLowerCase().includes('used') ? item.statusRaw : item.ketRaw;
+                  }
+                  if (s.includes('active') || s.includes('available')) {
+                      hasActive = true;
+                  }
+              });
+          }
 
-          // Tentukan Badge Status Akhir berdasarkan Prioritas
+          // Tentukan Badge Status Akhir
           let finalBadge = "";
           
           if (isUsed) {
-              // Prioritas 1: Jika ada yg terpakai, status orangnya "Used" + Nama Proyek Lengkap
+              // Prioritas 1: USED (Baik dari Penugasan maupun Manual SKK)
               finalBadge = `<span class="badge-status status-used">${usedProjectName}</span>`; 
           } else if (hasActive) {
-              // Prioritas 2: Jika tidak ada yg terpakai, tapi ada yg aktif, status "Available"
+              // Prioritas 2: Available
               finalBadge = `<span class="badge-status status-active">Available</span>`;
           } else {
-              // Prioritas 3: Jika tidak ada yg used dan tidak ada yg active (semua expired)
-              finalBadge = `<span class="badge-status status-expired">Personil Tidak Bisa Digunakan</span>`;
+              // Prioritas 3: Expired
+              finalBadge = `<span class="badge-status status-expired">Expired</span>`;
           }
 
           // --- B. RENDER KOLOM LAINNYA ---
@@ -1264,5 +1294,3 @@
   </script>
 </body>
 </html>
-
-
