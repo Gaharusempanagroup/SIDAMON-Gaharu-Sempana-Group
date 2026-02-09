@@ -29,15 +29,22 @@
     .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }
     .btn-primary:hover { background-color: #000060; border-color: #000060; }
 
+    /* LOADING INITIAL */
+    #root-loading {
+        height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; 
+        color: #555; text-align: center; padding: 20px;
+    }
+
     /* LOGIN PAGE */
     #login-section { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(-45deg, #000428, #004e92, #000080, #1cb5e0); background-size: 400% 400%; animation: gradientBG 15s ease infinite; z-index: 9999; padding: 20px; }
     @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     
     .login-card { width: 100%; max-width: 420px; padding: 40px; border-radius: 20px; background: rgba(255, 255, 255, 0.15); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.18); text-align: center; animation: fadeInUp 0.8s ease-out; }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes breathing { 0% { transform: scale(1); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); } 50% { transform: scale(1.08); filter: drop-shadow(0 8px 12px rgba(0,0,0,0.4)); } 100% { transform: scale(1); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); } }
     
     .login-logo { height: 90px; margin-bottom: 20px; animation: breathing 3s ease-in-out infinite; }
+    @keyframes breathing { 0% { transform: scale(1); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); } 50% { transform: scale(1.08); filter: drop-shadow(0 8px 12px rgba(0,0,0,0.4)); } 100% { transform: scale(1); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); } }
+
     .login-title { color: #ffffff; font-weight: 700; margin-bottom: 5px; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
     .login-subtitle { color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; margin-bottom: 30px; font-weight: 300; }
     .login-footer { position: absolute; bottom: 20px; left: 0; width: 100%; text-align: center; color: rgba(255, 255, 255, 0.5); font-size: 0.75rem; pointer-events: none; letter-spacing: 1px; font-weight: 300; }
@@ -61,58 +68,16 @@
     /* DASHBOARD STYLES */
     #dashboard-section { padding-bottom: 50px; min-height: 100vh; }
     
-    /* === LOGO WRAPPER (BERSIH TOTAL) === */
-    .logo-wrapper { 
-        background: transparent !important;
-        padding: 0 !important;
-        border: none !important;
-        box-shadow: none !important;
-        backdrop-filter: none !important;
-        border-radius: 0 !important;
-        margin-right: 15px; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-    }
+    /* === LOGO WRAPPER (BERSIH) === */
+    .logo-wrapper { background: transparent !important; padding: 0 !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; border-radius: 0 !important; margin-right: 15px; display: flex; align-items: center; justify-content: center; }
 
-    /* === ANIMASI GREETING (BERSIH TOTAL) === */
-    @keyframes slideInSmooth { 
-      from { opacity: 0; transform: translateY(-10px); } 
-      to { opacity: 1; transform: translateY(0); } 
-    }
-    
-    .greeting-wrapper {
-      animation: slideInSmooth 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-      padding: 6px 0;
-      margin-left: 15px;
-      border: none !important;
-      border-left: none !important;
-      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-      cursor: default;
-    }
-
-    /* Efek Hover Text Only */
-    .greeting-wrapper:hover {
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        backdrop-filter: none !important;
-        transform: translateY(-2px); 
-    }
-
-    /* Efek Hover pada Teks (Glowing) */
-    .greeting-wrapper:hover #greeting-role {
-        text-shadow: 0 0 12px rgba(255, 255, 255, 0.8); 
-    }
-
-    /* Efek Hover pada Ikon (Berputar & Membesar Sedikit) */
-    .greeting-wrapper i {
-        display: inline-block;
-        transition: transform 0.5s ease;
-    }
-    .greeting-wrapper:hover i {
-        transform: rotate(20deg) scale(1.15); 
-    }
+    /* === ANIMASI GREETING (BERSIH) === */
+    @keyframes slideInSmooth { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .greeting-wrapper { animation: slideInSmooth 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); padding: 6px 0; margin-left: 15px; border: none !important; border-left: none !important; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); cursor: default; }
+    .greeting-wrapper:hover { background: transparent !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; transform: translateY(-2px); }
+    .greeting-wrapper:hover #greeting-role { text-shadow: 0 0 12px rgba(255, 255, 255, 0.8); }
+    .greeting-wrapper i { display: inline-block; transition: transform 0.5s ease; }
+    .greeting-wrapper:hover i { transform: rotate(20deg) scale(1.15); }
     
     /* NAV PILLS */
     .nav-pills .nav-link { border-radius: 50px; padding: 10px 25px; font-weight: 600; color: #555; background: white; border: 1px solid #ddd; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; touch-action: manipulation; }
@@ -198,6 +163,14 @@
     input[list] { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23333" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 12px; padding-right: 2rem; cursor: pointer; }
   </style>
   
+  <div id="root">
+    <div id="root-loading">
+        <div class="spinner-border text-primary mb-3" role="status"></div>
+        <h5>Memuat Aplikasi...</h5>
+        <small>Pastikan Anda membuka file ini dengan "Live Server" atau Hosting.</small>
+    </div>
+  </div>
+
   <script type="text/babel">
     const { useState, useEffect, useMemo } = React;
     const CONST_API_URL = "https://script.google.com/macros/s/AKfycbxzZ50romtTo7HIMfX8fi9k7_YKpstDFu1B_hjcYfxbJS-a598BkmzATYzUeC03Laktug/exec";
@@ -800,7 +773,7 @@
                               <thead className="table-light text-center"><tr><th>Pekerjaan</th><th>Kordinator</th><th>Link</th><th>Priority</th><th>Deadline Kontrak</th><th>Deadline Schedule</th><th>Status</th><th>Keterangan</th></tr></thead>
                               <tbody>
                                  {dataProject.filter(r=>(!search || (r[2]||"").toLowerCase().includes(search.toLowerCase()))).map((row, i) => {
-                                    // LOGIKA WARNA BADGE DIPERBAIKI SESUAI SCRIPT ASLI
+                                    /* === PERBAIKAN LOGIKA WARNA BADGE === */
                                     const statusText = row[16] || "";
                                     const rawStatus = statusText.toLowerCase().trim();
                                     const isDone = rawStatus.includes('done') || rawStatus.includes('selesai');
@@ -811,7 +784,7 @@
                                     else if (isDone) badgeClass = "bg-success";
                                     else if (rawStatus.includes('past')) badgeClass = "bg-danger";
 
-                                    // LOGIKA EXPIRED DEADLINE
+                                    /* LOGIKA EXPIRED */
                                     const today = new Date(); today.setHours(0,0,0,0);
                                     const checkExpired = (d) => {
                                         if(!d) return false;
