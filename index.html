@@ -56,7 +56,7 @@
     /* --- DASHBOARD STYLES --- */
     #dashboard-section { display: none; padding-bottom: 50px; }
     
-    /* === LOGO WRAPPER (BERSIH TOTAL) === */
+    /* === LOGO WRAPPER === */
     .logo-wrapper { 
         background: transparent !important;
         padding: 0 !important;
@@ -70,7 +70,7 @@
         justify-content: center; 
     }
 
-    /* === ANIMASI GREETING (BERSIH TOTAL) === */
+    /* === ANIMASI GREETING === */
     @keyframes slideInSmooth { 
       from { opacity: 0; transform: translateY(-10px); } 
       to { opacity: 1; transform: translateY(0); } 
@@ -80,34 +80,22 @@
       animation: slideInSmooth 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
       padding: 6px 0;
       margin-left: 15px;
-      border: none !important; /* Memastikan tidak ada border */
-      border-left: none !important; /* Memastikan tidak ada border kiri */
+      border: none !important;
+      border-left: none !important;
       transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
       cursor: default;
     }
 
-    /* Efek Hover Text Only */
     .greeting-wrapper:hover {
-        background: transparent !important; /* Tidak ada background saat hover */
-        border: none !important; /* Tidak ada border saat hover */
-        box-shadow: none !important; /* Tidak ada shadow kotak */
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
         backdrop-filter: none !important;
         transform: translateY(-2px); 
     }
-
-    /* Efek Hover pada Teks (Glowing) */
-    .greeting-wrapper:hover #greeting-role {
-        text-shadow: 0 0 12px rgba(255, 255, 255, 0.8); 
-    }
-
-    /* Efek Hover pada Ikon (Berputar & Membesar Sedikit) */
-    .greeting-wrapper i {
-        display: inline-block;
-        transition: transform 0.5s ease;
-    }
-    .greeting-wrapper:hover i {
-        transform: rotate(20deg) scale(1.15); 
-    }
+    .greeting-wrapper:hover #greeting-role { text-shadow: 0 0 12px rgba(255, 255, 255, 0.8); }
+    .greeting-wrapper i { display: inline-block; transition: transform 0.5s ease; }
+    .greeting-wrapper:hover i { transform: rotate(20deg) scale(1.15); }
     
     /* NAV PILLS */
     .nav-pills .nav-link { border-radius: 50px; padding: 10px 25px; font-weight: 600; color: #555; background: white; border: 1px solid #ddd; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; touch-action: manipulation; }
@@ -132,10 +120,7 @@
         position: relative;
         z-index: 1;
     }
-    .stat-card:hover { 
-        transform: translateY(-5px); 
-        box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important; 
-    }
+    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important; }
     .stat-card i { transition: all 0.5s ease; }
     .stat-card:hover i { transform: scale(1.2) rotate(10deg); opacity: 0.7 !important; }
 
@@ -161,45 +146,21 @@
     .status-used { background-color: #fff4e5; color: #cc7700; border: 1px solid #ffeebb; } 
     .status-not-started { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
 
-    /* --- STYLES KHUSUS UNTUK TABLE SCROLL HORIZONTAL --- */
-    .table-responsive {
-        display: block;
-        width: 100%;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch;
-        margin-bottom: 10px;
-        border: 1px solid #f0f0f0; 
-        border-radius: 8px;
-    }
+    /* TABLE SCROLL HORIZONTAL */
+    .table-responsive { display: block; width: 100%; overflow-x: auto !important; -webkit-overflow-scrolling: touch; margin-bottom: 10px; border: 1px solid #f0f0f0; border-radius: 8px; }
+    .table th, .table td { vertical-align: middle; border-color: #f0f0f0; }
     
-    .table th, .table td {
-        vertical-align: middle;
-        border-color: #f0f0f0;
-    }
-    
-    /* --- FIX KOLOM PERTAMA & TABLE --- */
-    .table th:first-child, 
-    .table td:first-child {
-        position: static !important;
-        z-index: auto !important;
-        padding-left: 15px;
-    }
+    /* FIX KOLOM PERTAMA & TABLE */
+    .table th:first-child, .table td:first-child { position: static !important; z-index: auto !important; padding-left: 15px; }
     .table thead th:first-child { background-color: #f8f9fc !important; }
     .table tbody td:first-child { background-color: #fff !important; }
 
-    .nested-cell {
-        display: flex;
-        align-items: center;
-        min-height: 45px; 
-        border-bottom: 1px solid #f5f5f5;
-        padding: 6px 0; 
-    }
+    .nested-cell { display: flex; align-items: center; min-height: 45px; border-bottom: 1px solid #f5f5f5; padding: 6px 0; }
     .nested-cell:last-child { border-bottom: none; }
     .nested-cell-action { justify-content: center; }
-    
     .align-middle-person { vertical-align: middle !important; }
 
-    /* --- GANTT STYLES --- */
+    /* GANTT STYLES */
     .custom-gantt-wrapper { display: flex; flex-direction: column; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; max-width: 100%; font-family: 'Segoe UI', sans-serif; }
     .custom-gantt-wrapper::-webkit-scrollbar { height: 8px; width: 8px; }
     .custom-gantt-wrapper::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 0 0 10px 10px; }
@@ -587,7 +548,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // --- KONFIGURASI PENTING ---
-    const CONST_API_URL = "https://script.google.com/macros/s/AKfycbxzZ50romtTo7HIMfX8fi9k7_YKpstDFu1B_hjcYfxbJS-a598BkmzATYzUeC03Laktug/exec"; // PASTE URL WEB APP ANDA DI SINI
+    const CONST_API_URL = "https://script.google.com/macros/s/AKfycbxzZ50romtTo7HIMfX8fi9k7_YKpstDFu1B_hjcYfxbJS-a598BkmzATYzUeC03Laktug/exec";
 
     // --- HELPER FUNCTION UNTUK FETCH API ---
     async function fetchAPI(action, method = 'GET', data = null) {
@@ -646,14 +607,14 @@
             document.body.classList.remove('login-mode');
             document.body.style.position = ''; 
             document.body.style.overflow = 'auto'; 
-            document.title = "SIDAMON Gaharu Sempana Group"; // JUDUL BROWSER SAAT LOGIN
+            document.title = "SIDAMON Gaharu Sempana Group"; 
             
             applyRoleAccess(currentUserRole);
-            updateGreeting(currentUserRole); // <<--- MEMANGGIL FUNGSI SAPAAN SETELAH LOGIN SUKSES
+            updateGreeting(currentUserRole); 
+            
+            // --- OPTIMASI LOAD DATA (PARALLEL) ---
             loadAllData(); 
-            if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT") {
-                loadDropdowns(); 
-            }
+            
           } else {
             btn.innerHTML = originalBtnText; btn.disabled = false;
             passInput.value = ''; passInput.focus();
@@ -668,7 +629,6 @@
       }
     }
 
-    // --- LOGIKA SAPAAN DINAMIS ---
     function updateGreeting(role) {
         const hour = new Date().getHours();
         let timeText = "";
@@ -729,144 +689,155 @@
         }
     }
 
+    // --- OPTIMASI UTAMA: PARALLEL FETCHING ---
     async function loadAllData() {
       document.getElementById('loading-overlay').style.display = 'flex';
+      
+      const promises = [];
+      let loadSKK = false, loadTugas = false, loadProject = false, loadDropdown = false;
+
+      // Tentukan apa saja yang perlu diload berdasarkan Role
+      if(currentUserRole !== "TEKNIS") {
+          promises.push(fetchAPI('getDataSKK'));
+          loadSKK = true;
+          promises.push(fetchAPI('getDataPenugasan'));
+          loadTugas = true;
+      } else {
+          // Placeholder agar index array tetap konsisten jika logika kompleks,
+          // tapi disini kita pakai push dinamis dan mapping hasil.
+      }
+
+      if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "TEKNIS") {
+          promises.push(fetchAPI('getDataProject'));
+          loadProject = true;
+      }
+
+      if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT") {
+          promises.push(fetchAPI('getDropdownData'));
+          loadDropdown = true;
+      }
+
       try {
-          if(currentUserRole !== "TEKNIS") {
-             const [resSKK, resTugas] = await Promise.all([
-                 fetchAPI('getDataSKK'),
-                 fetchAPI('getDataPenugasan')
-             ]);
-             dataSKK = resSKK; 
-             dataTugas = resTugas; 
-             
-             // Render SKK sesudah dataTugas tersedia (utk cross-check)
-             renderSKK(dataSKK); 
-             renderTugas(dataTugas);
+          // Eksekusi semua request secara BERSAMAAN
+          const results = await Promise.all(promises);
+          
+          let resultIndex = 0;
+          if (loadSKK) dataSKK = results[resultIndex++];
+          if (loadTugas) dataTugas = results[resultIndex++];
+          if (loadProject) dataProject = results[resultIndex++];
+          let dropdownData = null;
+          if (loadDropdown) dropdownData = results[resultIndex++];
+
+          // Render setelah data tersedia
+          if (loadSKK && loadTugas) {
+              renderSKK(dataSKK); 
+              renderTugas(dataTugas);
           }
-          if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "TEKNIS") {
-             dataProject = await fetchAPI('getDataProject');
-             renderProject(dataProject);
+          if (loadProject) {
+              renderProject(dataProject);
           }
-      } catch(e) { console.error(e); }
-      finally { document.getElementById('loading-overlay').style.display = 'none'; }
+          if (loadDropdown && dropdownData) {
+              populateDatalist('listNama', dropdownData.nama); populateDatalist('listPerusahaan', dropdownData.perusahaan);
+              populateDatalist('listSertifikat', dropdownData.sertifikat); populateDatalist('listJenjang', dropdownData.jenjang);
+          }
+
+      } catch(e) { 
+          console.error(e); 
+          alert("Gagal memuat sebagian data. Silakan refresh.");
+      }
+      finally { 
+          document.getElementById('loading-overlay').style.display = 'none'; 
+      }
     }
 
-    // --- RENDER LOGIC ---
+    // --- RENDER LOGIC OPTIMIZED (Batch DOM Update) ---
 
-    // FUNGSI RENDER SKK (FIX: TABEL PROPORSIONAL & CROSS CHECK LPSE PRIORITAS UTAMA)
     function renderSKK(data) {
       const tbody = document.getElementById('bodySkk'); 
-      tbody.innerHTML = '';
+      let htmlContent = []; // Gunakan Array untuk menampung HTML
       
-      // Reset Variabel Statistik
-      let statTotal = 0;
-      let statUsed = 0;
-      let statExpired = 0;
+      let statTotal = 0, statUsed = 0, statExpired = 0;
       
-      if(data.length === 0) {
+      if(!data || data.length === 0) {
           document.getElementById('msgSkk').classList.remove('d-none');
-          animateValue("skk-total", 0, 0, 800); 
-          animateValue("skk-expired", 0, 0, 800); 
-          animateValue("skk-used", 0, 0, 800);
+          animateValue("skk-total", 0, 0, 800); animateValue("skk-expired", 0, 0, 800); animateValue("skk-used", 0, 0, 800);
+          tbody.innerHTML = '';
           return;
       } else {
           document.getElementById('msgSkk').classList.add('d-none');
       }
 
-      // 1. PREPARE MAP DARI DATA PENUGASAN (CROSS-CHECK)
-      const activeAssignmentsMap = {};
+      // 1. PREPARE MAP (Optimasi Lookup O(1))
+      const activeAssignmentsMap = new Map();
       if(dataTugas && dataTugas.length > 0) {
-          dataTugas.forEach(row => {
+          for(let i=0; i<dataTugas.length; i++){
+              const row = dataTugas[i];
               const pName = (row[1] || "").trim();
-              const pLpse = row[5] || ""; // MENGAMBIL KOLOM LPSE (Index 5)
               const pStatus = (row[12] || "").toLowerCase();
-              
               if (pName && pStatus.includes('active')) {
-                  activeAssignmentsMap[pName] = pLpse;
+                  activeAssignmentsMap.set(pName, row[5] || ""); // Simpan LPSE
               }
-          });
+          }
       }
 
-      // 2. GROUPING DATA SKK
+      // 2. GROUPING DATA
       const groupedData = {};
-      data.forEach((row, originalIndex) => {
+      // Kurangi overhead loop dengan for biasa jika data sangat besar, tapi forEach cukup ok utk <5000 row
+      for(let i=0; i<data.length; i++) {
+          const row = data[i];
           const nama = row[1];
-          if (!nama) return;
+          if (!nama) continue;
 
           if (!groupedData[nama]) {
               groupedData[nama] = {
-                  nama: row[1],
-                  hp: row[2],
-                  perusahaan: row[4], 
-                  bidang: row[3],
-                  items: [] 
+                  nama: row[1], hp: row[2], perusahaan: row[4], bidang: row[3], items: [] 
               };
           }
-
           groupedData[nama].items.push({
-              sertifikat: row[5],
-              jenjang: row[6],
-              sisaWaktu: row[9],
-              statusRaw: row[10], // Kolom K
-              ketRaw: row[11],    // Kolom L
-              originalIndex: originalIndex
+              sertifikat: row[5], jenjang: row[6], sisaWaktu: row[9],
+              statusRaw: row[10], ketRaw: row[11], originalIndex: i
           });
-      });
+      }
 
-      statTotal = Object.keys(groupedData).length;
+      const keys = Object.keys(groupedData);
+      statTotal = keys.length;
 
-      // 3. RENDER DATA GROUPED
-      Object.values(groupedData).forEach(person => {
-          
-          let isUsed = false;
-          let hasActive = false;
-          let usedProjectName = ""; 
-          let spreadsheetUsedText = ""; 
+      // 3. GENERATE HTML STRING
+      const canEdit = (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT");
+      
+      for(let i=0; i<keys.length; i++) {
+          const person = groupedData[keys[i]];
+          let isUsed = false, hasActive = false;
+          let usedProjectName = "", spreadsheetUsedText = "";
 
-          // Cek Data Internal SKK (Manual Spreadsheet)
-          person.items.forEach(item => {
-              let s = (item.statusRaw || "").toLowerCase();
-              let k = (item.ketRaw || "").toLowerCase();
+          // Cek Data Internal
+          for(let j=0; j<person.items.length; j++){
+              const item = person.items[j];
+              const s = (item.statusRaw || "").toLowerCase();
+              const k = (item.ketRaw || "").toLowerCase();
               
-              if (s.includes('expired')) {
-                  statExpired++;
-              }
-
+              if (s.includes('expired')) statExpired++;
               if (s.includes('used') || k.includes('used')) {
-                  isUsed = true; // Tandai used sementara dari sheet
-                  // Simpan teks manual sebagai cadangan
-                  if(item.statusRaw && item.statusRaw.toLowerCase().includes('used')) {
-                      spreadsheetUsedText = item.statusRaw;
-                  } else if (item.ketRaw) {
-                      spreadsheetUsedText = item.ketRaw;
-                  }
+                  isUsed = true;
+                  if(s.includes('used')) spreadsheetUsedText = item.statusRaw;
+                  else if (k.includes('used')) spreadsheetUsedText = item.ketRaw;
               }
-              if (s.includes('active') || s.includes('available')) {
-                  hasActive = true;
-              }
-          });
+              if (s.includes('active') || s.includes('available')) hasActive = true;
+          }
 
-          // LOGIKA UTAMA (DIPERBAIKI):
-          // Cek Data Penugasan DULU (Prioritas Tinggi). 
-          // Jika ada di penugasan, paksa gunakan Nama LPSE, abaikan teks manual.
-          const activeJobFromTugas = activeAssignmentsMap[person.nama.trim()];
+          // Cross Check Data Penugasan
+          const activeJobFromTugas = activeAssignmentsMap.get(person.nama.trim());
 
           if (activeJobFromTugas) {
               isUsed = true;
-              usedProjectName = `Used in ${activeJobFromTugas}`; // Pakai Nama LPSE
+              usedProjectName = `Used in ${activeJobFromTugas}`; 
           } else if (isUsed) {
-              // Jika TIDAK ada di penugasan, tapi di sheet SKK statusnya 'Used',
-              // baru gunakan teks manual dari sheet SKK.
               usedProjectName = spreadsheetUsedText ? spreadsheetUsedText : "Used";
           }
 
-          // Tentukan Badge Status Akhir
           let finalBadge = "";
-          
           if (isUsed) {
               statUsed++; 
-              // Tambahkan style white-space: normal agar teks panjang turun ke bawah
               finalBadge = `<span class="badge-status status-used" style="white-space: normal;">${usedProjectName}</span>`; 
           } else if (hasActive) {
               finalBadge = `<span class="badge-status status-active">Available</span>`;
@@ -874,9 +845,9 @@
               finalBadge = `<span class="badge-status status-expired">Expired</span>`;
           }
 
-          // --- RENDER VISUAL TABEL ---
+          // Render Kolom
           let btnWA = "-";
-          if(person.hp && person.hp.match(/\d+/)) {
+          if(person.hp && /\d/.test(person.hp)) {
               let cleanNum = person.hp.toString().replace(/\D/g, ''); 
               if(cleanNum.startsWith('0')) cleanNum = '62' + cleanNum.substring(1);
               if(cleanNum.length > 9) { 
@@ -888,31 +859,29 @@
 
           let htmlSertifikat = '', htmlJenjang = '', htmlSisa = '', htmlKet = '', htmlAksi = '';
 
-          person.items.forEach(item => {
-              let sisaStyle = "";
-              if ((item.statusRaw||"").toLowerCase().includes('expired')) {
-                  sisaStyle = "color: #dc3545; font-weight: 700;"; 
-              }
-
-              // MODIFIKASI: Menambahkan style white-space: normal agar teks panjang turun ke bawah
+          // Loop item lagi hanya untuk string concatenation
+          const itemLen = person.items.length;
+          for(let k=0; k<itemLen; k++){
+              const item = person.items[k];
+              let sisaStyle = (item.statusRaw||"").toLowerCase().includes('expired') ? "color: #dc3545; font-weight: 700;" : "";
+              
               htmlSertifikat += `<div class="nested-cell fw-bold" title="${item.sertifikat}" style="white-space: normal; line-height: 1.3;">${item.sertifikat}</div>`;
               htmlJenjang += `<div class="nested-cell text-center justify-content-center">${item.jenjang || '-'}</div>`;
               htmlSisa += `<div class="nested-cell text-center justify-content-center small" style="${sisaStyle}">${item.sisaWaktu || '-'}</div>`;
               htmlKet += `<div class="nested-cell small text-muted" title="${item.ketRaw || ''}" style="white-space: normal; line-height: 1.2;">${item.ketRaw || ''}</div>`;
               
-              if (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT") {
+              if (canEdit) {
                   htmlAksi += `<div class="nested-cell nested-cell-action">
-                      <button class="btn btn-sm btn-outline-primary rounded-circle" onclick="openModalEdit(${item.originalIndex})" style="width: 24px; height: 24px; padding: 0;" title="Edit Sertifikat Ini">
+                      <button class="btn btn-sm btn-outline-primary rounded-circle" onclick="openModalEdit(${item.originalIndex})" style="width: 24px; height: 24px; padding: 0;" title="Edit">
                           <i class="bi bi-pencil-fill" style="font-size: 0.7rem;"></i>
                       </button>
                   </div>`;
               }
-          });
+          }
 
-          const styleAksi = (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT") ? '' : 'display:none;';
+          const styleAksi = canEdit ? '' : 'display:none;';
 
-          // MODIFIKASI PADA BARIS TR: Menambahkan !important pada white-space di kolom Nama dan Bidang
-          tbody.innerHTML += `
+          htmlContent.push(`
             <tr>
               <td class="align-middle-person" style="white-space: normal !important; word-wrap: break-word;">
                   <div class="fw-bold text-dark">${person.nama}</div>
@@ -920,80 +889,73 @@
               </td>
               <td class="text-center align-middle-person">${btnWA}</td>
               <td class="align-middle-person small" style="white-space: normal !important; word-wrap: break-word; line-height: 1.3;">${person.bidang || '-'}</td>
-              
               <td style="padding-top:0; padding-bottom:0; white-space: normal !important;">${htmlSertifikat}</td>
               <td style="padding-top:0; padding-bottom:0;">${htmlJenjang}</td>
               <td style="padding-top:0; padding-bottom:0;">${htmlSisa}</td>
-              
               <td class="text-center align-middle-person" style="white-space: normal !important;">${finalBadge}</td>
-
               <td style="padding-top:0; padding-bottom:0; white-space: normal !important;">${htmlKet}</td>
               <td class="text-center" style="padding-top:0; padding-bottom:0; ${styleAksi}">${htmlAksi}</td>
             </tr>
-          `;
-      });
+          `);
+      }
 
-      // Update Card Stats dengan Angka Baru
+      // UPDATE DOM SEKALI SAJA
+      tbody.innerHTML = htmlContent.join('');
+      
       animateValue("skk-total", 0, statTotal, 800); 
       animateValue("skk-expired", 0, statExpired, 800); 
       animateValue("skk-used", 0, statUsed, 800);
     }
 
-    // FUNGSI RENDER TUGAS (GROUPED)
     function renderTugas(data) {
        const tbody = document.getElementById('bodyTugas'); 
-       tbody.innerHTML = '';
+       let htmlContent = [];
        
        let active = 0; 
+       // Filter dulu
        const filtered = data.filter(row => (row[12]||"").toLowerCase() !== 'completed');
        
-       filtered.forEach(row => {
-          if((row[12]||"").toLowerCase().includes('active')) active++;
-       });
-       
-       animateValue("tugas-total", 0, new Set(data.map(r=>r[2])).size, 800); 
-       animateValue("tugas-active", 0, active, 800);
-
        if(filtered.length === 0) { 
            document.getElementById('msgTugas').classList.remove('d-none');
+           tbody.innerHTML = '';
            return;
        } else {
            document.getElementById('msgTugas').classList.add('d-none');
        }
+       
+       // Hitung Active
+       for(let i=0; i<filtered.length; i++) {
+           if((filtered[i][12]||"").toLowerCase().includes('active')) active++;
+       }
 
+       animateValue("tugas-total", 0, new Set(data.map(r=>r[2])).size, 800); 
+       animateValue("tugas-active", 0, active, 800);
+
+       // Grouping
        const groupedData = {};
-
-       filtered.forEach(row => {
+       for(let i=0; i<filtered.length; i++){
+           const row = filtered[i];
            const nama = row[1];
-           if(!nama) return;
-
-           if (!groupedData[nama]) {
-               groupedData[nama] = {
-                   nama: nama,
-                   items: []
-               };
-           }
-
+           if(!nama) continue;
+           if (!groupedData[nama]) { groupedData[nama] = { nama: nama, items: [] }; }
+           
            let status = (row[12]||"").toLowerCase();
            let bClass = status.includes('active') ? 'status-active' : (status.includes('not started') ? 'status-not-started' : 'status-expired');
            let badgeHTML = `<span class="badge-status ${bClass}">${row[12]}</span>`;
 
            groupedData[nama].items.push({
-               pekerjaan: row[2],
-               lpse: row[5] || '-',
-               metode: row[3],
-               kontrak: row[4],
-               sertifikat: row[6],
-               start: row[9],
-               end: row[10],
-               statusBadge: badgeHTML
+               pekerjaan: row[2], lpse: row[5] || '-', metode: row[3], kontrak: row[4],
+               sertifikat: row[6], start: row[9], end: row[10], statusBadge: badgeHTML
            });
-       });
+       }
 
-       Object.values(groupedData).forEach(person => {
+       const persons = Object.values(groupedData);
+       for(let i=0; i<persons.length; i++) {
+           const person = persons[i];
            let hPekerjaan = '', hLpse = '', hMetode = '', hKontrak = '', hSertifikat = '', hStart = '', hEnd = '', hStatus = '';
 
-           person.items.forEach(item => {
+           for(let j=0; j<person.items.length; j++){
+               const item = person.items[j];
                hPekerjaan += `<div class="nested-cell fw-bold" title="${item.pekerjaan}">${item.pekerjaan}</div>`;
                hLpse += `<div class="nested-cell text-center justify-content-center">${item.lpse}</div>`;
                hMetode += `<div class="nested-cell text-center justify-content-center"><span class="badge bg-secondary rounded-pill" style="font-size:0.7rem;">${item.metode}</span></div>`;
@@ -1002,9 +964,9 @@
                hStart += `<div class="nested-cell text-center justify-content-center small text-muted">${item.start}</div>`;
                hEnd += `<div class="nested-cell text-center justify-content-center small text-muted">${item.end}</div>`;
                hStatus += `<div class="nested-cell text-center justify-content-center">${item.statusBadge}</div>`;
-           });
+           }
 
-           tbody.innerHTML += `
+           htmlContent.push(`
              <tr>
                <td class="align-middle-person fw-bold text-dark">${person.nama}</td>
                <td style="padding-top:0; padding-bottom:0;">${hPekerjaan}</td>
@@ -1016,17 +978,20 @@
                <td style="padding-top:0; padding-bottom:0;">${hEnd}</td>
                <td style="padding-top:0; padding-bottom:0;">${hStatus}</td>
              </tr>
-           `;
-       });
+           `);
+       }
+       tbody.innerHTML = htmlContent.join('');
     }
 
-    // FUNGSI RENDER PROJECT
     function renderProject(data) {
-      const tbody = document.getElementById('bodyProject'); tbody.innerHTML = '';
-      let counts = { total: 0, expired: 0, done: 0 }; const today = new Date(); today.setHours(0, 0, 0, 0);
+      const tbody = document.getElementById('bodyProject'); 
+      let htmlContent = [];
+      let counts = { total: 0, expired: 0, done: 0 }; 
+      const today = new Date(); today.setHours(0, 0, 0, 0);
 
-      data.forEach(row => {
-        if (!row[1]) return;
+      for(let i=0; i<data.length; i++) {
+        const row = data[i];
+        if (!row[1]) continue;
         counts.total++;
         const pekerjaan = row[2]; const kordinator = row[4]; const urlSchedule = row[5];
         const priority = (row[7] || "").trim();
@@ -1065,7 +1030,7 @@
         }
         let priorityClass = "bg-info"; if (priority === "High") priorityClass = "bg-danger"; else if (priority === "Medium") priorityClass = "bg-warning text-dark";
 
-        tbody.innerHTML += `<tr>
+        htmlContent.push(`<tr>
             <td class="fw-bold" style="min-width: 250px;">${pekerjaan}</td>
             <td>${kordinator}</td>
             <td class="text-center">${btnUrl}</td>
@@ -1073,8 +1038,10 @@
             <td class="text-center text-muted small">${deadKontrakView}</td>
             <td class="text-center text-muted small">${deadScheduleView}</td>
             <td class="text-center"><span class="badge ${badgeClass}">${statusText || 'Not Started'}</span></td>
-            <td class="small text-muted">${notes}</td> </tr>`;
-      });
+            <td class="small text-muted">${notes}</td> </tr>`);
+      }
+      
+      tbody.innerHTML = htmlContent.join('');
       document.getElementById('proj-total').innerText = counts.total; document.getElementById('proj-expired').innerText = counts.expired; document.getElementById('proj-done').innerText = counts.done;
     }
 
@@ -1127,8 +1094,10 @@
       let dataMinDate = new Date(2099, 11, 31); let dataMaxDate = new Date(1970, 0, 1);
       let hasData = false;
 
-      sourceData.forEach((row) => {
-        if (!row[1] || row[1] === "") return; 
+      // Optimasi Loop
+      for(let i=0; i<sourceData.length; i++) {
+        const row = sourceData[i];
+        if (!row[1] || row[1] === "") continue; 
         
         let personName = "", projectName = "", fullTitle = "";
         let startRaw, endRaw, statusText, status;
@@ -1139,7 +1108,7 @@
             startRaw = row[9]; endRaw = row[10];
             statusText = row[12] || "Unknown"; status = statusText.toLowerCase();
 
-            if (status.includes('completed')) return; 
+            if (status.includes('completed')) continue; 
             if (status.includes('active')) barClass = 'bar-green';
             else if (status.includes('not started')) barClass = 'bar-grey';
             else barClass = 'bar-green'; 
@@ -1147,7 +1116,7 @@
         } else {
             projectName = row[2]; fullTitle = projectName;
             statusText = row[16] || "Unknown"; status = statusText.toLowerCase();
-            if (status.includes('done') || status.includes('selesai')) return;
+            if (status.includes('done') || status.includes('selesai')) continue;
             if (type === 'kontrak') { startRaw = row[8]; endRaw = row[9]; } 
             else { startRaw = row[12]; endRaw = row[13]; }
 
@@ -1155,7 +1124,7 @@
             const isExpired = itemEndCheck && itemEndCheck < today;
             barClass = isExpired ? 'bar-red' : 'bar-blue';
         }
-        if (searchKeyword && !fullTitle.toLowerCase().includes(searchKeyword)) { return; }
+        if (searchKeyword && !fullTitle.toLowerCase().includes(searchKeyword)) { continue; }
 
         const itemStart = parseDate(startRaw); const itemEnd = parseDate(endRaw);
         if (itemStart && itemEnd && itemEnd >= itemStart) {
@@ -1169,7 +1138,7 @@
                validItems.push({ person: personName, project: projectName, title: fullTitle, start: itemStart, end: itemEnd, barClass, status: statusText });
            }
         }
-      });
+      }
 
       if (!hasData) { container.innerHTML = `<div class="text-center py-5 text-muted">Tidak ada data aktif pada rentang tanggal tersebut.</div>`; return; }
 
@@ -1183,12 +1152,13 @@
       const totalDays = Math.max(1, Math.ceil((viewEndDate - viewStartDate) / (1000 * 60 * 60 * 24)));
       const pxPerDay = 5; const chartWidth = totalDays * pxPerDay; 
       
-      let headerMarkersHTML = ``; let curr = new Date(viewStartDate); curr.setDate(1); 
+      let headerMarkersArr = []; 
+      let curr = new Date(viewStartDate); curr.setDate(1); 
       while (curr <= viewEndDate) {
           const diffTime = curr - viewStartDate;
           const diffDays = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24))); 
           const leftPos = diffDays * pxPerDay;
-          if (leftPos < chartWidth) { headerMarkersHTML += `<span class="month-marker" style="left: ${leftPos}px;">${formatMonthYear(curr)}</span>`; }
+          if (leftPos < chartWidth) { headerMarkersArr.push(`<span class="month-marker" style="left: ${leftPos}px;">${formatMonthYear(curr)}</span>`); }
           curr.setMonth(curr.getMonth() + 1); 
       }
       
@@ -1199,10 +1169,11 @@
           stickyHeaderHTML = `<div class="g-sticky-col">NAMA PEKERJAAN</div>`;
       }
 
-      const htmlHeader = `<div class="g-row-container g-header-row">${stickyHeaderHTML}<div class="g-timeline-col" style="min-width: ${chartWidth}px;">${headerMarkersHTML}</div></div>`;
+      const htmlHeader = `<div class="g-row-container g-header-row">${stickyHeaderHTML}<div class="g-timeline-col" style="min-width: ${chartWidth}px;">${headerMarkersArr.join('')}</div></div>`;
 
-      let htmlBody = ``;
-      validItems.forEach(item => {
+      let htmlBodyArr = [];
+      for(let i=0; i<validItems.length; i++){
+          const item = validItems[i];
           const sDateStr = item.start.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
           const eDateStr = item.end.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
           const startDiff = Math.ceil((item.start - viewStartDate) / (1000 * 60 * 60 * 24));
@@ -1216,7 +1187,7 @@
           } else {
              stickyColsHTML = `<div class="g-sticky-col" title="${item.project}">${item.project}</div>`;
           }
-          htmlBody += `
+          htmlBodyArr.push(`
             <div class="g-row-container g-data-row">
                 ${stickyColsHTML}
                 <div class="g-timeline-col" style="min-width: ${chartWidth}px;">
@@ -1225,9 +1196,9 @@
                          onmouseenter="showTooltip(event, this)" onmousemove="moveTooltip(event)" onmouseleave="hideTooltip()">
                     </div>
                 </div>
-            </div>`;
-      });
-      container.innerHTML = `<div class="custom-gantt-wrapper">${htmlHeader}${htmlBody}</div>`;
+            </div>`);
+      }
+      container.innerHTML = `<div class="custom-gantt-wrapper">${htmlHeader}${htmlBodyArr.join('')}</div>`;
     }
 
     // --- TOOLTIP ---
@@ -1355,11 +1326,6 @@
     }
     
     // --- DROPDOWNS & MODAL ---
-    async function loadDropdowns() {
-      const data = await fetchAPI('getDropdownData');
-      populateDatalist('listNama', data.nama); populateDatalist('listPerusahaan', data.perusahaan);
-      populateDatalist('listSertifikat', data.sertifikat); populateDatalist('listJenjang', data.jenjang);
-    }
     function populateDatalist(id, items) { const list = document.getElementById(id); list.innerHTML = ''; items.forEach(item => { const op = document.createElement('option'); op.value = item; list.appendChild(op); }); }
 
     const myModal = new bootstrap.Modal(document.getElementById('modalTambahData'));
@@ -1423,5 +1389,3 @@
   </script>
 </body>
 </html>
-
-
