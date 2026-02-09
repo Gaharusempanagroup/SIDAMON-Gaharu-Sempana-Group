@@ -41,7 +41,12 @@ function doGet(e) {
  */
 function doPost(e) {
   try {
-    var data = JSON.parse(e.postData.contents);
+    // UBAH CARA AMBIL DATA
+    // Google Apps Script kadang menerima data sebagai postData.contents (string)
+    // bukan object JSON langsung jika dikirim dari fetch API eksternal
+    var jsonString = e.postData.contents;
+    var data = JSON.parse(jsonString);
+    
     var action = data.action;
     var result = {};
 
@@ -55,7 +60,7 @@ function doPost(e) {
     
     return responseJSON(result);
   } catch (err) {
-    return responseJSON({ error: err.toString() });
+    return responseJSON({ error: "Gagal memproses data: " + err.toString() });
   }
 }
 
