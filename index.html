@@ -56,7 +56,17 @@
     /* --- DASHBOARD STYLES --- */
     #dashboard-section { display: none; padding-bottom: 50px; }
     
-    /* === NEW: ANIMASI GREETING ELEGAN === */
+    /* === LOGO WRAPPER (CLEAN - TANPA BACKGROUND) === */
+    .logo-wrapper { 
+        /* Background & border dihapus agar menyatu */
+        padding: 0; 
+        margin-right: 15px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+    }
+
+    /* === ANIMASI GREETING (CLEAN - MENYATU) === */
     @keyframes slideInSmooth { 
       from { opacity: 0; transform: translateY(-10px); } 
       to { opacity: 1; transform: translateY(0); } 
@@ -64,35 +74,33 @@
     
     .greeting-wrapper {
       animation: slideInSmooth 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-      padding: 6px 16px;
+      padding: 6px 0; /* Padding kiri/kanan dihapus agar lebih rapat ke kanan jika perlu */
       margin-left: 15px;
-      border-radius: 12px;
-      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); /* Transisi halus untuk hover */
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
       cursor: default;
-      /* Border kiri dihapus agar menyatu */
+      /* Border kiri dihapus total */
     }
 
-    /* Efek Hover Container */
+    /* Efek Hover Text Only (Tanpa Kotak) */
     .greeting-wrapper:hover {
-        background: rgba(255, 255, 255, 0.15); /* Tint putih transparan */
-        transform: translateY(-2px) scale(1.02); /* Sedikit naik & membesar */
-        box-shadow: 0 8px 20px rgba(0,0,0,0.15); /* Shadow lembut */
-        backdrop-filter: blur(6px); /* Efek kaca buram */
-        border: 1px solid rgba(255,255,255,0.1); /* Border sangat tipis saat hover */
+        /* Background dihapus */
+        background: transparent;
+        /* Hanya gerakan halus */
+        transform: translateY(-2px); 
     }
 
-    /* Efek Hover pada Teks */
+    /* Efek Hover pada Teks (Glowing) */
     .greeting-wrapper:hover #greeting-role {
-        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Text glow */
+        text-shadow: 0 0 12px rgba(255, 255, 255, 0.6); 
     }
 
-    /* Efek Hover pada Ikon (Matahari/Bulan) */
+    /* Efek Hover pada Ikon (Berputar & Membesar Sedikit) */
     .greeting-wrapper i {
         display: inline-block;
         transition: transform 0.5s ease;
     }
     .greeting-wrapper:hover i {
-        transform: rotate(20deg) scale(1.2); /* Ikon berputar sedikit */
+        transform: rotate(20deg) scale(1.15); 
     }
     
     /* NAV PILLS */
