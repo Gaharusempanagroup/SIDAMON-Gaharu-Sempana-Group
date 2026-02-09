@@ -57,8 +57,35 @@
     .sub-nav .btn { border-radius: 20px; font-size: 0.85rem; font-weight: 600; padding: 6px 15px; border: 1px solid #ddd; background: white; color: #555; transition: all 0.2s ease; touch-action: manipulation; }
     .sub-nav .btn.active { background-color: #000080; color: white; border-color: #000080; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
     .stats-wrapper { max-width: 1100px; margin: 0 auto; }
-    .stat-card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.07); transition: transform 0.3s ease, box-shadow 0.3s ease; color: white; overflow: hidden; height: 100%; position: relative; z-index: 1; }
-    .stat-card i { transition: all 0.5s ease; }
+    .stat-card { 
+        border: none; 
+        border-radius: 12px; 
+        box-shadow: 0 4px 6px rgba(0,0,0,0.07); 
+        transition: transform 0.3s ease, box-shadow 0.3s ease; 
+        color: white; 
+        overflow: hidden; 
+        height: 100%; 
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Efek saat mouse diarahkan (Hover) */
+    .stat-card:hover { 
+        transform: translateY(-5px); /* Kartu naik ke atas */
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important; /* Bayangan lebih dalam */
+    }
+    
+    /* Transisi Icon */
+    .stat-card i { 
+        transition: all 0.5s ease; 
+    }
+    
+    /* Efek Icon membesar saat kartu di-hover */
+    .stat-card:hover i {
+        transform: scale(1.2) rotate(10deg); /* Icon membesar dan miring sedikit */
+        opacity: 0.7 !important;
+    }
+
     .stat-value { font-size: 2.5rem; font-weight: 700; line-height: 1; }
     .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
     .bg-gradient-primary { background: linear-gradient(45deg, var(--primary-color), #333399); }
@@ -930,13 +957,45 @@
     window.resetTugasDateFilter = function() { document.getElementById('filterTugasStart').value = ''; document.getElementById('filterTugasEnd').value = ''; drawGanttChart('penugasan'); }
 
     function animateValue(id, start, end, duration) {
-      const obj = document.getElementById(id); if(!obj) return; 
-      if(activeTimers[id]) clearInterval(activeTimers[id]); 
-      if(start===end){obj.innerHTML=end;return;}
-      const range=end-start, current=start, increment=end>start?1:-1, step=Math.abs(Math.floor(duration/range));
-      let currentVal = start; obj.innerHTML = start;
-      const timer=setInterval(()=>{ currentVal+=increment; obj.innerHTML=currentVal; if(currentVal==end)clearInterval(timer);}, step);
-      activeTimers[id]=timer;
+      const obj = document.getElementById(id);
+      if (!obj) return;
+      
+      // Hentikan animasi sebelumnya jika ada (agar tidak tumpang tindih saat refresh)
+      if (activeTimers[id]) clearInterval(activeTimers[id]);
+      
+      if (start === end) {
+        obj.innerHTML = end;
+        return;
+      }
+
+      const range = end - start;
+      const minTimer = 50; // Minimal 50ms per step agar mata sempat melihat perubahan
+      
+      // Hitung step waktu. Jika terlalu cepat, kita paksa step waktu minimal tapi loncat angka
+      let stepTime = Math.abs(Math.floor(duration / range));
+      stepTime = Math.max(stepTime, minTimer);
+      
+      const startTime = new Date().getTime();
+      const endTime = startTime + duration;
+      let timer;
+  
+      function run() {
+        const now = new Date().getTime();
+        const remaining = Math.max((endTime - now) / duration, 0);
+        const value = Math.round(end - (remaining * range));
+        
+        obj.innerHTML = value;
+        
+        if (value == end) {
+          clearInterval(timer);
+        }
+      }
+      
+      timer = setInterval(run, stepTime);
+      activeTimers[id] = timer;
+      
+      // Jalankan sekali di awal
+      run();
     }
     
     // --- DROPDOWNS & MODAL ---
@@ -1008,6 +1067,7 @@
   </script>
 </body>
 </html>
+
 
 
 
