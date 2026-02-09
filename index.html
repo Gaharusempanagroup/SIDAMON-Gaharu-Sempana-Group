@@ -107,6 +107,28 @@
     .status-active { background-color: #e5ffe5; color: #007700; border: 1px solid #ccffcc; }
     .status-used { background-color: #fff4e5; color: #cc7700; border: 1px solid #ffeebb; } 
     .status-not-started { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
+
+    /* --- STYLES KHUSUS UNTUK TABEL GROUPING SKK --- */
+    .nested-cell {
+        display: flex;
+        align-items: center;
+        min-height: 45px; /* Tinggi minimum agar rapi */
+        border-bottom: 1px dashed #eee;
+        padding: 4px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .nested-cell:last-child {
+        border-bottom: none;
+    }
+    .nested-cell-action {
+        justify-content: center; /* Tengah untuk tombol aksi */
+    }
+    /* Memastikan kolom Nama & Kontak vertikal align di tengah */
+    .align-middle-person {
+        vertical-align: middle !important;
+    }
     
     /* GANTT STYLES */
     .custom-gantt-wrapper { display: flex; flex-direction: column; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; max-width: 100%; font-family: 'Segoe UI', sans-serif; }
@@ -224,7 +246,7 @@
             <div class="row g-3 mb-4 justify-content-center">
               <div class="col-12 col-sm-6 col-lg-4">
                   <div class="stat-card bg-gradient-primary p-3 d-flex justify-content-between align-items-center">
-                      <div><div class="stat-label">Total Data</div><div class="stat-value" id="skk-total">0</div></div>
+                      <div><div class="stat-label">Total Sertifikat</div><div class="stat-value" id="skk-total">0</div></div>
                       <i class="bi bi-people-fill fs-1 opacity-50"></i>
                   </div>
               </div>
@@ -262,7 +284,7 @@
             <table class="table table-hover align-middle">
               <thead>
                   <tr>
-                      <th>Nama Personil</th>
+                      <th style="width: 250px;">Nama Personil & Perusahaan</th>
                       <th class="text-center">Kontak (WA)</th>
                       <th>Jenjang & Bidang Ilmu</th> 
                       <th>Sertifikat</th>
@@ -614,41 +636,132 @@
 
     // --- RENDER LOGIC ---
 
+    // FUNGSI RENDER SKK YANG SUDAH DI-UPDATE UNTUK GROUPING
     function renderSKK(data) {
-      const tbody = document.getElementById('bodySkk'); tbody.innerHTML = '';
+      const tbody = document.getElementById('bodySkk'); 
+      tbody.innerHTML = '';
+      
       let expired = 0, usedSet = new Set();
-      if(data.length === 0) document.getElementById('msgSkk').classList.remove('d-none');
-      else {
-        document.getElementById('msgSkk').classList.add('d-none');
-        data.forEach((row, index) => {
-          const status = (row[10]||"").toLowerCase(); const ket = (row[11]||"").toLowerCase(); const nama = (row[1]||"").trim();
+      
+      // 1. Hitung Statistik (tetap menggunakan data mentah agar akurat)
+      data.forEach(row => {
+          const status = (row[10]||"").toLowerCase(); 
+          const ket = (row[11]||"").toLowerCase(); 
+          const nama = (row[1]||"").trim();
+          
           if (status.includes('expired') || ket.includes('expired')) expired++;
           else if (status.includes('used') || ket.includes('used')) { if(nama) usedSet.add(nama); }
-          let badge = `<span class="badge-status bg-light text-dark border">${row[10]||'Available'}</span>`;
-          if (status.includes('expired') || ket.includes('expired')) badge = '<span class="badge-status status-expired">Expired</span>';
-          else if (ket.includes('used')) badge = `<span class="badge-status status-used">${row[11]}</span>`;
-          else if (status.includes('used')) badge = `<span class="badge-status status-used">${row[10]}</span>`;
-          else if (status.includes('active') || status.includes('available')) badge = `<span class="badge-status status-active">${row[10]||'Available'}</span>`;
-          
-          let phone = row[2] || ""; let btnWA = "-";
-          if(phone && phone.match(/\d+/)) {
-              let cleanNum = phone.toString().replace(/\D/g, ''); if(cleanNum.startsWith('0')) cleanNum = '62' + cleanNum.substring(1);
-              if(cleanNum.length > 9) { btnWA = `<a href="https://wa.me/${cleanNum}" target="_blank" class="btn btn-success btn-sm text-white fw-bold d-inline-flex align-items-center justify-content-center" style="font-size: 0.7rem; padding: 2px 8px; height: 24px; min-width: 60px;"><i class="bi bi-whatsapp" style="font-size: 0.8rem; margin-right: 4px;"></i> Chat</a>`; } 
-              else { btnWA = `<span class="small text-muted">${phone}</span>`; }
-          }
-          let actionBtn = '';
-          if (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT") {
-             actionBtn = `<td class="text-center"><button class="btn btn-sm btn-outline-primary rounded-circle" onclick="openModalEdit(${index})" style="width: 28px; height: 28px; padding: 0;"><i class="bi bi-pencil-fill" style="font-size: 0.8rem;"></i></button></td>`;
-          } else { actionBtn = `<td class="text-center text-muted" style="display:none"></td>`; }
-          
-          // EDIT: MENAMBAHKAN CLASS TEXT-CENTER PADA DATA JENJANG DAN SISA WAKTU
-          tbody.innerHTML += `<tr><td class="fw-bold">${row[1]}</td><td class="text-center">${btnWA}</td><td>${row[3]}</td> <td>${row[5]}</td>
-          <td class="text-center">${row[6]}</td>
-          <td class="text-center">${row[9]}</td>
-          <td class="text-center">${badge}</td><td class="small text-muted">${row[11]}</td>${actionBtn}</tr>`;
-        });
+      });
+      
+      animateValue("skk-total", 0, data.length, 800); 
+      animateValue("skk-expired", 0, expired, 800); 
+      animateValue("skk-used", 0, usedSet.size, 800);
+
+      if(data.length === 0) {
+          document.getElementById('msgSkk').classList.remove('d-none');
+          return;
+      } else {
+          document.getElementById('msgSkk').classList.add('d-none');
       }
-      animateValue("skk-total", 0, data.length, 800); animateValue("skk-expired", 0, expired, 800); animateValue("skk-used", 0, usedSet.size, 800);
+
+      // 2. GROUPING DATA BERDASARKAN NAMA PERSONIL
+      const groupedData = {};
+      
+      data.forEach((row, originalIndex) => {
+          const nama = row[1];
+          if (!nama) return;
+
+          // Jika nama belum ada di group, buat object baru
+          if (!groupedData[nama]) {
+              groupedData[nama] = {
+                  nama: row[1],
+                  hp: row[2],
+                  perusahaan: row[4], // Ambil perusahaan dari data pertama
+                  bidang: row[3],     // Ambil bidang dari data pertama
+                  items: []           // Array untuk menampung sertifikat
+              };
+          }
+
+          // Generate Badge Status untuk item ini
+          let statusRaw = (row[10]||"").toLowerCase();
+          let ketRaw = (row[11]||"").toLowerCase();
+          let badge = `<span class="badge-status bg-light text-dark border">${row[10]||'Available'}</span>`;
+          
+          if (statusRaw.includes('expired') || ketRaw.includes('expired')) badge = '<span class="badge-status status-expired">Expired</span>';
+          else if (ketRaw.includes('used')) badge = `<span class="badge-status status-used">${row[11]}</span>`;
+          else if (statusRaw.includes('used')) badge = `<span class="badge-status status-used">${row[10]}</span>`;
+          else if (statusRaw.includes('active') || statusRaw.includes('available')) badge = `<span class="badge-status status-active">${row[10]||'Available'}</span>`;
+
+          // Masukkan detail sertifikat ke array items
+          groupedData[nama].items.push({
+              sertifikat: row[5],
+              jenjang: row[6],
+              sisaWaktu: row[9],
+              statusBadge: badge,
+              keterangan: row[11],
+              originalIndex: originalIndex // Penting untuk tombol Edit
+          });
+      });
+
+      // 3. RENDER DATA YANG SUDAH DI-GROUP
+      Object.values(groupedData).forEach(person => {
+          
+          // Render Kolom Kontak (WA)
+          let btnWA = "-";
+          if(person.hp && person.hp.match(/\d+/)) {
+              let cleanNum = person.hp.toString().replace(/\D/g, ''); 
+              if(cleanNum.startsWith('0')) cleanNum = '62' + cleanNum.substring(1);
+              if(cleanNum.length > 9) { 
+                  btnWA = `<a href="https://wa.me/${cleanNum}" target="_blank" class="btn btn-success btn-sm text-white fw-bold d-inline-flex align-items-center justify-content-center" style="font-size: 0.7rem; padding: 2px 8px; height: 24px; min-width: 60px;"><i class="bi bi-whatsapp" style="font-size: 0.8rem; margin-right: 4px;"></i> Chat</a>`; 
+              } else { 
+                  btnWA = `<span class="small text-muted">${person.hp}</span>`; 
+              }
+          }
+
+          // Siapkan HTML untuk kolom-kolom yang berisi list (Sertifikat, Jenjang, dll)
+          let htmlSertifikat = '', htmlJenjang = '', htmlSisa = '', htmlStatus = '', htmlKet = '', htmlAksi = '';
+
+          person.items.forEach(item => {
+              // Kita bungkus setiap item dengan div .nested-cell agar tingginya sama dan sejajar
+              htmlSertifikat += `<div class="nested-cell fw-bold" title="${item.sertifikat}">${item.sertifikat}</div>`;
+              htmlJenjang += `<div class="nested-cell text-center justify-content-center">${item.jenjang || '-'}</div>`;
+              htmlSisa += `<div class="nested-cell text-center justify-content-center small">${item.sisaWaktu || '-'}</div>`;
+              htmlStatus += `<div class="nested-cell text-center justify-content-center">${item.statusBadge}</div>`;
+              htmlKet += `<div class="nested-cell small text-muted" title="${item.keterangan || ''}">${item.keterangan || '-'}</div>`;
+              
+              // Tombol Edit per item sertifikat
+              if (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT") {
+                  htmlAksi += `<div class="nested-cell nested-cell-action">
+                      <button class="btn btn-sm btn-outline-primary rounded-circle" onclick="openModalEdit(${item.originalIndex})" style="width: 24px; height: 24px; padding: 0;" title="Edit Sertifikat Ini">
+                          <i class="bi bi-pencil-fill" style="font-size: 0.7rem;"></i>
+                      </button>
+                  </div>`;
+              }
+          });
+
+          // Tentukan apakah kolom aksi ditampilkan
+          const styleAksi = (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT") ? '' : 'display:none;';
+
+          // Render Baris Tabel
+          tbody.innerHTML += `
+            <tr>
+              <td class="align-middle-person">
+                  <div class="fw-bold text-dark">${person.nama}</div>
+                  <div class="small text-muted"><i class="bi bi-building me-1"></i>${person.perusahaan || '-'}</div>
+              </td>
+              <td class="text-center align-middle-person">${btnWA}</td>
+              <td class="align-middle-person small">${person.bidang || '-'}</td>
+              
+              <td style="padding-top:0; padding-bottom:0;">${htmlSertifikat}</td>
+              <td style="padding-top:0; padding-bottom:0;">${htmlJenjang}</td>
+              <td style="padding-top:0; padding-bottom:0;">${htmlSisa}</td>
+              <td style="padding-top:0; padding-bottom:0;">${htmlStatus}</td>
+              <td style="padding-top:0; padding-bottom:0;">${htmlKet}</td>
+              
+              <td class="text-center" style="padding-top:0; padding-bottom:0; ${styleAksi}">${htmlAksi}</td>
+            </tr>
+          `;
+      });
     }
 
     function renderTugas(data) {
@@ -1058,4 +1171,3 @@
   </script>
 </body>
 </html>
-
