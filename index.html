@@ -108,18 +108,30 @@
     .status-used { background-color: #fff4e5; color: #cc7700; border: 1px solid #ffeebb; } 
     .status-not-started { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
 
-    /* --- STYLES KHUSUS UNTUK TABLE SCROLL & GROUPING --- */
+    /* --- STYLES KHUSUS UNTUK TABLE SCROLL HORIZONTAL (Updated) --- */
     .table-responsive {
-        overflow-x: auto !important; /* Paksa scroll horizontal */
+        display: block;
         width: 100%;
+        overflow-x: auto !important; /* Forces horizontal scroll */
         -webkit-overflow-scrolling: touch;
         margin-bottom: 10px;
+        border: 1px solid #f0f0f0; /* Optional: visual clue */
     }
     
     /* Force table cells to single line to trigger scrolling */
     .table th, .table td {
-        white-space: nowrap; 
+        white-space: nowrap !important; /* Force Single Line */
         vertical-align: middle;
+    }
+    
+    /* Non-Sticky Column Fix: Pastikan semua kolom statis */
+    .table th:first-child, 
+    .table td:first-child {
+        position: static !important;
+        background-color: transparent !important;
+        left: auto !important;
+        box-shadow: none !important;
+        z-index: auto !important;
     }
 
     /* Nested Cell untuk Grouping agar rapi */
@@ -144,7 +156,7 @@
         vertical-align: middle !important;
     }
 
-    /* --- GANTT STYLES --- */
+    /* --- GANTT STYLES (Keep Sticky for Gantt, but regular tables are fixed above) --- */
     .custom-gantt-wrapper { display: flex; flex-direction: column; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; max-width: 100%; font-family: 'Segoe UI', sans-serif; }
     .custom-gantt-wrapper::-webkit-scrollbar { height: 8px; width: 8px; }
     .custom-gantt-wrapper::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 0 0 10px 10px; }
