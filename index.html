@@ -125,7 +125,7 @@
     .nested-cell-action {
         justify-content: center; /* Tengah untuk tombol aksi */
     }
-    /* Memastikan kolom Nama & Kontak vertikal align di tengah */
+    /* Memastikan kolom vertikal align di tengah */
     .align-middle-person {
         vertical-align: middle !important;
     }
@@ -636,7 +636,7 @@
 
     // --- RENDER LOGIC ---
 
-    // FUNGSI RENDER SKK (GROUPED)
+    // FUNGSI RENDER SKK (GROUPED & STATUS MERGED)
     function renderSKK(data) {
       const tbody = document.getElementById('bodySkk'); 
       tbody.innerHTML = '';
@@ -677,25 +677,19 @@
                   hp: row[2],
                   perusahaan: row[4], 
                   bidang: row[3],
+                  // Ambil status & keterangan dari baris pertama data personil
+                  statusRaw: row[10],
+                  ketRaw: row[11],
                   items: [] 
               };
           }
 
-          let statusRaw = (row[10]||"").toLowerCase();
-          let ketRaw = (row[11]||"").toLowerCase();
-          let badge = `<span class="badge-status bg-light text-dark border">${row[10]||'Available'}</span>`;
-          
-          if (statusRaw.includes('expired') || ketRaw.includes('expired')) badge = '<span class="badge-status status-expired">Expired</span>';
-          else if (ketRaw.includes('used')) badge = `<span class="badge-status status-used">${row[11]}</span>`;
-          else if (statusRaw.includes('used')) badge = `<span class="badge-status status-used">${row[10]}</span>`;
-          else if (statusRaw.includes('active') || statusRaw.includes('available')) badge = `<span class="badge-status status-active">${row[10]||'Available'}</span>`;
-
+          // Masukkan detail sertifikat ke array items
           groupedData[nama].items.push({
               sertifikat: row[5],
               jenjang: row[6],
               sisaWaktu: row[9],
-              statusBadge: badge,
-              keterangan: row[11],
+              keterangan: row[11], 
               originalIndex: originalIndex
           });
       });
@@ -703,6 +697,7 @@
       // 3. RENDER DATA GROUPED
       Object.values(groupedData).forEach(person => {
           
+          // Logic Button WA
           let btnWA = "-";
           if(person.hp && person.hp.match(/\d+/)) {
               let cleanNum = person.hp.toString().replace(/\D/g, ''); 
@@ -714,13 +709,23 @@
               }
           }
 
-          let htmlSertifikat = '', htmlJenjang = '', htmlSisa = '', htmlStatus = '', htmlKet = '', htmlAksi = '';
+          // Logic Badge Status Global
+          let statusRaw = (person.statusRaw||"").toLowerCase();
+          let ketRaw = (person.ketRaw||"").toLowerCase();
+          let badge = `<span class="badge-status bg-light text-dark border">${person.statusRaw||'Available'}</span>`;
+          
+          if (statusRaw.includes('expired') || ketRaw.includes('expired')) badge = '<span class="badge-status status-expired">Expired</span>';
+          else if (ketRaw.includes('used')) badge = `<span class="badge-status status-used">${person.ketRaw}</span>`;
+          else if (statusRaw.includes('used')) badge = `<span class="badge-status status-used">${person.statusRaw}</span>`;
+          else if (statusRaw.includes('active') || statusRaw.includes('available')) badge = `<span class="badge-status status-active">${person.statusRaw||'Available'}</span>`;
+
+          // Generate List Nested Items
+          let htmlSertifikat = '', htmlJenjang = '', htmlSisa = '', htmlKet = '', htmlAksi = '';
 
           person.items.forEach(item => {
               htmlSertifikat += `<div class="nested-cell fw-bold" title="${item.sertifikat}">${item.sertifikat}</div>`;
               htmlJenjang += `<div class="nested-cell text-center justify-content-center">${item.jenjang || '-'}</div>`;
               htmlSisa += `<div class="nested-cell text-center justify-content-center small">${item.sisaWaktu || '-'}</div>`;
-              htmlStatus += `<div class="nested-cell text-center justify-content-center">${item.statusBadge}</div>`;
               htmlKet += `<div class="nested-cell small text-muted" title="${item.keterangan || ''}">${item.keterangan || '-'}</div>`;
               
               if (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT") {
@@ -745,7 +750,9 @@
               <td style="padding-top:0; padding-bottom:0;">${htmlSertifikat}</td>
               <td style="padding-top:0; padding-bottom:0;">${htmlJenjang}</td>
               <td style="padding-top:0; padding-bottom:0;">${htmlSisa}</td>
-              <td style="padding-top:0; padding-bottom:0;">${htmlStatus}</td>
+              
+              <td class="text-center align-middle-person">${badge}</td>
+
               <td style="padding-top:0; padding-bottom:0;">${htmlKet}</td>
               <td class="text-center" style="padding-top:0; padding-bottom:0; ${styleAksi}">${htmlAksi}</td>
             </tr>
