@@ -667,6 +667,7 @@
     // --- RENDER LOGIC ---
 
     // FUNGSI RENDER SKK (DIPERBAIKI: HILANGKAN "-" JIKA KETERANGAN KOSONG)
+    // FUNGSI RENDER SKK (MODIFIKASI: CROSS CHECK MENGGUNAKAN KOLOM LPSE)
     function renderSKK(data) {
       const tbody = document.getElementById('bodySkk'); 
       tbody.innerHTML = '';
@@ -691,10 +692,16 @@
       if(dataTugas && dataTugas.length > 0) {
           dataTugas.forEach(row => {
               const pName = (row[1] || "").trim();
-              const pProject = row[2] || "";
+              
+              // --- MODIFIKASI START ---
+              // Mengambil data dari kolom LPSE (Index 5), sebelumnya Nama Pekerjaan (Index 2)
+              const pLpse = row[5] || ""; 
+              // --- MODIFIKASI END ---
+
               const pStatus = (row[12] || "").toLowerCase();
               if (pName && pStatus.includes('active')) {
-                  activeAssignmentsMap[pName] = pProject;
+                  // Simpan Nama LPSE ke dalam Map
+                  activeAssignmentsMap[pName] = pLpse;
               }
           });
       }
@@ -758,11 +765,12 @@
               }
           });
 
-          // Fallback Cross-Check: Cek Data Penugasan
+          // Fallback Cross-Check: Cek Data Penugasan (Sekarang menggunakan LPSE)
           if (!isUsed) {
               const activeJobFromTugas = activeAssignmentsMap[person.nama.trim()];
               if (activeJobFromTugas) {
                   isUsed = true;
+                  // Tampilan akan menjadi "Used in [Nama LPSE]"
                   usedProjectName = `Used in ${activeJobFromTugas}`; 
               }
           } else {
@@ -804,7 +812,6 @@
               htmlSertifikat += `<div class="nested-cell fw-bold" title="${item.sertifikat}">${item.sertifikat}</div>`;
               htmlJenjang += `<div class="nested-cell text-center justify-content-center">${item.jenjang || '-'}</div>`;
               htmlSisa += `<div class="nested-cell text-center justify-content-center small" style="${sisaStyle}">${item.sisaWaktu || '-'}</div>`;
-              // MODIFIKASI: Hilangkan '-' jika kosong
               htmlKet += `<div class="nested-cell small text-muted" title="${item.ketRaw || ''}">${item.ketRaw || ''}</div>`;
               
               if (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT") {
@@ -1329,3 +1336,4 @@
   </script>
 </body>
 </html>
+
