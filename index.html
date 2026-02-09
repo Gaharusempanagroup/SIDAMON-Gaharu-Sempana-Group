@@ -108,11 +108,25 @@
     .status-used { background-color: #fff4e5; color: #cc7700; border: 1px solid #ffeebb; } 
     .status-not-started { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
 
-    /* --- STYLES KHUSUS UNTUK TABLE GROUPING --- */
+    /* --- STYLES KHUSUS UNTUK TABLE SCROLL & GROUPING --- */
+    .table-responsive {
+        overflow-x: auto !important; /* Paksa scroll horizontal */
+        width: 100%;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 10px;
+    }
+    
+    /* Force table cells to single line to trigger scrolling */
+    .table th, .table td {
+        white-space: nowrap; 
+        vertical-align: middle;
+    }
+
+    /* Nested Cell untuk Grouping agar rapi */
     .nested-cell {
         display: flex;
         align-items: center;
-        min-height: 45px; /* Tinggi minimum agar rapi */
+        min-height: 45px; 
         border-bottom: 1px dashed #eee;
         padding: 4px 0;
         white-space: nowrap;
@@ -123,11 +137,26 @@
         border-bottom: none;
     }
     .nested-cell-action {
-        justify-content: center; /* Tengah untuk tombol aksi */
+        justify-content: center; 
     }
-    /* Memastikan kolom vertikal align di tengah */
+    
     .align-middle-person {
         vertical-align: middle !important;
+    }
+
+    /* STICKY COLUMN: Kolom Nama Personil tetap diam saat di-scroll */
+    .table-responsive thead th:first-child,
+    .table-responsive tbody td:first-child {
+        position: sticky;
+        left: 0;
+        background-color: #fff;
+        z-index: 10;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    }
+    /* Khusus header agar z-index di atas body */
+    .table-responsive thead th:first-child {
+        z-index: 11; 
+        background-color: #f8f9fc;
     }
     
     /* GANTT STYLES */
@@ -728,7 +757,7 @@
                   isUsed = true;
                   // MODIFIKASI: Ambil teks langsung dari Kolom Status (K) atau Keterangan jika Status kosong
                   // Ini memastikan teksnya "Used in Kabupaten Gianyar" sesuai spreadsheet
-                  usedProjectName = item.statusRaw && item.statusRaw.toLowerCase().includes('used') ? item.statusRaw : item.ketRaw;
+                  usedProjectName = item.statusRaw.toLowerCase().includes('used') ? item.statusRaw : item.ketRaw;
               }
               if (s.includes('active') || s.includes('available')) {
                   hasActive = true;
