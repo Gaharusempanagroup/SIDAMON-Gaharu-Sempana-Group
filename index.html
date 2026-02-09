@@ -127,11 +127,20 @@
     /* --- PERBAIKAN KOLOM PERTAMA (FIXED) --- */
     .table th:first-child, 
     .table td:first-child {
-        /* Hapus transparent background yang membuat kolom pertama terlihat aneh */
+        /* Reset posisi agar sejajar */
         position: static !important;
-        background-color: #fff !important; /* Paksa warna putih agar konsisten */
         z-index: auto !important;
-        padding-left: 15px; /* Sedikit padding tambahan */
+        padding-left: 15px;
+    }
+
+    /* Warna Background Header (HARUS SAMA DENGAN THEAD LAINNYA #f8f9fc) */
+    .table thead th:first-child {
+        background-color: #f8f9fc !important;
+    }
+
+    /* Warna Background Body (HARUS PUTIH) */
+    .table tbody td:first-child {
+        background-color: #fff !important;
     }
 
     /* Nested Cell untuk Grouping agar rapi */
@@ -139,9 +148,9 @@
         display: flex;
         align-items: center;
         min-height: 45px; 
-        /* GANTI DASHED DENGAN SOLID (Lebih bersih, tidak ada titik-titik samar) */
+        /* GANTI DASHED DENGAN SOLID */
         border-bottom: 1px solid #f5f5f5;
-        padding: 6px 0; /* Padding sedikit diperbesar */
+        padding: 6px 0; 
     }
     .nested-cell:last-child {
         border-bottom: none;
