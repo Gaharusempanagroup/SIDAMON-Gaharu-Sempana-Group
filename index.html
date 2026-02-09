@@ -191,15 +191,19 @@
     // --- HELPER FUNCTION UNTUK FETCH API ---
     async function fetchAPI(action, method = 'GET', data = null) {
         let url = `${CONST_API_URL}?action=${action}`;
+        
         const options = {
             method: method,
-            // Mode 'cors' sangat penting agar browser mengizinkan request
         };
 
         if (method === 'POST') {
-            // Apps Script doPost membaca 'postData.contents'
-            // Kita kirim sebagai stringify JSON di body
-            // Namun, Apps Script Web App 'text/plain' paling aman untuk menghindari Preflight CORS options yang ribet
+            // RAHASIA AGAR TIDAK KENA CORS:
+            // 1. Gunakan mode 'no-cors' TIDAK BOLEH dipakai jika butuh jawaban (login butuh jawaban)
+            // 2. Ganti Content-Type jadi text/plain
+            options.headers = {
+                "Content-Type": "text/plain;charset=utf-8" 
+            };
+            // Kirim body sebagai string
             options.body = JSON.stringify({ action: action, ...data });
         }
 
@@ -209,6 +213,8 @@
             return await response.json();
         } catch (error) {
             console.error("Fetch Error:", error);
+            // Tampilkan error ke user agar tidak stuck loading selamanya
+            alert("Gagal menghubungi server: " + error.message);
             throw error;
         }
     }
