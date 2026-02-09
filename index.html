@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SIDAMON Gaharu Sempana Group</title>
-  <link rel="icon" type="image/png" href="Light Transparant.PNG">
   
+  <title>Monitoring Proyek - Gaharu Sempana</title>
+  <link rel="icon" type="image/png" href="Light Transparant.PNG">
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
@@ -13,31 +14,37 @@
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   
   <style>
+    /* --- GLOBAL VARIABLES --- */
     :root { --primary-color: #000080; --bg-light: #f4f6f9; --text-dark: #333; }
+    
     html, body { height: 100%; margin: 0; padding: 0; }
     body.login-mode { overflow: hidden; position: fixed; width: 100%; }
     body { background-color: var(--bg-light); font-family: 'Poppins', 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
+    
     .bg-primary { background-color: var(--primary-color) !important; }
     .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }
     .btn-primary:hover { background-color: #000060; border-color: #000060; }
 
-    /* LOGIN PAGE STYLES */
+    /* --- LOGIN PAGE --- */
     #login-section { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; height: 100dvh; display: flex; align-items: center; justify-content: center; background: linear-gradient(-45deg, #000428, #004e92, #000080, #1cb5e0); background-size: 400% 400%; animation: gradientBG 15s ease infinite; overflow: hidden; z-index: 9999; padding: 20px; }
     @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    
     .login-card { width: 100%; max-width: 420px; padding: 40px; border-radius: 20px; background: rgba(255, 255, 255, 0.15); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.18); text-align: center; animation: fadeInUp 0.8s ease-out; position: relative; z-index: 10; }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes breathing { 0% { transform: scale(1); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); } 50% { transform: scale(1.08); filter: drop-shadow(0 8px 12px rgba(0,0,0,0.4)); } 100% { transform: scale(1); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); } }
+    
     .login-logo { height: 90px; margin-bottom: 20px; animation: breathing 3s ease-in-out infinite; }
     .login-title { color: #ffffff; font-weight: 700; margin-bottom: 5px; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
     .login-subtitle { color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; margin-bottom: 30px; font-weight: 300; }
     .login-footer { position: absolute; bottom: 20px; left: 0; width: 100%; text-align: center; color: rgba(255, 255, 255, 0.5); font-size: 0.75rem; z-index: 20; pointer-events: none; letter-spacing: 1px; font-weight: 300; }
     
-    /* INPUT & BUTTONS */
+    /* FORM INPUTS */
     .form-floating > .form-control { border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.6); height: 55px; background: rgba(255, 255, 255, 0.25); color: #fff; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
     .form-floating > .form-control:focus { border-color: #fff; background: rgba(255, 255, 255, 0.35); box-shadow: 0 0 15px rgba(255, 255, 255, 0.3); outline: none; }
     .form-floating > label { color: rgba(255, 255, 255, 0.9); font-weight: 500; }
     .form-floating > .form-control:focus ~ label, .form-floating > .form-control:not(:placeholder-shown) ~ label { color: rgba(255, 255, 255, 1); font-weight: 600; opacity: 1; }
     .form-floating > .form-control:focus ~ label::after, .form-floating > .form-control:not(:placeholder-shown) ~ label::after { background-color: transparent !important; }
+    
     .btn-login { background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05)); border: 1px solid rgba(255, 255, 255, 0.6); color: white; height: 55px; border-radius: 50px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); backdrop-filter: blur(5px); transition: all 0.4s ease; position: relative; overflow: hidden; width: 100%; touch-action: manipulation; cursor: pointer; }
     .btn-login:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.25); border-color: #ffffff; box-shadow: 0 0 25px rgba(255, 255, 255, 0.4); color: white !important; }
     .btn-login:active { transform: scale(0.96); background: rgba(255, 255, 255, 0.3); }
@@ -46,16 +53,20 @@
     @keyframes slideDownFade { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
 
-    /* DASHBOARD STYLES */
+    /* --- DASHBOARD STYLES --- */
     #dashboard-section { display: none; padding-bottom: 50px; }
+    
+    /* NAV PILLS */
     .nav-pills .nav-link { border-radius: 50px; padding: 10px 25px; font-weight: 600; color: #555; background: white; border: 1px solid #ddd; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; touch-action: manipulation; }
     .nav-pills .nav-link.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); box-shadow: 0 4px 15px rgba(0, 0, 128, 0.3); }
     .nav-pills .nav-link:hover:not(.active) { background-color: #f8f9fa; transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); color: var(--primary-color); }
     .btn:active, .nav-link:active { transform: scale(0.95) !important; background-color: #f0f0f0; }
 
-    /* SUB NAV & STATS */
+    /* SUB NAV */
     .sub-nav .btn { border-radius: 20px; font-size: 0.85rem; font-weight: 600; padding: 6px 15px; border: 1px solid #ddd; background: white; color: #555; transition: all 0.2s ease; touch-action: manipulation; }
     .sub-nav .btn.active { background-color: #000080; color: white; border-color: #000080; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+    
+    /* STATS CARDS */
     .stats-wrapper { max-width: 1100px; margin: 0 auto; }
     .stat-card { 
         border: none; 
@@ -68,26 +79,16 @@
         position: relative;
         z-index: 1;
     }
-    
-    /* Efek saat mouse diarahkan (Hover) */
     .stat-card:hover { 
-        transform: translateY(-5px); /* Kartu naik ke atas */
-        box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important; /* Bayangan lebih dalam */
+        transform: translateY(-5px); 
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important; 
     }
-    
-    /* Transisi Icon */
-    .stat-card i { 
-        transition: all 0.5s ease; 
-    }
-    
-    /* Efek Icon membesar saat kartu di-hover */
-    .stat-card:hover i {
-        transform: scale(1.2) rotate(10deg); /* Icon membesar dan miring sedikit */
-        opacity: 0.7 !important;
-    }
+    .stat-card i { transition: all 0.5s ease; }
+    .stat-card:hover i { transform: scale(1.2) rotate(10deg); opacity: 0.7 !important; }
 
     .stat-value { font-size: 2.5rem; font-weight: 700; line-height: 1; }
     .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
+    
     .bg-gradient-primary { background: linear-gradient(45deg, var(--primary-color), #333399); }
     .bg-gradient-success { background: linear-gradient(45deg, #1cc88a, #13855c); } 
     .bg-gradient-danger { background: linear-gradient(45deg, #e74a3b, #be2617); }
@@ -97,15 +98,17 @@
     .search-input { height: 50px; border-radius: 25px; padding-left: 55px; border: 1px solid #ced4da; transition: all 0.3s; }
     .search-input:focus { box-shadow: 0 4px 15px rgba(0, 0, 128, 0.15); border-color: var(--primary-color); }
     .search-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #aaa; z-index: 5; font-size: 1.1rem; }
+    
     .table-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: none; }
     .table thead th { background-color: #f8f9fc; color: #5a5c69; font-weight: 600; white-space: nowrap; }
+    
     .badge-status { padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; white-space: normal; text-align: left; display: inline-block; }
     .status-expired { background-color: #ffe5e5; color: #cc0000; border: 1px solid #ffcccc; }
     .status-active { background-color: #e5ffe5; color: #007700; border: 1px solid #ccffcc; }
     .status-used { background-color: #fff4e5; color: #cc7700; border: 1px solid #ffeebb; } 
     .status-not-started { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
     
-    /* GANTT STYLES (DIPULIHKAN 100%) */
+    /* GANTT STYLES */
     .custom-gantt-wrapper { display: flex; flex-direction: column; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; max-width: 100%; font-family: 'Segoe UI', sans-serif; }
     .custom-gantt-wrapper::-webkit-scrollbar { height: 8px; width: 8px; }
     .custom-gantt-wrapper::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 0 0 10px 10px; }
@@ -198,7 +201,7 @@
       <div class="container-fluid px-4 px-lg-5 d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center">
           <div class="logo-wrapper">
-            <img src="IMG_0992.PNG" alt="Logo" style="height: 45px; width: auto;">
+              <img src="IMG_0992.PNG" alt="Logo" style="height: 45px; width: auto;">
           </div>
           <div class="d-flex flex-column justify-content-center">
             <span class="text-white fw-bold" style="font-size: 1.1rem; letter-spacing: 0.5px; line-height: 1.2;">SIDAMON Gaharu Sempana Group</span>
@@ -263,8 +266,8 @@
                       <th class="text-center">Kontak (WA)</th>
                       <th>Jenjang & Bidang Ilmu</th> 
                       <th>Sertifikat</th>
-                      <th>Jenjang</th>
-                      <th>Sisa Waktu</th>
+                      <th class="text-center" style="min-width: 100px;">Jenjang</th>
+                      <th class="text-center" style="min-width: 120px;">Sisa Waktu</th>
                       <th class="text-center">Status</th>
                       <th>Keterangan</th>
                       <th class="text-center" id="th-aksi-skk">Aksi</th>
@@ -486,7 +489,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // --- KONFIGURASI PENTING ---
-    const CONST_API_URL = "https://script.google.com/macros/s/AKfycbxzZ50romtTo7HIMfX8fi9k7_YKpstDFu1B_hjcYfxbJS-a598BkmzATYzUeC03Laktug/exec"; // PASTE URL WEB APP ANDA DI SINI
+    const CONST_API_URL = "https://script.google.com/macros/s/AKfycby7g63Y4Y4e4_J4vQpM4k7zN0G6fG5rB8k8q5d2x9L3n1m0/exec"; // PASTE URL WEB APP ANDA DI SINI
 
     // --- HELPER FUNCTION UNTUK FETCH API ---
     async function fetchAPI(action, method = 'GET', data = null) {
@@ -545,7 +548,7 @@
             document.body.classList.remove('login-mode');
             document.body.style.position = ''; 
             document.body.style.overflow = 'auto'; 
-            document.title = "SIDAMON Gaharu Sempana Group"; 
+            document.title = "Monitoring Proyek - Gaharu Sempana"; // JUDUL BROWSER SAAT LOGIN
             
             applyRoleAccess(currentUserRole);
             loadAllData(); 
@@ -609,7 +612,7 @@
       finally { document.getElementById('loading-overlay').style.display = 'none'; }
     }
 
-    // --- RENDER LOGIC DIPULIHKAN DARI SCRIPT AWAL ---
+    // --- RENDER LOGIC ---
 
     function renderSKK(data) {
       const tbody = document.getElementById('bodySkk'); tbody.innerHTML = '';
@@ -637,7 +640,12 @@
           if (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT") {
              actionBtn = `<td class="text-center"><button class="btn btn-sm btn-outline-primary rounded-circle" onclick="openModalEdit(${index})" style="width: 28px; height: 28px; padding: 0;"><i class="bi bi-pencil-fill" style="font-size: 0.8rem;"></i></button></td>`;
           } else { actionBtn = `<td class="text-center text-muted" style="display:none"></td>`; }
-          tbody.innerHTML += `<tr><td class="fw-bold">${row[1]}</td><td class="text-center">${btnWA}</td><td>${row[3]}</td> <td>${row[5]}</td><td>${row[6]}</td><td>${row[9]}</td><td class="text-center">${badge}</td><td class="small text-muted">${row[11]}</td>${actionBtn}</tr>`;
+          
+          // EDIT: MENAMBAHKAN CLASS TEXT-CENTER PADA DATA JENJANG DAN SISA WAKTU
+          tbody.innerHTML += `<tr><td class="fw-bold">${row[1]}</td><td class="text-center">${btnWA}</td><td>${row[3]}</td> <td>${row[5]}</td>
+          <td class="text-center">${row[6]}</td>
+          <td class="text-center">${row[9]}</td>
+          <td class="text-center">${badge}</td><td class="small text-muted">${row[11]}</td>${actionBtn}</tr>`;
         });
       }
       animateValue("skk-total", 0, data.length, 800); animateValue("skk-expired", 0, expired, 800); animateValue("skk-used", 0, usedSet.size, 800);
@@ -705,12 +713,10 @@
       document.getElementById('proj-total').innerText = counts.total; document.getElementById('proj-expired').innerText = counts.expired; document.getElementById('proj-done').innerText = counts.done;
     }
 
-    // --- TIMELINE LOGIC DIPULIHKAN 100% ---
+    // --- TIMELINE LOGIC ---
     
-    // Parse Date Function (PENTING untuk konversi string JSON ke Object Date)
     function parseDate(dateStr) {
       if (!dateStr || dateStr.trim() === '-' || dateStr.trim() === '') return null;
-      // Jika format dari JSON sudah YYYY-MM-DDT...
       if(dateStr.includes('T')) return new Date(dateStr);
       
       const parts = dateStr.split(' ');
@@ -728,7 +734,6 @@
         return `${months[date.getMonth()]} ${date.getFullYear().toString().substr(2,2)}`;
     }
 
-    // Custom Gantt Chart Function
     function drawGanttChart(type) {
       let containerId, startFilterVal, endFilterVal, sourceData;
       let searchKeyword = "";
@@ -888,7 +893,7 @@
     window.hideTooltip = function() { tooltip.style.display = 'none'; }
 
 
-    // --- NAVIGATION HELPERS ---
+    // --- NAVIGATION ---
     window.switchView = function(viewName) {
       document.querySelectorAll('#pills-tab .nav-link').forEach(btn => btn.classList.remove('active'));
       let navId = ''; if(viewName === 'skk') navId = 'nav-skk'; else if(viewName === 'penugasan') navId = 'nav-penugasan'; else if(viewName === 'project') navId = 'nav-project';
@@ -959,42 +964,28 @@
     function animateValue(id, start, end, duration) {
       const obj = document.getElementById(id);
       if (!obj) return;
-      
-      // Hentikan animasi sebelumnya jika ada (agar tidak tumpang tindih saat refresh)
       if (activeTimers[id]) clearInterval(activeTimers[id]);
-      
       if (start === end) {
         obj.innerHTML = end;
         return;
       }
-
       const range = end - start;
-      const minTimer = 50; // Minimal 50ms per step agar mata sempat melihat perubahan
-      
-      // Hitung step waktu. Jika terlalu cepat, kita paksa step waktu minimal tapi loncat angka
+      const minTimer = 50; 
       let stepTime = Math.abs(Math.floor(duration / range));
       stepTime = Math.max(stepTime, minTimer);
       
       const startTime = new Date().getTime();
       const endTime = startTime + duration;
       let timer;
-  
       function run() {
         const now = new Date().getTime();
         const remaining = Math.max((endTime - now) / duration, 0);
         const value = Math.round(end - (remaining * range));
-        
         obj.innerHTML = value;
-        
-        if (value == end) {
-          clearInterval(timer);
-        }
+        if (value == end) { clearInterval(timer); }
       }
-      
       timer = setInterval(run, stepTime);
       activeTimers[id] = timer;
-      
-      // Jalankan sekali di awal
       run();
     }
     
@@ -1067,9 +1058,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
