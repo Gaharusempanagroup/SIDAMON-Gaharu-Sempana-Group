@@ -100,7 +100,7 @@
     .search-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #aaa; z-index: 5; font-size: 1.1rem; }
     
     .table-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: none; }
-    .table thead th { background-color: #f8f9fc; color: #5a5c69; font-weight: 600; vertical-align: middle; }
+    .table thead th { background-color: #f8f9fc; color: #5a5c69; font-weight: 600; vertical-align: middle; border-bottom: 2px solid #eaecf4; }
     
     .badge-status { padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; white-space: normal; text-align: left; display: inline-block; }
     .status-expired { background-color: #ffe5e5; color: #cc0000; border: 1px solid #ffcccc; }
@@ -112,24 +112,26 @@
     .table-responsive {
         display: block;
         width: 100%;
-        overflow-x: auto !important; /* Forces horizontal scroll if needed */
+        overflow-x: auto !important;
         -webkit-overflow-scrolling: touch;
         margin-bottom: 10px;
         border: 1px solid #f0f0f0; 
+        border-radius: 8px;
     }
     
     .table th, .table td {
         vertical-align: middle;
+        border-color: #f0f0f0;
     }
     
-    /* Non-Sticky Column Fix */
+    /* --- PERBAIKAN KOLOM PERTAMA (FIXED) --- */
     .table th:first-child, 
     .table td:first-child {
+        /* Hapus transparent background yang membuat kolom pertama terlihat aneh */
         position: static !important;
-        background-color: transparent !important;
-        left: auto !important;
-        box-shadow: none !important;
+        background-color: #fff !important; /* Paksa warna putih agar konsisten */
         z-index: auto !important;
+        padding-left: 15px; /* Sedikit padding tambahan */
     }
 
     /* Nested Cell untuk Grouping agar rapi */
@@ -137,8 +139,9 @@
         display: flex;
         align-items: center;
         min-height: 45px; 
-        border-bottom: 1px dashed #eee;
-        padding: 4px 0;
+        /* GANTI DASHED DENGAN SOLID (Lebih bersih, tidak ada titik-titik samar) */
+        border-bottom: 1px solid #f5f5f5;
+        padding: 6px 0; /* Padding sedikit diperbesar */
     }
     .nested-cell:last-child {
         border-bottom: none;
@@ -1330,4 +1333,3 @@
   </script>
 </body>
 </html>
-
