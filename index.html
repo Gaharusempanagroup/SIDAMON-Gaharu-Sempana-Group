@@ -637,11 +637,12 @@
                  fetchAPI('getDataSKK'),
                  fetchAPI('getDataPenugasan')
              ]);
+             // MODIFIKASI: Assign dataTugas DULUAN, baru renderSKK dipanggil.
+             // Karena renderSKK sekarang butuh dataTugas untuk cross-check status.
              dataSKK = resSKK; 
              dataTugas = resTugas; 
              
-             // Render SKK sesudah dataTugas tersedia (utk cross-check)
-             renderSKK(dataSKK); 
+             renderSKK(dataSKK); // Render SKK sesudah dataTugas tersedia
              renderTugas(dataTugas);
           }
           if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "TEKNIS") {
@@ -661,14 +662,25 @@
       
       let expired = 0, usedSet = new Set();
       
-      // 1. Hitung Statistik (Data Mentah) -> Tidak dipakai untuk card, tapi untuk log internal
+      // 1. Hitung Statistik (Data Mentah)
+      data.forEach(row => {
+          const status = (row[10]||"").toLowerCase(); 
+          const ket = (row[11]||"").toLowerCase(); 
+          const nama = (row[1]||"").trim();
+          
+          if (status.includes('expired') || ket.includes('expired')) expired++;
+          else if (status.includes('used') || ket.includes('used')) { if(nama) usedSet.add(nama); }
+      });
       
+      // MODIFIKASI: Hitung Total Personil Unik untuk Card Statistik
+      const totalUniquePersonil = new Set(data.map(r => r[1])).size;
+      animateValue("skk-total", 0, totalUniquePersonil, 800); 
+      
+      animateValue("skk-expired", 0, expired, 800); 
+      animateValue("skk-used", 0, usedSet.size, 800);
+
       if(data.length === 0) {
           document.getElementById('msgSkk').classList.remove('d-none');
-          // Reset Card
-          animateValue("skk-total", 0, 0, 800); 
-          animateValue("skk-expired", 0, 0, 800); 
-          animateValue("skk-used", 0, 0, 800);
           return;
       } else {
           document.getElementById('msgSkk').classList.add('d-none');
@@ -714,11 +726,6 @@
           });
       });
 
-      // Variable Penghitung Statistik Akhir
-      let statTotal = Object.keys(groupedData).length;
-      let statUsed = 0;
-      let statExpired = 0;
-
       // 3. RENDER DATA GROUPED DENGAN LOGIKA PRIORITAS & CROSS-CHECK
       Object.values(groupedData).forEach(person => {
           
@@ -726,7 +733,7 @@
           let isUsed = false;
           let hasActive = false;
           let usedProjectName = ""; 
-          let spreadsheetUsedText = ""; 
+          let spreadsheetUsedText = ""; // Variable untuk menyimpan teks asli dr spreadsheet
 
           // Cek Data Internal SKK Terlebih Dahulu (Prioritas Teks dari Spreadsheet)
           person.items.forEach(item => {
@@ -736,11 +743,7 @@
               if (s.includes('used') || k.includes('used')) {
                   isUsed = true;
                   // Priority 1: Ambil teks langsung dari Kolom Status (K)
-                  if(item.statusRaw && item.statusRaw.toLowerCase().includes('used')) {
-                      spreadsheetUsedText = item.statusRaw;
-                  } else if (item.ketRaw) {
-                      spreadsheetUsedText = item.ketRaw;
-                  }
+                  spreadsheetUsedText = item.statusRaw; 
               }
               if (s.includes('active') || s.includes('available')) {
                   hasActive = true;
@@ -752,24 +755,26 @@
               const activeJobFromTugas = activeAssignmentsMap[person.nama.trim()];
               if (activeJobFromTugas) {
                   isUsed = true;
+                  // Jika deteksi via cross-check, kita generate teksnya
                   usedProjectName = `Used in ${activeJobFromTugas}`; 
               }
           } else {
               // Jika terdeteksi via spreadsheet, pakai teks spreadsheet
+              // Jika kosong, baru fallback ke Keterangan atau default "Used"
               usedProjectName = spreadsheetUsedText ? spreadsheetUsedText : "Used";
           }
 
-          // Tentukan Badge Status Akhir & Update Statistik
+          // Tentukan Badge Status Akhir
           let finalBadge = "";
           
           if (isUsed) {
-              statUsed++;
+              // Prioritas 1: USED 
               finalBadge = `<span class="badge-status status-used">${usedProjectName}</span>`; 
           } else if (hasActive) {
-              // Active / Available tidak dihitung di card Expired/Used
+              // Prioritas 2: Available
               finalBadge = `<span class="badge-status status-active">Available</span>`;
           } else {
-              statExpired++;
+              // Prioritas 3: Expired
               finalBadge = `<span class="badge-status status-expired">Expired</span>`;
           }
 
@@ -830,11 +835,6 @@
             </tr>
           `;
       });
-
-      // Update Card Stats dengan Angka Real
-      animateValue("skk-total", 0, statTotal, 800); 
-      animateValue("skk-expired", 0, statExpired, 800); 
-      animateValue("skk-used", 0, statUsed, 800);
     }
 
     // FUNGSI RENDER TUGAS (GROUPED)
