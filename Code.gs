@@ -1,70 +1,95 @@
+// --- Code.gs (Versi API - FIXED) ---
+
+// 1. MASUKKAN ID SPREADSHEET UTAMA (Tempat data SKK & Penugasan)
+const MAIN_SS_ID = "1NYw4b9mSXoa_tYxo38mWZizQahq0wBee-9cU9oUk23o"; 
+
+// 2. ID Spreadsheet Project (Sudah ada sebelumnya)
+const PROJECT_SS_ID = "1kPWraQ0VJNB36sdJVlkP7dDZAZKBvisAtrggGYLraqc"; 
+
+
 /**
- * Setup halaman HTML
+ * Handle GET Requests (API Endpoint)
  */
-function doGet() {
-  return HtmlService.createHtmlOutputFromFile('index')
-      .setTitle('Database Dan Monitoring SKK Gaharu Sempana Group')
-      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
-      .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover');
+function doGet(e) {
+  // --- PENGAMAN ---
+  // Jika e undefined (dijalankan dari editor), buat dummy object agar tidak error
+  if (!e || !e.parameter) {
+    return ContentService.createTextOutput("Error: Jangan jalankan doGet() langsung dari editor. Gunakan Deploy > Test Deploy, atau fungsi debugDoGet().");
+  }
+  // ----------------
+
+  var action = e.parameter.action;
+  var result = {};
+
+  if (action === 'getDataSKK') {
+    result = getDataSKK();
+  } else if (action === 'getDataPenugasan') {
+    result = getDataPenugasan();
+  } else if (action === 'getDataProject') {
+    result = getDataProject();
+  } else if (action === 'getDropdownData') {
+    result = getDropdownData();
+  } else {
+    result = { error: "Action not defined" };
+  }
+
+  return responseJSON(result);
 }
 
 /**
- * VERIFIKASI PASSWORD & ROLE
- * A2 = SUPER_ADMIN (Full Access)
- * A3 = ADMIN (View Only: SKK & Penugasan)
- * A4 = TEKNIS (Master Project Only)
- * A5 = ADMIN_INPUT (View SKK & Penugasan + Bisa Edit/Tambah)
+ * Handle POST Requests (Login & Save)
  */
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var action = data.action;
+    var result = {};
+
+    if (action === 'login') {
+      result = verifyPassword(data.password);
+    } else if (action === 'saveData') {
+      result = processForm(data.payload);
+    } else {
+      result = { error: "Action not defined" };
+    }
+    
+    return responseJSON(result);
+  } catch (err) {
+    return responseJSON({ error: err.toString() });
+  }
+}
+
+function responseJSON(data) {
+  return ContentService.createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// --- FUNGSI LOGIC (Sekarang menggunakan openById) ---
+
 function verifyPassword(inputPassword) {
   try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    // UBAH getActiveSpreadsheet() JADI openById(MAIN_SS_ID)
+    var ss = SpreadsheetApp.openById(MAIN_SS_ID);
     var sheet = ss.getSheetByName("Admin");
-    if (!sheet) return { valid: false }; 
+    if (!sheet) return { valid: false, message: "Sheet Admin hilang" }; 
     
-    // Ambil password dari A2 sampai A5
     var storedPasswords = sheet.getRange("A2:A5").getValues().flat();
     var input = inputPassword.toString().trim();
 
-    // Cek Role
-    if (storedPasswords[0] && input === storedPasswords[0].toString()) {
-      return { valid: true, role: "SUPER_ADMIN" };
-    } 
-    else if (storedPasswords[1] && input === storedPasswords[1].toString()) {
-      return { valid: true, role: "ADMIN" };
-    } 
-    else if (storedPasswords[2] && input === storedPasswords[2].toString()) {
-      return { valid: true, role: "TEKNIS" };
-    }
-    else if (storedPasswords[3] && input === storedPasswords[3].toString()) {
-      return { valid: true, role: "ADMIN_INPUT" }; // Role Baru
-    }
+    if (storedPasswords[0] && input === storedPasswords[0].toString()) return { valid: true, role: "SUPER_ADMIN" };
+    if (storedPasswords[1] && input === storedPasswords[1].toString()) return { valid: true, role: "ADMIN" };
+    if (storedPasswords[2] && input === storedPasswords[2].toString()) return { valid: true, role: "TEKNIS" };
+    if (storedPasswords[3] && input === storedPasswords[3].toString()) return { valid: true, role: "ADMIN_INPUT" };
     
     return { valid: false };
-  } catch (e) { return { valid: false }; }
+  } catch (e) { return { valid: false, error: e.toString() }; }
 }
 
-const PROJECT_SS_ID = "1kPWraQ0VJNB36sdJVlkP7dDZAZKBvisAtrggGYLraqc"; 
-
-/**
- * AMBIL DATA PROJECT
- */
-function getDataProject() {
-  try {
-    var ss = SpreadsheetApp.openById(PROJECT_SS_ID);
-    var sheet = ss.getSheetByName("Project");
-    if (!sheet) return [];
-    var data = sheet.getDataRange().getDisplayValues();
-    if (data.length <= 7) return [];
-    return data.slice(7).filter(r => r[2] !== "" && r[2] !== null);
-  } catch (e) { return []; }
-}
-
-/**
- * DATA SKK
- */
 function getDataSKK() {
   try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    // UBAH getActiveSpreadsheet() JADI openById(MAIN_SS_ID)
+    var ss = SpreadsheetApp.openById(MAIN_SS_ID);
+    
     var sheet = ss.getSheetByName("Dashboard SKK");
     var dbSheet = ss.getSheetByName("Database"); 
     
@@ -100,7 +125,9 @@ function getDataSKK() {
 
 function getDataPenugasan() {
   try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    // UBAH getActiveSpreadsheet() JADI openById(MAIN_SS_ID)
+    var ss = SpreadsheetApp.openById(MAIN_SS_ID);
+    
     var sheet = ss.getSheetByName("Dashboard Waktu Penugasan");
     if (!sheet) return [];
     var data = sheet.getDataRange().getDisplayValues();
@@ -109,8 +136,22 @@ function getDataPenugasan() {
   } catch (e) { return []; }
 }
 
+function getDataProject() {
+  try {
+    // Project menggunakan ID terpisah (sudah benar)
+    var ss = SpreadsheetApp.openById(PROJECT_SS_ID);
+    var sheet = ss.getSheetByName("Project");
+    if (!sheet) return [];
+    var data = sheet.getDataRange().getDisplayValues();
+    if (data.length <= 7) return [];
+    return data.slice(7).filter(r => r[2] !== "" && r[2] !== null);
+  } catch (e) { return []; }
+}
+
 function getDropdownData() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  // UBAH getActiveSpreadsheet() JADI openById(MAIN_SS_ID)
+  var ss = SpreadsheetApp.openById(MAIN_SS_ID);
+  
   var dbSheet = ss.getSheetByName("Database");
   if (!dbSheet) return { error: "Sheet 'Database' tidak ditemukan!" };
 
@@ -123,30 +164,26 @@ function getDropdownData() {
     if (data[i][5]) dropdowns.sertifikat.push(data[i][5]); 
     if (data[i][7]) dropdowns.jenjang.push(data[i][7]); 
   }
-
+  
   for (var key in dropdowns) {
     dropdowns[key] = [...new Set(dropdowns[key])].sort();
   }
   return dropdowns;
 }
 
-/**
- * PROSES SIMPAN / UPDATE DATA
- * Bisa dilakukan oleh SUPER_ADMIN (A2) atau ADMIN_INPUT (A5)
- */
 function processForm(data) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheetAdmin = ss.getSheetByName("Admin");
-  if (!sheetAdmin) return "Error Sistem.";
+  // UBAH getActiveSpreadsheet() JADI openById(MAIN_SS_ID)
+  var ss = SpreadsheetApp.openById(MAIN_SS_ID);
   
-  // Ambil Password Super Admin (A2) dan Admin Input (A5)
+  var sheetAdmin = ss.getSheetByName("Admin");
+  if (!sheetAdmin) return "Error Sistem: Sheet Admin tidak ditemukan.";
+  
   var passwords = sheetAdmin.getRange("A2:A5").getValues().flat();
-  var superAdminPass = passwords[0]; // A2
-  var adminInputPass = passwords[3]; // A5
+  var superAdminPass = passwords[0];
+  var adminInputPass = passwords[3];
   
   var inputPass = data.actionPassword.toString();
 
-  // Cek apakah password cocok dengan SALAH SATU dari kedua role tersebut
   if (inputPass !== superAdminPass.toString() && inputPass !== adminInputPass.toString()) {
     return "Password Salah! Akses Ditolak.";
   }
@@ -180,7 +217,6 @@ function processForm(data) {
       if (targetRow < 7) targetRow = 7;
     }
 
-    // Simpan Data
     sheet.getRange(targetRow, 2).setValue(data.nama); 
     var rowData = [[
       data.perusahaan, 
