@@ -31,9 +31,8 @@
     
     .login-card { width: 100%; max-width: 420px; padding: 40px; border-radius: 20px; background: rgba(255, 255, 255, 0.15); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.18); text-align: center; animation: fadeInUp 0.8s ease-out; position: relative; z-index: 10; }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes breathing { 0% { transform: scale(1); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); } 50% { transform: scale(1.08); filter: drop-shadow(0 8px 12px rgba(0,0,0,0.4)); } 100% { transform: scale(1); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); } }
     
-    .login-logo { height: 90px; margin-bottom: 20px; animation: breathing 3s ease-in-out infinite; }
+    .login-logo { height: 90px; margin-bottom: 20px; }
     .login-title { color: #ffffff; font-weight: 700; margin-bottom: 5px; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
     .login-subtitle { color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; margin-bottom: 30px; font-weight: 300; }
     .login-footer { position: absolute; bottom: 20px; left: 0; width: 100%; text-align: center; color: rgba(255, 255, 255, 0.5); font-size: 0.75rem; z-index: 20; pointer-events: none; letter-spacing: 1px; font-weight: 300; }
@@ -43,7 +42,6 @@
     .form-floating > .form-control:focus { border-color: #fff; background: rgba(255, 255, 255, 0.35); box-shadow: 0 0 15px rgba(255, 255, 255, 0.3); outline: none; }
     .form-floating > label { color: rgba(255, 255, 255, 0.9); font-weight: 500; }
     .form-floating > .form-control:focus ~ label, .form-floating > .form-control:not(:placeholder-shown) ~ label { color: rgba(255, 255, 255, 1); font-weight: 600; opacity: 1; }
-    .form-floating > .form-control:focus ~ label::after, .form-floating > .form-control:not(:placeholder-shown) ~ label::after { background-color: transparent !important; }
     
     .btn-login { background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05)); border: 1px solid rgba(255, 255, 255, 0.6); color: white; height: 55px; border-radius: 50px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); backdrop-filter: blur(5px); transition: all 0.4s ease; position: relative; overflow: hidden; width: 100%; touch-action: manipulation; cursor: pointer; }
     .btn-login:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.25); border-color: #ffffff; box-shadow: 0 0 25px rgba(255, 255, 255, 0.4); color: white !important; }
@@ -143,8 +141,8 @@
     .align-middle-person {
         vertical-align: middle !important;
     }
-
-    /* --- GANTT STYLES --- */
+    
+    /* GANTT STYLES */
     .custom-gantt-wrapper { display: flex; flex-direction: column; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; max-width: 100%; font-family: 'Segoe UI', sans-serif; }
     .custom-gantt-wrapper::-webkit-scrollbar { height: 8px; width: 8px; }
     .custom-gantt-wrapper::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 0 0 10px 10px; }
@@ -637,12 +635,11 @@
                  fetchAPI('getDataSKK'),
                  fetchAPI('getDataPenugasan')
              ]);
-             // MODIFIKASI: Assign dataTugas DULUAN, baru renderSKK dipanggil.
-             // Karena renderSKK sekarang butuh dataTugas untuk cross-check status.
              dataSKK = resSKK; 
              dataTugas = resTugas; 
              
-             renderSKK(dataSKK); // Render SKK sesudah dataTugas tersedia
+             // Render SKK sesudah dataTugas tersedia (utk cross-check)
+             renderSKK(dataSKK); 
              renderTugas(dataTugas);
           }
           if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "TEKNIS") {
@@ -662,25 +659,14 @@
       
       let expired = 0, usedSet = new Set();
       
-      // 1. Hitung Statistik (Data Mentah)
-      data.forEach(row => {
-          const status = (row[10]||"").toLowerCase(); 
-          const ket = (row[11]||"").toLowerCase(); 
-          const nama = (row[1]||"").trim();
-          
-          if (status.includes('expired') || ket.includes('expired')) expired++;
-          else if (status.includes('used') || ket.includes('used')) { if(nama) usedSet.add(nama); }
-      });
+      // 1. Hitung Statistik (Data Mentah) -> Tidak dipakai untuk card, tapi untuk log internal
       
-      // MODIFIKASI: Hitung Total Personil Unik untuk Card Statistik
-      const totalUniquePersonil = new Set(data.map(r => r[1])).size;
-      animateValue("skk-total", 0, totalUniquePersonil, 800); 
-      
-      animateValue("skk-expired", 0, expired, 800); 
-      animateValue("skk-used", 0, usedSet.size, 800);
-
       if(data.length === 0) {
           document.getElementById('msgSkk').classList.remove('d-none');
+          // Reset Card
+          animateValue("skk-total", 0, 0, 800); 
+          animateValue("skk-expired", 0, 0, 800); 
+          animateValue("skk-used", 0, 0, 800);
           return;
       } else {
           document.getElementById('msgSkk').classList.add('d-none');
@@ -726,6 +712,11 @@
           });
       });
 
+      // Variable Penghitung Statistik Akhir
+      let statTotal = Object.keys(groupedData).length;
+      let statUsed = 0;
+      let statExpired = 0;
+
       // 3. RENDER DATA GROUPED DENGAN LOGIKA PRIORITAS & CROSS-CHECK
       Object.values(groupedData).forEach(person => {
           
@@ -733,7 +724,7 @@
           let isUsed = false;
           let hasActive = false;
           let usedProjectName = ""; 
-          let spreadsheetUsedText = ""; // Variable untuk menyimpan teks asli dr spreadsheet
+          let spreadsheetUsedText = ""; 
 
           // Cek Data Internal SKK Terlebih Dahulu (Prioritas Teks dari Spreadsheet)
           person.items.forEach(item => {
@@ -743,7 +734,11 @@
               if (s.includes('used') || k.includes('used')) {
                   isUsed = true;
                   // Priority 1: Ambil teks langsung dari Kolom Status (K)
-                  spreadsheetUsedText = item.statusRaw; 
+                  if(item.statusRaw && item.statusRaw.toLowerCase().includes('used')) {
+                      spreadsheetUsedText = item.statusRaw;
+                  } else if (item.ketRaw) {
+                      spreadsheetUsedText = item.ketRaw;
+                  }
               }
               if (s.includes('active') || s.includes('available')) {
                   hasActive = true;
@@ -760,21 +755,20 @@
               }
           } else {
               // Jika terdeteksi via spreadsheet, pakai teks spreadsheet
-              // Jika kosong, baru fallback ke Keterangan atau default "Used"
               usedProjectName = spreadsheetUsedText ? spreadsheetUsedText : "Used";
           }
 
-          // Tentukan Badge Status Akhir
+          // Tentukan Badge Status Akhir & Update Statistik
           let finalBadge = "";
           
           if (isUsed) {
-              // Prioritas 1: USED 
+              statUsed++;
               finalBadge = `<span class="badge-status status-used">${usedProjectName}</span>`; 
           } else if (hasActive) {
-              // Prioritas 2: Available
+              // Active / Available tidak dihitung di card Expired/Used
               finalBadge = `<span class="badge-status status-active">Available</span>`;
           } else {
-              // Prioritas 3: Expired
+              statExpired++;
               finalBadge = `<span class="badge-status status-expired">Expired</span>`;
           }
 
@@ -835,6 +829,11 @@
             </tr>
           `;
       });
+
+      // Update Card Stats dengan Angka Real
+      animateValue("skk-total", 0, statTotal, 800); 
+      animateValue("skk-expired", 0, statExpired, 800); 
+      animateValue("skk-used", 0, statUsed, 800);
     }
 
     // FUNGSI RENDER TUGAS (GROUPED)
