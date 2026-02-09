@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   
-  <title>SIDAMON Gaharu Sempana Group</title>
+  <title>Monitoring Proyek - Gaharu Sempana</title>
   <link rel="icon" type="image/png" href="Light Transparant.PNG">
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -108,18 +108,30 @@
     .status-used { background-color: #fff4e5; color: #cc7700; border: 1px solid #ffeebb; } 
     .status-not-started { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
 
-    /* --- STYLES KHUSUS UNTUK TABLE SCROLL & GROUPING --- */
+    /* --- STYLES KHUSUS UNTUK TABLE SCROLL HORIZONTAL (Updated) --- */
     .table-responsive {
-        overflow-x: auto !important; /* Paksa scroll horizontal */
+        display: block;
         width: 100%;
+        overflow-x: auto !important; /* Forces horizontal scroll */
         -webkit-overflow-scrolling: touch;
         margin-bottom: 10px;
+        border: 1px solid #f0f0f0; /* Optional: visual clue */
     }
     
     /* Force table cells to single line to trigger scrolling */
     .table th, .table td {
-        white-space: nowrap; 
+        white-space: nowrap !important; /* Force Single Line */
         vertical-align: middle;
+    }
+    
+    /* Non-Sticky Column Fix: Pastikan semua kolom statis */
+    .table th:first-child, 
+    .table td:first-child {
+        position: static !important;
+        background-color: transparent !important;
+        left: auto !important;
+        box-shadow: none !important;
+        z-index: auto !important;
     }
 
     /* Nested Cell untuk Grouping agar rapi */
@@ -144,7 +156,7 @@
         vertical-align: middle !important;
     }
 
-    /* --- GANTT STYLES --- */
+    /* --- GANTT STYLES (Keep Sticky for Gantt, but regular tables are fixed above) --- */
     .custom-gantt-wrapper { display: flex; flex-direction: column; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; max-width: 100%; font-family: 'Segoe UI', sans-serif; }
     .custom-gantt-wrapper::-webkit-scrollbar { height: 8px; width: 8px; }
     .custom-gantt-wrapper::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 0 0 10px 10px; }
@@ -206,7 +218,7 @@
     <div class="login-card">
       <img src="IMG_0992.PNG" alt="Logo" class="login-logo">
       <h3 class="login-title">SIDAMON</h3>
-      <p class="login-subtitle">Sistem Database & Monitoring</p>
+      <p class="login-subtitle">System Database & Monitoring</p>
       
       <form onsubmit="handleLogin(event)">
         <div class="form-floating mb-4 text-start">
@@ -470,7 +482,7 @@
                     <th class="text-center">Deadline Kontrak</th>
                     <th class="text-center">Deadline Schedule</th>
                     <th class="text-center">Status</th>
-                  </tr>
+                    <th>Keterangan</th> </tr>
                 </thead>
                 <tbody id="bodyProject"></tbody>
               </table>
@@ -584,7 +596,7 @@
             document.body.classList.remove('login-mode');
             document.body.style.position = ''; 
             document.body.style.overflow = 'auto'; 
-            document.title = "SIDAMON Gaharu Sempana Group"; // JUDUL BROWSER SAAT LOGIN
+            document.title = "Monitoring Proyek - Gaharu Sempana"; // JUDUL BROWSER SAAT LOGIN
             
             applyRoleAccess(currentUserRole);
             loadAllData(); 
@@ -654,7 +666,7 @@
 
     // --- RENDER LOGIC ---
 
-    // FUNGSI RENDER SKK (DIPERBAIKI UNTUK HITUNG EXPIRED PER ITEM)
+    // FUNGSI RENDER SKK (DIPERBAIKI: HILANGKAN "-" JIKA KETERANGAN KOSONG)
     function renderSKK(data) {
       const tbody = document.getElementById('bodySkk'); 
       tbody.innerHTML = '';
@@ -729,11 +741,9 @@
               let s = (item.statusRaw || "").toLowerCase();
               let k = (item.ketRaw || "").toLowerCase();
               
-              // --- FIX: Hitung Expired per Sertifikat ---
               if (s.includes('expired')) {
                   statExpired++;
               }
-              // ------------------------------------------
 
               if (s.includes('used') || k.includes('used')) {
                   isUsed = true;
@@ -759,16 +769,15 @@
               usedProjectName = spreadsheetUsedText ? spreadsheetUsedText : "Used";
           }
 
-          // Tentukan Badge Status Akhir (Hanya status visual orang tersebut)
+          // Tentukan Badge Status Akhir
           let finalBadge = "";
           
           if (isUsed) {
-              statUsed++; // Hitung orang yang terpakai
+              statUsed++; 
               finalBadge = `<span class="badge-status status-used">${usedProjectName}</span>`; 
           } else if (hasActive) {
               finalBadge = `<span class="badge-status status-active">Available</span>`;
           } else {
-              // Jika tidak Used dan tidak ada yang Active sama sekali, status orangnya Expired
               finalBadge = `<span class="badge-status status-expired">Expired</span>`;
           }
 
@@ -795,7 +804,8 @@
               htmlSertifikat += `<div class="nested-cell fw-bold" title="${item.sertifikat}">${item.sertifikat}</div>`;
               htmlJenjang += `<div class="nested-cell text-center justify-content-center">${item.jenjang || '-'}</div>`;
               htmlSisa += `<div class="nested-cell text-center justify-content-center small" style="${sisaStyle}">${item.sisaWaktu || '-'}</div>`;
-              htmlKet += `<div class="nested-cell small text-muted" title="${item.ketRaw || ''}">${item.ketRaw || '-'}</div>`;
+              // MODIFIKASI: Hilangkan '-' jika kosong
+              htmlKet += `<div class="nested-cell small text-muted" title="${item.ketRaw || ''}">${item.ketRaw || ''}</div>`;
               
               if (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT") {
                   htmlAksi += `<div class="nested-cell nested-cell-action">
@@ -916,6 +926,7 @@
        });
     }
 
+    // FUNGSI RENDER PROJECT (DIPERBAIKI: TAMBAH KOLOM KETERANGAN DARI KOLOM S/INDEX 18)
     function renderProject(data) {
       const tbody = document.getElementById('bodyProject'); tbody.innerHTML = '';
       let counts = { total: 0, expired: 0, done: 0 }; const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -927,6 +938,8 @@
         const priority = (row[7] || "").trim();
         let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13];
         const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim();
+        const notes = row[18] || ""; // Ambil data dari Kolom S (Index 18)
+
         const isDone = rawStatus.includes('done') || rawStatus.includes('selesai');
 
         const isExpired = (dateStr) => {
@@ -958,7 +971,15 @@
         }
         let priorityClass = "bg-info"; if (priority === "High") priorityClass = "bg-danger"; else if (priority === "Medium") priorityClass = "bg-warning text-dark";
 
-        tbody.innerHTML += `<tr><td class="fw-bold" style="min-width: 250px;">${pekerjaan}</td><td>${kordinator}</td><td class="text-center">${btnUrl}</td><td class="text-center"><span class="badge ${priorityClass}">${priority || 'Low'}</span></td><td class="text-center text-muted small">${deadKontrakView}</td><td class="text-center text-muted small">${deadScheduleView}</td><td class="text-center"><span class="badge ${badgeClass}">${statusText || 'Not Started'}</span></td></tr>`;
+        tbody.innerHTML += `<tr>
+            <td class="fw-bold" style="min-width: 250px;">${pekerjaan}</td>
+            <td>${kordinator}</td>
+            <td class="text-center">${btnUrl}</td>
+            <td class="text-center"><span class="badge ${priorityClass}">${priority || 'Low'}</span></td>
+            <td class="text-center text-muted small">${deadKontrakView}</td>
+            <td class="text-center text-muted small">${deadScheduleView}</td>
+            <td class="text-center"><span class="badge ${badgeClass}">${statusText || 'Not Started'}</span></td>
+            <td class="small text-muted">${notes}</td> </tr>`;
       });
       document.getElementById('proj-total').innerText = counts.total; document.getElementById('proj-expired').innerText = counts.expired; document.getElementById('proj-done').innerText = counts.done;
     }
@@ -1308,5 +1329,3 @@
   </script>
 </body>
 </html>
-
-
