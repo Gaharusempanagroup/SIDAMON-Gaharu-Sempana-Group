@@ -10,51 +10,55 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script> <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
   <style>
-    /* --- GLOBAL VARIABLES --- */
+    /* --- CSS GLOBAL --- */
     :root { --primary-color: #000080; --bg-light: #f4f6f9; --text-dark: #333; }
     
     html, body { height: 100%; margin: 0; padding: 0; }
     body.login-mode { overflow: hidden; position: fixed; width: 100%; }
-    body { background-color: var(--bg-light); font-family: 'Poppins', 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg-light); font-family: 'Poppins', 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
     
     .bg-primary { background-color: var(--primary-color) !important; }
     .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }
     .btn-primary:hover { background-color: #000060; border-color: #000060; }
 
-    /* --- LOGIN PAGE --- */
-    #login-section { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; height: 100dvh; display: flex; align-items: center; justify-content: center; background: linear-gradient(-45deg, #000428, #004e92, #000080, #1cb5e0); background-size: 400% 400%; animation: gradientBG 15s ease infinite; overflow: hidden; z-index: 9999; padding: 20px; }
+    /* LOGIN PAGE */
+    #login-section { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(-45deg, #000428, #004e92, #000080, #1cb5e0); background-size: 400% 400%; animation: gradientBG 15s ease infinite; z-index: 9999; padding: 20px; }
     @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     
-    .login-card { width: 100%; max-width: 420px; padding: 40px; border-radius: 20px; background: rgba(255, 255, 255, 0.15); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.18); text-align: center; animation: fadeInUp 0.8s ease-out; position: relative; z-index: 10; }
+    .login-card { width: 100%; max-width: 420px; padding: 40px; border-radius: 20px; background: rgba(255, 255, 255, 0.15); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.18); text-align: center; animation: fadeInUp 0.8s ease-out; }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes breathing { 0% { transform: scale(1); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); } 50% { transform: scale(1.08); filter: drop-shadow(0 8px 12px rgba(0,0,0,0.4)); } 100% { transform: scale(1); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); } }
     
     .login-logo { height: 90px; margin-bottom: 20px; animation: breathing 3s ease-in-out infinite; }
     .login-title { color: #ffffff; font-weight: 700; margin-bottom: 5px; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
     .login-subtitle { color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; margin-bottom: 30px; font-weight: 300; }
-    .login-footer { position: absolute; bottom: 20px; left: 0; width: 100%; text-align: center; color: rgba(255, 255, 255, 0.5); font-size: 0.75rem; z-index: 20; pointer-events: none; letter-spacing: 1px; font-weight: 300; }
+    .login-footer { position: absolute; bottom: 20px; left: 0; width: 100%; text-align: center; color: rgba(255, 255, 255, 0.5); font-size: 0.75rem; pointer-events: none; letter-spacing: 1px; font-weight: 300; }
     
-    /* FORM INPUTS */
+    /* INPUTS */
     .form-floating > .form-control { border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.6); height: 55px; background: rgba(255, 255, 255, 0.25); color: #fff; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
     .form-floating > .form-control:focus { border-color: #fff; background: rgba(255, 255, 255, 0.35); box-shadow: 0 0 15px rgba(255, 255, 255, 0.3); outline: none; }
     .form-floating > label { color: rgba(255, 255, 255, 0.9); font-weight: 500; }
     .form-floating > .form-control:focus ~ label, .form-floating > .form-control:not(:placeholder-shown) ~ label { color: rgba(255, 255, 255, 1); font-weight: 600; opacity: 1; }
     .form-floating > .form-control:focus ~ label::after, .form-floating > .form-control:not(:placeholder-shown) ~ label::after { background-color: transparent !important; }
     
-    .btn-login { background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05)); border: 1px solid rgba(255, 255, 255, 0.6); color: white; height: 55px; border-radius: 50px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); backdrop-filter: blur(5px); transition: all 0.4s ease; position: relative; overflow: hidden; width: 100%; touch-action: manipulation; cursor: pointer; }
+    .btn-login { background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05)); border: 1px solid rgba(255, 255, 255, 0.6); color: white; height: 55px; border-radius: 50px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); backdrop-filter: blur(5px); transition: all 0.4s ease; position: relative; overflow: hidden; width: 100%; cursor: pointer; }
     .btn-login:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.25); border-color: #ffffff; box-shadow: 0 0 25px rgba(255, 255, 255, 0.4); color: white !important; }
-    .btn-login:active { transform: scale(0.96); background: rgba(255, 255, 255, 0.3); }
+    .btn-login:disabled { opacity: 0.7; cursor: not-allowed; }
     
-    #login-alert { display: none; margin-top: 15px; padding: 12px 20px; border-radius: 15px; background: rgba(220, 53, 69, 0.15); border: 1px solid rgba(220, 53, 69, 0.4); color: #ffcccc; font-size: 0.85rem; font-weight: 500; backdrop-filter: blur(5px); align-items: center; justify-content: center; gap: 10px; animation: slideDownFade 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 15px rgba(220, 53, 69, 0.1); }
+    .login-alert { margin-top: 15px; padding: 12px 20px; border-radius: 15px; background: rgba(220, 53, 69, 0.15); border: 1px solid rgba(220, 53, 69, 0.4); color: #ffcccc; font-size: 0.85rem; font-weight: 500; backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; gap: 10px; animation: slideDownFade 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 15px rgba(220, 53, 69, 0.1); }
     @keyframes slideDownFade { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+    .shake-anim { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
 
-    /* --- DASHBOARD STYLES --- */
-    #dashboard-section { display: none; padding-bottom: 50px; }
+    /* DASHBOARD STYLES */
+    #dashboard-section { padding-bottom: 50px; min-height: 100vh; }
     
     /* === LOGO WRAPPER (BERSIH TOTAL) === */
     .logo-wrapper { 
@@ -80,17 +84,17 @@
       animation: slideInSmooth 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
       padding: 6px 0;
       margin-left: 15px;
-      border: none !important; /* Memastikan tidak ada border */
-      border-left: none !important; /* Memastikan tidak ada border kiri */
+      border: none !important;
+      border-left: none !important;
       transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
       cursor: default;
     }
 
     /* Efek Hover Text Only */
     .greeting-wrapper:hover {
-        background: transparent !important; /* Tidak ada background saat hover */
-        border: none !important; /* Tidak ada border saat hover */
-        box-shadow: none !important; /* Tidak ada shadow kotak */
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
         backdrop-filter: none !important;
         transform: translateY(-2px); 
     }
@@ -121,24 +125,10 @@
     
     /* STATS CARDS */
     .stats-wrapper { max-width: 1100px; margin: 0 auto; }
-    .stat-card { 
-        border: none; 
-        border-radius: 12px; 
-        box-shadow: 0 4px 6px rgba(0,0,0,0.07); 
-        transition: transform 0.3s ease, box-shadow 0.3s ease; 
-        color: white; 
-        overflow: hidden; 
-        height: 100%; 
-        position: relative;
-        z-index: 1;
-    }
-    .stat-card:hover { 
-        transform: translateY(-5px); 
-        box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important; 
-    }
+    .stat-card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.07); transition: transform 0.3s ease, box-shadow 0.3s ease; color: white; overflow: hidden; height: 100%; position: relative; z-index: 1; }
+    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important; }
     .stat-card i { transition: all 0.5s ease; }
     .stat-card:hover i { transform: scale(1.2) rotate(10deg); opacity: 0.7 !important; }
-
     .stat-value { font-size: 2.5rem; font-weight: 700; line-height: 1; }
     .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
     
@@ -161,61 +151,29 @@
     .status-used { background-color: #fff4e5; color: #cc7700; border: 1px solid #ffeebb; } 
     .status-not-started { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
 
-    /* --- STYLES KHUSUS UNTUK TABLE SCROLL HORIZONTAL --- */
-    .table-responsive {
-        display: block;
-        width: 100%;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch;
-        margin-bottom: 10px;
-        border: 1px solid #f0f0f0; 
-        border-radius: 8px;
-    }
-    
-    .table th, .table td {
-        vertical-align: middle;
-        border-color: #f0f0f0;
-    }
-    
-    /* --- FIX KOLOM PERTAMA & TABLE --- */
-    .table th:first-child, 
-    .table td:first-child {
-        position: static !important;
-        z-index: auto !important;
-        padding-left: 15px;
-    }
+    /* TABLE SCROLL & FIXES */
+    .table-responsive { display: block; width: 100%; overflow-x: auto !important; -webkit-overflow-scrolling: touch; margin-bottom: 10px; border: 1px solid #f0f0f0; border-radius: 8px; }
+    .table th, .table td { vertical-align: middle; border-color: #f0f0f0; }
+    .table th:first-child, .table td:first-child { position: static !important; z-index: auto !important; padding-left: 15px; }
     .table thead th:first-child { background-color: #f8f9fc !important; }
     .table tbody td:first-child { background-color: #fff !important; }
 
-    .nested-cell {
-        display: flex;
-        align-items: center;
-        min-height: 45px; 
-        border-bottom: 1px solid #f5f5f5;
-        padding: 6px 0; 
-    }
+    .nested-cell { display: flex; align-items: center; min-height: 45px; border-bottom: 1px solid #f5f5f5; padding: 6px 0; }
     .nested-cell:last-child { border-bottom: none; }
     .nested-cell-action { justify-content: center; }
-    
     .align-middle-person { vertical-align: middle !important; }
 
-    /* --- GANTT STYLES --- */
-    .custom-gantt-wrapper { display: flex; flex-direction: column; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; max-width: 100%; font-family: 'Segoe UI', sans-serif; }
-    .custom-gantt-wrapper::-webkit-scrollbar { height: 8px; width: 8px; }
-    .custom-gantt-wrapper::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 0 0 10px 10px; }
-    .custom-gantt-wrapper::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+    /* GANTT */
+    .custom-gantt-wrapper { display: flex; flex-direction: column; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow-x: auto; position: relative; max-width: 100%; }
     .g-row-container { display: flex; align-items: stretch; width: max-content; min-width: 100%; border-bottom: 1px solid #f2f2f2; position: relative; }
-    .g-sticky-col { position: sticky; left: 0; z-index: 20; background-color: #fff; width: 320px; flex-shrink: 0; display: flex; align-items: center; padding: 12px 15px; font-size: 13.5px; color: #444; line-height: 1.4; white-space: normal; box-shadow: 4px 0 10px -4px rgba(0,0,0,0.1); border-right: 1px solid #eee; }
-    .g-col-personil { position: sticky; left: 0; z-index: 25; background-color: #fff; width: 220px; flex-shrink: 0; display: flex; align-items: center; padding: 8px 10px; font-size: 0.85rem; font-weight: bold; color: #333; border-right: 1px solid #eee; line-height: 1.3; }
-    .g-col-pekerjaan { position: sticky; left: 220px; z-index: 25; background-color: #fff; width: 250px; flex-shrink: 0; display: flex; align-items: center; padding: 8px 10px; font-size: 0.85rem; color: #555; border-right: 1px solid #ddd; box-shadow: 4px 0 5px -2px rgba(0,0,0,0.1); line-height: 1.3; }
-    .g-header-row .g-col-personil, .g-header-row .g-col-pekerjaan { background-color: #f8f9fa; color: #555; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; justify-content: center; text-align: center; }
-    .g-data-row:hover .g-col-personil, .g-data-row:hover .g-col-pekerjaan { background-color: #f0f7ff; color: var(--primary-color); }
-    .g-data-row:hover .g-col-personil { border-left: 3px solid var(--primary-color); padding-left: 7px; }
+    .g-sticky-col { position: sticky; left: 0; z-index: 20; background-color: #fff; width: 320px; flex-shrink: 0; display: flex; align-items: center; padding: 12px 15px; font-size: 13.5px; color: #444; box-shadow: 4px 0 10px -4px rgba(0,0,0,0.1); border-right: 1px solid #eee; }
+    .g-col-personil { position: sticky; left: 0; z-index: 25; background-color: #fff; width: 220px; flex-shrink: 0; display: flex; align-items: center; padding: 8px 10px; font-size: 0.85rem; font-weight: bold; color: #333; border-right: 1px solid #eee; }
+    .g-col-pekerjaan { position: sticky; left: 220px; z-index: 25; background-color: #fff; width: 250px; flex-shrink: 0; display: flex; align-items: center; padding: 8px 10px; font-size: 0.85rem; color: #555; border-right: 1px solid #ddd; box-shadow: 4px 0 5px -2px rgba(0,0,0,0.1); }
+    .g-header-row .g-col-personil, .g-header-row .g-col-pekerjaan, .g-header-row .g-sticky-col { background-color: #f8f9fa; color: #555; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; justify-content: center; text-align: center; }
+    .g-data-row:hover .g-col-personil, .g-data-row:hover .g-col-pekerjaan, .g-data-row:hover .g-sticky-col { background-color: #f0f7ff; color: var(--primary-color); }
     .g-timeline-col { position: relative; flex-grow: 1; background-color: #ffffff; }
     .g-header-row { background-color: #f8f9fa; height: 55px; border-bottom: 1px solid #dee2e6; }
-    .g-header-row .g-sticky-col { background-color: #f8f9fa; color: #555; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; justify-content: center; box-shadow: 4px 0 10px -4px rgba(0,0,0,0.1); border-left: none; }
     .g-data-row:nth-child(even) .g-sticky-col, .g-data-row:nth-child(even) .g-timeline-col { background-color: #fafbfc; }
-    .g-data-row:hover .g-sticky-col { background-color: #f0f7ff; color: var(--primary-color); border-left: 3px solid var(--primary-color); }
     .g-data-row:hover .g-timeline-col { background-color: #f0f7ff; }
     .g-bar { position: absolute; height: 24px; top: 50%; transform: translateY(-50%); border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); cursor: pointer; transition: all 0.2s; z-index: 10; }
     .g-bar:hover { transform: translateY(-50%) scaleY(1.15); box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 30; }
@@ -224,11 +182,11 @@
     .bar-green { background: linear-gradient(180deg, #1cc88a 0%, #13855c 100%); }
     .bar-grey  { background: linear-gradient(180deg, #858796 0%, #60616f 100%); }
     .month-marker { position: absolute; top: 0; height: 100%; border-left: 1px dashed #e0e0e0; font-size: 11px; padding-left: 8px; padding-top: 18px; color: #888; font-weight: 600; pointer-events: none; text-transform: uppercase; }
-    .g-header-row .month-marker { border-left: 1px solid #d1d3e2; color: #555; }
-    
-    @media (max-width: 992px) { .g-sticky-col { width: 220px; font-size: 12px; padding: 8px 10px; } .g-col-personil { width: 150px; font-size: 0.8rem; } .g-col-pekerjaan { left: 150px; width: 170px; font-size: 0.8rem; } }
-    @media (max-width: 576px) { .g-sticky-col { width: 140px; font-size: 11px; padding: 8px 6px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); } .g-header-row { height: 45px; } .month-marker { font-size: 9px; padding-top: 14px; padding-left: 4px; } .g-bar { height: 18px; } .g-col-personil { width: 105px; font-size: 10px; padding: 4px; white-space: normal; overflow: visible; text-overflow: clip; word-wrap: break-word; line-height: 1.1; display: flex; align-items: center; } .g-col-pekerjaan { left: 105px; width: 115px; font-size: 10px; padding: 4px; white-space: normal; overflow: visible; text-overflow: clip; word-wrap: break-word; line-height: 1.1; display: flex; align-items: center; } .g-header-row .g-col-personil, .g-header-row .g-col-pekerjaan { font-size: 9px; padding: 0 2px; } }
-    
+
+    /* LOADING */
+    #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); display: flex; justify-content: center; align-items: center; z-index: 9999; flex-direction: column; }
+
+    /* TOOLTIP */
     .custom-tooltip { position: fixed; display: none; background: rgba(255, 255, 255, 0.98); border: 1px solid #eee; border-left: 5px solid var(--primary-color); padding: 12px 16px; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 9999; pointer-events: none; min-width: 200px; max-width: 300px; font-size: 0.85rem; animation: fadeIn 0.2s ease-in-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     .ct-header { font-weight: bold; color: #333; margin-bottom: 5px; line-height: 1.2; font-size: 0.95rem; border-bottom: 1px solid #f0f0f0; padding-bottom: 5px; }
@@ -236,854 +194,33 @@
     .ct-row i { width: 20px; text-align: center; margin-right: 5px; color: #888; }
     .ct-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; margin-top: 5px; }
     
-    .logo-wrapper { background: rgba(255, 255, 255, 0.15); padding: 6px; border-radius: 10px; backdrop-filter: blur(4px); margin-right: 15px; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; }
-    #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); display: none; justify-content: center; align-items: center; z-index: 9999; flex-direction: column; }
-    
-    input[list] {
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23333" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');
-        background-repeat: no-repeat;
-        background-position: right 0.75rem center;
-        background-size: 12px;
-        padding-right: 2rem; cursor: pointer;
-    }
+    input[list] { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23333" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 12px; padding-right: 2rem; cursor: pointer; }
   </style>
 </head>
-<body class="login-mode">
+<body>
 
-  <div id="gantt-tooltip" class="custom-tooltip"></div>
+  <div id="root"></div>
 
-  <div id="loading-overlay">
-    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
-    <div class="mt-3 fw-bold text-secondary" id="loading-text">Memuat Data...</div>
-  </div>
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+    const CONST_API_URL = "https://script.google.com/macros/s/AKfycbxzZ50romtTo7HIMfX8fi9k7_YKpstDFu1B_hjcYfxbJS-a598BkmzATYzUeC03Laktug/exec";
 
-  <div id="login-section">
-    <div class="login-card">
-      <img src="IMG_0992.PNG" alt="Logo" class="login-logo">
-      <h3 class="login-title">SIDAMON</h3>
-      <p class="login-subtitle">Sistem Database & Monitoring</p>
-      
-      <form onsubmit="handleLogin(event)">
-        <div class="form-floating mb-4 text-start">
-          <input type="password" class="form-control" id="passwordInput" placeholder="Password" required oninput="hideLoginError()">
-          <label for="passwordInput">Masukkan Password Akses</label>
-        </div>
-        
-        <button type="submit" class="btn btn-login w-100" id="loginBtn">
-          MASUK DASHBOARD
-        </button>
-        
-        <div id="login-alert">
-            <i class="bi bi-exclamation-triangle-fill"></i>
-            <span>Password Salah. Silahkan coba lagi.</span>
-        </div>
-
-      </form>
-    </div>
-
-    <div class="login-footer">
-        © 2026 Gaharu Sempana Group. All Rights Reserved.<br>
-        Developed by IT Division
-    </div>
-  </div>
-
-  <div id="dashboard-section">
-    <nav class="navbar navbar-dark bg-primary shadow-sm mb-4 py-2">
-      <div class="container-fluid px-4 px-lg-5 d-flex justify-content-between align-items-center">
-        <div class="d-flex align-items-center">
-          <div class="logo-wrapper">
-              <img src="IMG_0992.PNG" alt="Logo" style="height: 50px; width: auto;">
-          </div>
-          <div class="d-flex flex-column justify-content-center">
-            <span class="text-white fw-bold" style="font-size: 1.1rem; letter-spacing: 0.5px; line-height: 1.2;">SIDAMON Gaharu Sempana Group</span>
-            <span class="text-white text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px; opacity: 0.85;">Dashboard Sistem Database & Monitoring</span>
-          </div>
-        </div>
-        
-        <div class="d-none d-md-block greeting-wrapper text-end text-white">
-            <div id="greeting-time" style="font-size: 0.75rem; opacity: 0.9; font-weight: 300; letter-spacing: 0.5px; text-transform: uppercase;">
-                </div>
-            <div id="greeting-role" style="font-size: 0.9rem; font-weight: 600; letter-spacing: 0.5px; line-height: 1.2;">
-                </div>
-        </div>
-      </div>
-    </nav>
-
-    <div class="container-fluid px-4 px-lg-5"> 
-      
-      <ul class="nav nav-pills mb-4 justify-content-center gap-3" id="pills-tab">
-        <li class="nav-item" id="nav-skk"><button class="nav-link active" onclick="switchView('skk')"><i class="bi bi-person-badge me-2"></i>Sertifikat Keahlian</button></li>
-        <li class="nav-item" id="nav-penugasan"><button class="nav-link" onclick="switchView('penugasan')"><i class="bi bi-calendar-check me-2"></i>Waktu Penugasan</button></li>
-        <li class="nav-item" id="nav-project"><button class="nav-link" onclick="switchView('project')"><i class="bi bi-kanban me-2"></i>Master Project</button></li>
-      </ul>
-
-      <div id="view-skk" class="view-section active-view">
-        <div class="stats-wrapper">
-            <div class="row g-3 mb-4 justify-content-center">
-              <div class="col-12 col-sm-6 col-lg-4">
-                  <div class="stat-card bg-gradient-primary p-3 d-flex justify-content-between align-items-center">
-                      <div><div class="stat-label">Total Personil</div><div class="stat-value" id="skk-total">0</div></div>
-                      <i class="bi bi-people-fill fs-1 opacity-50"></i>
-                  </div>
-              </div>
-              <div class="col-12 col-sm-6 col-lg-4">
-                  <div class="stat-card bg-gradient-danger p-3 d-flex justify-content-between align-items-center">
-                      <div><div class="stat-label">Expired</div><div class="stat-value" id="skk-expired">0</div></div>
-                      <i class="bi bi-exclamation-triangle-fill fs-1 opacity-50"></i>
-                  </div>
-              </div>
-              <div class="col-12 col-sm-6 col-lg-4">
-                  <div class="stat-card bg-gradient-warning p-3 d-flex justify-content-between align-items-center">
-                      <div><div class="stat-label">Personil Terpakai</div><div class="stat-value" id="skk-used">0</div></div>
-                      <i class="bi bi-briefcase-fill fs-1 opacity-50"></i>
-                  </div>
-              </div>
-            </div>
-        </div>
-
-        <div class="row mb-4 g-2 align-items-center">
-          <div class="col-md" id="searchSkkContainer">
-            <div class="position-relative w-100">
-              <i class="bi bi-search search-icon"></i>
-              <input type="text" id="searchSkk" class="form-control search-input" placeholder="Cari Nama Personil, Sertifikat Keahlian...">
-            </div>
-          </div>
-          <div class="col-md-auto" id="btnAddDataContainer">
-            <button class="btn btn-success rounded-pill fw-bold shadow-sm h-100 px-4" onclick="openModalAdd()">
-              <i class="bi bi-plus-lg me-2"></i>Tambah Data
-            </button>
-          </div>
-        </div>
-
-        <div class="table-card">
-          <div class="table-responsive">
-            <table class="table table-hover align-middle">
-              <thead class="table-light">
-                  <tr>
-                      <th style="width: 20%; min-width: 200px;">Nama Personil</th>
-                      <th class="text-center" style="width: 10%;">Kontak (WA)</th>
-                      <th style="width: 20%; min-width: 150px;">Jenjang & Bidang Ilmu</th> 
-                      <th style="width: 20%; min-width: 150px;">Sertifikat</th>
-                      <th class="text-center" style="width: 8%;">Jenjang</th>
-                      <th class="text-center" style="width: 8%;">Sisa Waktu</th>
-                      <th class="text-center" style="width: 10%;">Status</th>
-                      <th style="width: 15%;">Keterangan</th>
-                      <th class="text-center" id="th-aksi-skk" style="width: 5%;">Aksi</th>
-                  </tr>
-              </thead>
-              <tbody id="bodySkk"></tbody>
-            </table>
-            <div id="msgSkk" class="text-center py-4 text-muted d-none">Data tidak ditemukan.</div>
-          </div>
-        </div>
-      </div>
-      
-      <div id="view-penugasan" class="view-section" style="display: none;">
-        <div class="stats-wrapper">
-            <div class="row g-3 mb-4 justify-content-center">
-              <div class="col-12 col-sm-6 col-lg-5">
-                  <div class="stat-card bg-gradient-primary p-3 d-flex justify-content-between align-items-center">
-                      <div><div class="stat-label">Total Paket Pekerjaan</div><div class="stat-value" id="tugas-total">0</div></div>
-                      <i class="bi bi-list-task fs-1 opacity-50"></i>
-                  </div>
-              </div>
-              <div class="col-12 col-sm-6 col-lg-5">
-                  <div class="stat-card bg-gradient-success p-3 d-flex justify-content-between align-items-center">
-                      <div><div class="stat-label">Sertifikat Aktif</div><div class="stat-value" id="tugas-active">0</div></div>
-                      <i class="bi bi-check-circle-fill fs-1 opacity-50"></i>
-                  </div>
-              </div>
-            </div>
-        </div>
-
-        <div class="table-card">
-          <div class="row gy-3 align-items-center mb-4">
-            <div class="col-12 col-xl-auto">
-               <div class="sub-nav btn-group w-100" role="group">
-                  <button type="button" class="btn active" onclick="switchTugasSubView('table')" id="btn-tugas-table"><i class="bi bi-table me-1"></i>Tabel</button>
-                  <button type="button" class="btn" onclick="switchTugasSubView('gantt')" id="btn-tugas-gantt"><i class="bi bi-bar-chart-steps me-1"></i>Timeline Penugasan</button>
-               </div>
-            </div>
-            <div class="col-12 col-xl-auto d-flex flex-wrap align-items-center gap-2" id="tugasFilterContainer" style="display:none !important;">
-                <div class="input-group input-group-sm flex-nowrap w-auto flex-grow-1" style="min-width: 140px;">
-                   <span class="input-group-text bg-light border-end-0 text-muted">Dari</span>
-                   <input type="date" id="filterTugasStart" class="form-control border-start-0">
-                </div>
-                <div class="input-group input-group-sm flex-nowrap w-auto flex-grow-1" style="min-width: 140px;">
-                   <span class="input-group-text bg-light border-end-0 text-muted">Sampai</span>
-                   <input type="date" id="filterTugasEnd" class="form-control border-start-0">
-                </div>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="applyTugasDateFilter()">Filter</button>
-                    <button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="resetTugasDateFilter()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button>
-                </div>
-            </div>
-            <div class="col-12 col-xl ms-xl-auto" id="tugasSearchContainer">
-               <div class="position-relative w-100">
-                  <i class="bi bi-search search-icon"></i>
-                  <input type="text" id="searchTugas" class="form-control search-input" placeholder="Cari Nama Personil, Nama Paket Pekerjaan...">
-               </div>
-            </div>
-            <div class="col-12 col-xl ms-xl-auto" id="tugasGanttSearchContainer" style="display: none;">
-               <div class="position-relative w-100">
-                  <i class="bi bi-search search-icon"></i>
-                  <input type="text" id="searchTugasGantt" class="form-control search-input" placeholder="Cari Nama Personil, Nama Pekerjaan...">
-               </div>
-            </div>
-          </div>
-          <div id="subview-tugas-table">
-            <div class="table-responsive">
-              <table class="table table-hover align-middle">
-                <thead>
-                  <tr>
-                    <th style="min-width: 180px;">Nama Personil</th>
-                    <th style="min-width: 200px;">Nama Paket Pekerjaan</th>
-                    <th class="text-center">LPSE</th> 
-                    <th class="text-center">PL/Tender</th>
-                    <th class="text-center">Jenis Kontrak</th>
-                    <th>Sertifikat Digunakan</th>
-                    <th class="text-center">Start Date</th>
-                    <th class="text-center">End Date</th>
-                    <th class="text-center">Status</th>
-                  </tr>
-                </thead>
-                <tbody id="bodyTugas"></tbody>
-              </table>
-              <div id="msgTugas" class="text-center py-4 text-muted d-none">Data tidak ditemukan.</div>
-            </div>
-          </div>
-          <div id="subview-tugas-gantt" style="display: none;">
-            <div class="alert alert-success py-2 small mb-3 border-0 shadow-sm" style="background-color: #e8f5e9; color: #1b5e20;">
-                <i class="bi bi-info-circle-fill me-2"></i>Menampilkan Timeline Penugasan Personil.
-            </div>
-            <div id="chart_penugasan"></div>
-          </div>
-        </div>
-      </div>
-
-      <div id="view-project" class="view-section" style="display: none;">
-        <div class="stats-wrapper">
-            <div class="row g-3 mb-4 justify-content-center">
-              <div class="col-12 col-sm-6 col-lg-4">
-                  <div class="stat-card bg-gradient-primary p-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(45deg, #000080, #333399);">
-                      <div><div class="stat-label">Total Pekerjaan</div><div class="stat-value" id="proj-total">0</div></div>
-                      <i class="bi bi-list-task fs-1 opacity-50"></i>
-                  </div>
-              </div>
-              <div class="col-12 col-sm-6 col-lg-4">
-                  <div class="stat-card bg-gradient-danger p-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(45deg, #e74c3c, #c0392b);">
-                      <div><div class="stat-label">Pekerjaan Expired</div><div class="stat-value" id="proj-expired">0</div></div>
-                      <i class="bi bi-exclamation-triangle-fill fs-1 opacity-50"></i>
-                  </div>
-              </div>
-              <div class="col-12 col-sm-6 col-lg-4">
-                  <div class="stat-card bg-gradient-success p-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(45deg, #27ae60, #1e8449);">
-                      <div><div class="stat-label">Pekerjaan Selesai</div><div class="stat-value" id="proj-done">0</div></div>
-                      <i class="bi bi-check-circle fs-1 opacity-50"></i>
-                  </div>
-              </div>
-            </div>
-        </div>
-        <div class="table-card">
-          <div class="row gy-3 align-items-center mb-4">
-            <div class="col-12 col-xl-auto">
-               <div class="sub-nav btn-group w-100" role="group">
-                  <button type="button" class="btn active" onclick="switchSubView('table')" id="btn-sub-table"><i class="bi bi-table me-1"></i>Tabel</button>
-                  <button type="button" class="btn" onclick="switchSubView('gantt-kontrak')" id="btn-sub-kontrak"><i class="bi bi-bar-chart-steps me-1"></i>Timeline Kontrak</button>
-                  <button type="button" class="btn" onclick="switchSubView('gantt-schedule')" id="btn-sub-schedule"><i class="bi bi-bar-chart-steps me-1"></i>Timeline Schedule</button>
-               </div>
-            </div>
-            <div class="col-12 col-xl-auto d-flex flex-wrap align-items-center gap-2" id="dateFilterContainer" style="display:none !important;">
-                <div class="input-group input-group-sm flex-nowrap w-auto flex-grow-1" style="min-width: 140px;">
-                   <span class="input-group-text bg-light border-end-0 text-muted">Dari</span>
-                   <input type="date" id="filterStartDate" class="form-control border-start-0">
-                </div>
-                <div class="input-group input-group-sm flex-nowrap w-auto flex-grow-1" style="min-width: 140px;">
-                   <span class="input-group-text bg-light border-end-0 text-muted">Sampai</span>
-                   <input type="date" id="filterEndDate" class="form-control border-start-0">
-                </div>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="applyDateFilter()">Filter</button>
-                    <button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="resetDateFilter()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button>
-                </div>
-            </div>
-            <div class="col-12 col-xl ms-xl-auto" id="searchProjectContainer">
-               <div class="position-relative w-100">
-                  <i class="bi bi-search search-icon"></i>
-                  <input type="text" id="searchProject" class="form-control search-input" placeholder="Cari Nama Pekerjaan, Nama Kordinator...">
-               </div>
-            </div>
-            <div class="col-12 col-xl ms-xl-auto" id="projectGanttSearchContainer" style="display: none;">
-               <div class="position-relative w-100">
-                  <i class="bi bi-search search-icon"></i>
-                  <input type="text" id="searchProjectGantt" class="form-control search-input" placeholder="Cari Nama Pekerjaan...">
-               </div>
-            </div>
-          </div>
-          <div id="subview-table">
-            <div class="table-responsive">
-              <table class="table table-hover align-middle" style="font-size: 0.9rem;">
-                <thead class="text-center table-light">
-                  <tr>
-                    <th>Pekerjaan</th>
-                    <th>Kordinator</th>
-                    <th class="text-center">Detail Schedule</th> 
-                    <th class="text-center">Priority</th>
-                    <th class="text-center">Deadline Kontrak</th>
-                    <th class="text-center">Deadline Schedule</th>
-                    <th class="text-center">Status</th>
-                    <th>Keterangan</th> </tr>
-                </thead>
-                <tbody id="bodyProject"></tbody>
-              </table>
-            </div>
-          </div>
-          <div id="subview-gantt-kontrak" style="display: none;">
-            <div class="alert alert-info py-2 small mb-3 border-0 shadow-sm" style="background-color: #e3f2fd; color: #0d47a1;">
-                <i class="bi bi-info-circle-fill me-2"></i>Menampilkan Timeline Berdasarkan Kontrak Pekerjaan.
-            </div>
-            <div id="chart_kontrak"></div>
-          </div>
-          <div id="subview-gantt-schedule" style="display: none;">
-            <div class="alert alert-primary py-2 small mb-3 border-0 shadow-sm" style="background-color: #e3f2fd; color: #0d47a1;">
-                <i class="bi bi-info-circle-fill me-2"></i>Menampilkan Timeline Berdasarkan Schedule Kordinator Pekerjaan.
-            </div>
-            <div id="chart_schedule"></div>
-          </div>
-        </div>
-      </div>
-    </div> 
-  </div>
-
-  <div class="modal fade" id="modalTambahData" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title" id="modalLabel">Input Data Personil</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <form id="formInputData">
-            <input type="hidden" id="editRowNumber" value="">
-            <div class="mb-3"><label class="form-label small fw-bold">Nama Personil</label><input class="form-control" list="listNama" id="inputNama" required autocomplete="off"><datalist id="listNama"></datalist></div>
-            <div class="mb-3"><label class="form-label small fw-bold">Perusahaan</label><input class="form-control" list="listPerusahaan" id="inputPerusahaan" required autocomplete="off"><datalist id="listPerusahaan"></datalist></div>
-            <div class="row">
-              <div class="col-md-6 mb-3"><label class="form-label small fw-bold">Sertifikat Keahlian</label><input class="form-control" list="listSertifikat" id="inputSertifikat" required autocomplete="off"><datalist id="listSertifikat"></datalist></div>
-              <div class="col-md-6 mb-3"><label class="form-label small fw-bold">Jenjang</label><input class="form-control" list="listJenjang" id="inputJenjang" required autocomplete="off"><datalist id="listJenjang"></datalist></div>
-            </div>
-            <div class="mb-3"><label class="form-label small fw-bold">Asosiasi</label><input type="text" class="form-control" id="inputAsosiasi" placeholder="Contoh: IAI, PII"></div>
-            <div class="mb-3"><label class="form-label small fw-bold">Masa Berlaku</label><input type="date" class="form-control" id="inputMasaBerlaku" required></div>
-            <div class="mb-3"><label class="form-label small fw-bold">Keterangan</label><textarea class="form-control" id="inputKeterangan" rows="2" placeholder="Catatan tambahan..."></textarea></div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
-          <button type="button" class="btn btn-primary rounded-pill" onclick="submitForm()">Simpan Data</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    // --- KONFIGURASI PENTING ---
-    const CONST_API_URL = "https://script.google.com/macros/s/AKfycbxzZ50romtTo7HIMfX8fi9k7_YKpstDFu1B_hjcYfxbJS-a598BkmzATYzUeC03Laktug/exec"; // PASTE URL WEB APP ANDA DI SINI
-
-    // --- HELPER FUNCTION UNTUK FETCH API ---
-    async function fetchAPI(action, method = 'GET', data = null) {
-        let url = `${CONST_API_URL}?action=${action}`;
-        const options = {
-            method: method,
-        };
-        if (method === 'POST') {
-            options.headers = { "Content-Type": "text/plain;charset=utf-8" };
-            options.body = JSON.stringify({ action: action, ...data });
-        }
-        try {
-            const response = await fetch(url, options);
-            if (!response.ok) throw new Error('Network response was not ok');
-            return await response.json();
-        } catch (error) {
-            console.error("Fetch Error:", error);
-            alert("Gagal menghubungi server: " + error.message);
-            throw error;
-        }
-    }
-
-    // --- LOGIC APLIKASI UTAMA ---
-    try { google.charts.load('current', {'packages':['gantt']}); } catch(e){}
-
-    let dataSKK = [];
-    let dataTugas = [];
-    let dataProject = [];
-    let currentChartView = ''; 
-    let currentUserRole = ''; 
-    const tooltip = document.getElementById('gantt-tooltip');
-    const activeTimers = {};
-
-    function hideLoginError() {
-        document.getElementById('login-alert').style.display = 'none';
-    }
-
-    async function handleLogin(e) {
-      e.preventDefault();
-      const passInput = document.getElementById('passwordInput');
-      const pass = passInput.value;
-      const btn = document.getElementById('loginBtn');
-      const originalBtnText = 'MASUK DASHBOARD'; 
-      const alertBox = document.getElementById('login-alert');
-      
-      alertBox.style.display = 'none';
-      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Memeriksa...'; 
-      btn.disabled = true;
-      
-      try {
-          const response = await fetchAPI('login', 'POST', { password: pass });
-          if (response && response.valid) {
-            currentUserRole = response.role; 
-            document.getElementById('login-section').style.display = 'none';
-            document.getElementById('dashboard-section').style.display = 'block';
-            document.body.classList.remove('login-mode');
-            document.body.style.position = ''; 
-            document.body.style.overflow = 'auto'; 
-            document.title = "SIDAMON Gaharu Sempana Group"; // JUDUL BROWSER SAAT LOGIN
-            
-            applyRoleAccess(currentUserRole);
-            updateGreeting(currentUserRole); // <<--- MEMANGGIL FUNGSI SAPAAN SETELAH LOGIN SUKSES
-            loadAllData(); 
-            if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT") {
-                loadDropdowns(); 
-            }
-          } else {
-            btn.innerHTML = originalBtnText; btn.disabled = false;
-            passInput.value = ''; passInput.focus();
-            alertBox.style.display = 'flex';
-            const loginCard = document.querySelector('.login-card');
-            loginCard.style.animation = 'none'; loginCard.offsetHeight;
-            loginCard.style.animation = 'shake 0.4s cubic-bezier(.36,.07,.19,.97) both';
-          }
-      } catch (err) {
-            alertBox.style.display = 'flex'; alertBox.innerHTML = '<i class="bi bi-wifi-off"></i> Koneksi Error.';
-            btn.innerHTML = originalBtnText; btn.disabled = false; 
+    // --- API UTILS ---
+    const fetchAPI = async (action, method = 'GET', data = null) => {
+      let url = `${CONST_API_URL}?action=${action}`;
+      const options = { method };
+      if (method === 'POST') {
+        options.headers = { "Content-Type": "text/plain;charset=utf-8" };
+        options.body = JSON.stringify({ action, ...data });
       }
-    }
+      const response = await fetch(url, options);
+      if (!response.ok) throw new Error('Network response was not ok');
+      return await response.json();
+    };
 
-    // --- LOGIKA SAPAAN DINAMIS ---
-    function updateGreeting(role) {
-        const hour = new Date().getHours();
-        let timeText = "";
-        let icon = "";
-
-        if (hour >= 5 && hour < 11) {
-            timeText = "Selamat Pagi";
-            icon = "<i class='bi bi-brightness-alt-high-fill text-warning me-1'></i>";
-        } else if (hour >= 11 && hour < 15) {
-            timeText = "Selamat Siang";
-            icon = "<i class='bi bi-sun-fill text-warning me-1'></i>";
-        } else if (hour >= 15 && hour < 18) {
-            timeText = "Selamat Sore";
-            icon = "<i class='bi bi-sunset-fill text-warning me-1'></i>";
-        } else {
-            timeText = "Selamat Malam";
-            icon = "<i class='bi bi-moon-stars-fill text-white me-1'></i>";
-        }
-
-        let roleText = "";
-        if (role === 'SUPER_ADMIN') {
-            roleText = "Manajemen Gaharu Sempana Group";
-        } else if (role === 'ADMIN') {
-            roleText = "Tim Admin Gaharu Sempana Group";
-        } else if (role === 'TEKNIS') {
-            roleText = "Tim Teknis Gaharu Sempana Group";
-        } else if (role === 'ADMIN_INPUT') {
-            roleText = "Tim Admin Database Gaharu Sempana Group";
-        } else {
-            roleText = "Gaharu Sempana Group";
-        }
-
-        document.getElementById('greeting-time').innerHTML = `${icon} ${timeText}`;
-        document.getElementById('greeting-role').innerText = roleText;
-    }
-
-    function applyRoleAccess(role) {
-        const navSkk = document.getElementById('nav-skk');
-        const navTugas = document.getElementById('nav-penugasan');
-        const navProject = document.getElementById('nav-project');
-        const btnAdd = document.getElementById('btnAddDataContainer');
-        const thAksi = document.getElementById('th-aksi-skk');
-        const searchContainer = document.getElementById('searchSkkContainer');
-
-        navSkk.style.display = 'block'; navTugas.style.display = 'block'; navProject.style.display = 'block';
-        btnAdd.style.display = 'block'; thAksi.style.display = 'table-cell';
-        if(searchContainer) { searchContainer.classList.remove('col-12'); searchContainer.classList.add('col-md'); }
-
-        if (role === "SUPER_ADMIN") { switchView('skk'); } 
-        else if (role === "ADMIN_INPUT") { navProject.style.display = 'none'; switchView('skk'); }
-        else if (role === "ADMIN") {
-            navProject.style.display = 'none'; btnAdd.style.display = 'none'; thAksi.style.display = 'none'; 
-            if(searchContainer) { searchContainer.classList.remove('col-md'); searchContainer.classList.add('col-12'); }
-            switchView('skk');
-        } 
-        else if (role === "TEKNIS") {
-            navSkk.style.display = 'none'; navTugas.style.display = 'none'; switchView('project');
-        }
-    }
-
-    async function loadAllData() {
-      document.getElementById('loading-overlay').style.display = 'flex';
-      try {
-          if(currentUserRole !== "TEKNIS") {
-             const [resSKK, resTugas] = await Promise.all([
-                 fetchAPI('getDataSKK'),
-                 fetchAPI('getDataPenugasan')
-             ]);
-             dataSKK = resSKK; 
-             dataTugas = resTugas; 
-             
-             // Render SKK sesudah dataTugas tersedia (utk cross-check)
-             renderSKK(dataSKK); 
-             renderTugas(dataTugas);
-          }
-          if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "TEKNIS") {
-             dataProject = await fetchAPI('getDataProject');
-             renderProject(dataProject);
-          }
-      } catch(e) { console.error(e); }
-      finally { document.getElementById('loading-overlay').style.display = 'none'; }
-    }
-
-    // --- RENDER LOGIC ---
-
-    // FUNGSI RENDER SKK (FIX: TABEL PROPORSIONAL & CROSS CHECK LPSE PRIORITAS UTAMA)
-    function renderSKK(data) {
-      const tbody = document.getElementById('bodySkk'); 
-      tbody.innerHTML = '';
-      
-      // Reset Variabel Statistik
-      let statTotal = 0;
-      let statUsed = 0;
-      let statExpired = 0;
-      
-      if(data.length === 0) {
-          document.getElementById('msgSkk').classList.remove('d-none');
-          animateValue("skk-total", 0, 0, 800); 
-          animateValue("skk-expired", 0, 0, 800); 
-          animateValue("skk-used", 0, 0, 800);
-          return;
-      } else {
-          document.getElementById('msgSkk').classList.add('d-none');
-      }
-
-      // 1. PREPARE MAP DARI DATA PENUGASAN (CROSS-CHECK)
-      const activeAssignmentsMap = {};
-      if(dataTugas && dataTugas.length > 0) {
-          dataTugas.forEach(row => {
-              const pName = (row[1] || "").trim();
-              const pLpse = row[5] || ""; // MENGAMBIL KOLOM LPSE (Index 5)
-              const pStatus = (row[12] || "").toLowerCase();
-              
-              if (pName && pStatus.includes('active')) {
-                  activeAssignmentsMap[pName] = pLpse;
-              }
-          });
-      }
-
-      // 2. GROUPING DATA SKK
-      const groupedData = {};
-      data.forEach((row, originalIndex) => {
-          const nama = row[1];
-          if (!nama) return;
-
-          if (!groupedData[nama]) {
-              groupedData[nama] = {
-                  nama: row[1],
-                  hp: row[2],
-                  perusahaan: row[4], 
-                  bidang: row[3],
-                  items: [] 
-              };
-          }
-
-          groupedData[nama].items.push({
-              sertifikat: row[5],
-              jenjang: row[6],
-              sisaWaktu: row[9],
-              statusRaw: row[10], // Kolom K
-              ketRaw: row[11],    // Kolom L
-              originalIndex: originalIndex
-          });
-      });
-
-      statTotal = Object.keys(groupedData).length;
-
-      // 3. RENDER DATA GROUPED
-      Object.values(groupedData).forEach(person => {
-          
-          let isUsed = false;
-          let hasActive = false;
-          let usedProjectName = ""; 
-          let spreadsheetUsedText = ""; 
-
-          // Cek Data Internal SKK (Manual Spreadsheet)
-          person.items.forEach(item => {
-              let s = (item.statusRaw || "").toLowerCase();
-              let k = (item.ketRaw || "").toLowerCase();
-              
-              if (s.includes('expired')) {
-                  statExpired++;
-              }
-
-              if (s.includes('used') || k.includes('used')) {
-                  isUsed = true; // Tandai used sementara dari sheet
-                  // Simpan teks manual sebagai cadangan
-                  if(item.statusRaw && item.statusRaw.toLowerCase().includes('used')) {
-                      spreadsheetUsedText = item.statusRaw;
-                  } else if (item.ketRaw) {
-                      spreadsheetUsedText = item.ketRaw;
-                  }
-              }
-              if (s.includes('active') || s.includes('available')) {
-                  hasActive = true;
-              }
-          });
-
-          // LOGIKA UTAMA (DIPERBAIKI):
-          // Cek Data Penugasan DULU (Prioritas Tinggi). 
-          // Jika ada di penugasan, paksa gunakan Nama LPSE, abaikan teks manual.
-          const activeJobFromTugas = activeAssignmentsMap[person.nama.trim()];
-
-          if (activeJobFromTugas) {
-              isUsed = true;
-              usedProjectName = `Used in ${activeJobFromTugas}`; // Pakai Nama LPSE
-          } else if (isUsed) {
-              // Jika TIDAK ada di penugasan, tapi di sheet SKK statusnya 'Used',
-              // baru gunakan teks manual dari sheet SKK.
-              usedProjectName = spreadsheetUsedText ? spreadsheetUsedText : "Used";
-          }
-
-          // Tentukan Badge Status Akhir
-          let finalBadge = "";
-          
-          if (isUsed) {
-              statUsed++; 
-              // Tambahkan style white-space: normal agar teks panjang turun ke bawah
-              finalBadge = `<span class="badge-status status-used" style="white-space: normal;">${usedProjectName}</span>`; 
-          } else if (hasActive) {
-              finalBadge = `<span class="badge-status status-active">Available</span>`;
-          } else {
-              finalBadge = `<span class="badge-status status-expired">Expired</span>`;
-          }
-
-          // --- RENDER VISUAL TABEL ---
-          let btnWA = "-";
-          if(person.hp && person.hp.match(/\d+/)) {
-              let cleanNum = person.hp.toString().replace(/\D/g, ''); 
-              if(cleanNum.startsWith('0')) cleanNum = '62' + cleanNum.substring(1);
-              if(cleanNum.length > 9) { 
-                  btnWA = `<a href="https://wa.me/${cleanNum}" target="_blank" class="btn btn-success btn-sm text-white fw-bold d-inline-flex align-items-center justify-content-center" style="font-size: 0.7rem; padding: 2px 8px; height: 24px; min-width: 60px;"><i class="bi bi-whatsapp" style="font-size: 0.8rem; margin-right: 4px;"></i> Chat</a>`; 
-              } else { 
-                  btnWA = `<span class="small text-muted">${person.hp}</span>`; 
-              }
-          }
-
-          let htmlSertifikat = '', htmlJenjang = '', htmlSisa = '', htmlKet = '', htmlAksi = '';
-
-          person.items.forEach(item => {
-              let sisaStyle = "";
-              if ((item.statusRaw||"").toLowerCase().includes('expired')) {
-                  sisaStyle = "color: #dc3545; font-weight: 700;"; 
-              }
-
-              // MODIFIKASI: Menambahkan style white-space: normal agar teks panjang turun ke bawah
-              htmlSertifikat += `<div class="nested-cell fw-bold" title="${item.sertifikat}" style="white-space: normal; line-height: 1.3;">${item.sertifikat}</div>`;
-              htmlJenjang += `<div class="nested-cell text-center justify-content-center">${item.jenjang || '-'}</div>`;
-              htmlSisa += `<div class="nested-cell text-center justify-content-center small" style="${sisaStyle}">${item.sisaWaktu || '-'}</div>`;
-              htmlKet += `<div class="nested-cell small text-muted" title="${item.ketRaw || ''}" style="white-space: normal; line-height: 1.2;">${item.ketRaw || ''}</div>`;
-              
-              if (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT") {
-                  htmlAksi += `<div class="nested-cell nested-cell-action">
-                      <button class="btn btn-sm btn-outline-primary rounded-circle" onclick="openModalEdit(${item.originalIndex})" style="width: 24px; height: 24px; padding: 0;" title="Edit Sertifikat Ini">
-                          <i class="bi bi-pencil-fill" style="font-size: 0.7rem;"></i>
-                      </button>
-                  </div>`;
-              }
-          });
-
-          const styleAksi = (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT") ? '' : 'display:none;';
-
-          // MODIFIKASI PADA BARIS TR: Menambahkan !important pada white-space di kolom Nama dan Bidang
-          tbody.innerHTML += `
-            <tr>
-              <td class="align-middle-person" style="white-space: normal !important; word-wrap: break-word;">
-                  <div class="fw-bold text-dark">${person.nama}</div>
-                  <div class="small text-muted" style="line-height: 1.2;"><i class="bi bi-building me-1"></i>${person.perusahaan || '-'}</div>
-              </td>
-              <td class="text-center align-middle-person">${btnWA}</td>
-              <td class="align-middle-person small" style="white-space: normal !important; word-wrap: break-word; line-height: 1.3;">${person.bidang || '-'}</td>
-              
-              <td style="padding-top:0; padding-bottom:0; white-space: normal !important;">${htmlSertifikat}</td>
-              <td style="padding-top:0; padding-bottom:0;">${htmlJenjang}</td>
-              <td style="padding-top:0; padding-bottom:0;">${htmlSisa}</td>
-              
-              <td class="text-center align-middle-person" style="white-space: normal !important;">${finalBadge}</td>
-
-              <td style="padding-top:0; padding-bottom:0; white-space: normal !important;">${htmlKet}</td>
-              <td class="text-center" style="padding-top:0; padding-bottom:0; ${styleAksi}">${htmlAksi}</td>
-            </tr>
-          `;
-      });
-
-      // Update Card Stats dengan Angka Baru
-      animateValue("skk-total", 0, statTotal, 800); 
-      animateValue("skk-expired", 0, statExpired, 800); 
-      animateValue("skk-used", 0, statUsed, 800);
-    }
-
-    // FUNGSI RENDER TUGAS (GROUPED)
-    function renderTugas(data) {
-       const tbody = document.getElementById('bodyTugas'); 
-       tbody.innerHTML = '';
-       
-       let active = 0; 
-       const filtered = data.filter(row => (row[12]||"").toLowerCase() !== 'completed');
-       
-       filtered.forEach(row => {
-          if((row[12]||"").toLowerCase().includes('active')) active++;
-       });
-       
-       animateValue("tugas-total", 0, new Set(data.map(r=>r[2])).size, 800); 
-       animateValue("tugas-active", 0, active, 800);
-
-       if(filtered.length === 0) { 
-           document.getElementById('msgTugas').classList.remove('d-none');
-           return;
-       } else {
-           document.getElementById('msgTugas').classList.add('d-none');
-       }
-
-       const groupedData = {};
-
-       filtered.forEach(row => {
-           const nama = row[1];
-           if(!nama) return;
-
-           if (!groupedData[nama]) {
-               groupedData[nama] = {
-                   nama: nama,
-                   items: []
-               };
-           }
-
-           let status = (row[12]||"").toLowerCase();
-           let bClass = status.includes('active') ? 'status-active' : (status.includes('not started') ? 'status-not-started' : 'status-expired');
-           let badgeHTML = `<span class="badge-status ${bClass}">${row[12]}</span>`;
-
-           groupedData[nama].items.push({
-               pekerjaan: row[2],
-               lpse: row[5] || '-',
-               metode: row[3],
-               kontrak: row[4],
-               sertifikat: row[6],
-               start: row[9],
-               end: row[10],
-               statusBadge: badgeHTML
-           });
-       });
-
-       Object.values(groupedData).forEach(person => {
-           let hPekerjaan = '', hLpse = '', hMetode = '', hKontrak = '', hSertifikat = '', hStart = '', hEnd = '', hStatus = '';
-
-           person.items.forEach(item => {
-               hPekerjaan += `<div class="nested-cell fw-bold" title="${item.pekerjaan}">${item.pekerjaan}</div>`;
-               hLpse += `<div class="nested-cell text-center justify-content-center">${item.lpse}</div>`;
-               hMetode += `<div class="nested-cell text-center justify-content-center"><span class="badge bg-secondary rounded-pill" style="font-size:0.7rem;">${item.metode}</span></div>`;
-               hKontrak += `<div class="nested-cell text-center justify-content-center small">${item.kontrak}</div>`;
-               hSertifikat += `<div class="nested-cell small" title="${item.sertifikat}">${item.sertifikat}</div>`;
-               hStart += `<div class="nested-cell text-center justify-content-center small text-muted">${item.start}</div>`;
-               hEnd += `<div class="nested-cell text-center justify-content-center small text-muted">${item.end}</div>`;
-               hStatus += `<div class="nested-cell text-center justify-content-center">${item.statusBadge}</div>`;
-           });
-
-           tbody.innerHTML += `
-             <tr>
-               <td class="align-middle-person fw-bold text-dark">${person.nama}</td>
-               <td style="padding-top:0; padding-bottom:0;">${hPekerjaan}</td>
-               <td style="padding-top:0; padding-bottom:0;">${hLpse}</td>
-               <td style="padding-top:0; padding-bottom:0;">${hMetode}</td>
-               <td style="padding-top:0; padding-bottom:0;">${hKontrak}</td>
-               <td style="padding-top:0; padding-bottom:0;">${hSertifikat}</td>
-               <td style="padding-top:0; padding-bottom:0;">${hStart}</td>
-               <td style="padding-top:0; padding-bottom:0;">${hEnd}</td>
-               <td style="padding-top:0; padding-bottom:0;">${hStatus}</td>
-             </tr>
-           `;
-       });
-    }
-
-    // FUNGSI RENDER PROJECT
-    function renderProject(data) {
-      const tbody = document.getElementById('bodyProject'); tbody.innerHTML = '';
-      let counts = { total: 0, expired: 0, done: 0 }; const today = new Date(); today.setHours(0, 0, 0, 0);
-
-      data.forEach(row => {
-        if (!row[1]) return;
-        counts.total++;
-        const pekerjaan = row[2]; const kordinator = row[4]; const urlSchedule = row[5];
-        const priority = (row[7] || "").trim();
-        let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13];
-        const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim();
-        const notes = row[18] || ""; 
-
-        const isDone = rawStatus.includes('done') || rawStatus.includes('selesai');
-
-        const isExpired = (dateStr) => {
-          if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false;
-          const targetDate = parseDate(dateStr); return targetDate && targetDate < today;
-        };
-        const kontrakExpired = !isDone && isExpired(deadKontrakRaw);
-        const scheduleExpired = !isDone && isExpired(deadScheduleRaw);
-        if (kontrakExpired || scheduleExpired) counts.expired++;
-
-        let deadKontrakView = deadKontrakRaw || '-'; let deadScheduleView = deadScheduleRaw || '-';
-        if (isDone) {
-            const iconCheck = '<i class="bi bi-check-circle-fill text-success" style="font-size: 1.2rem;"></i>';
-            deadKontrakView = iconCheck; deadScheduleView = iconCheck; counts.done++;
-        } else {
-            if (kontrakExpired) deadKontrakView = `<span class="text-danger fw-bold">EXPIRED</span>`;
-            if (scheduleExpired) deadScheduleView = `<span class="text-danger fw-bold">EXPIRED</span>`;
-        }
-
-        let badgeClass = "bg-secondary";
-        if (rawStatus.includes('ongoing')) badgeClass = "bg-info text-white";
-        else if (rawStatus.includes('dummy')) badgeClass = "bg-warning text-dark";
-        else if (isDone) badgeClass = "bg-success";
-        else if (rawStatus.includes('past')) badgeClass = "bg-danger";
-
-        let btnUrl = "-";
-        if (urlSchedule && urlSchedule.includes("http")) {
-            btnUrl = `<a href="${urlSchedule}" target="_blank" class="btn btn-primary btn-sm d-inline-flex align-items-center justify-content-center" style="font-size: 0.7rem; padding: 2px 8px; height: 24px; min-width: 50px;"><i class="bi bi-link-45deg me-1" style="font-size: 0.9rem;"></i> Link</a>`;
-        }
-        let priorityClass = "bg-info"; if (priority === "High") priorityClass = "bg-danger"; else if (priority === "Medium") priorityClass = "bg-warning text-dark";
-
-        tbody.innerHTML += `<tr>
-            <td class="fw-bold" style="min-width: 250px;">${pekerjaan}</td>
-            <td>${kordinator}</td>
-            <td class="text-center">${btnUrl}</td>
-            <td class="text-center"><span class="badge ${priorityClass}">${priority || 'Low'}</span></td>
-            <td class="text-center text-muted small">${deadKontrakView}</td>
-            <td class="text-center text-muted small">${deadScheduleView}</td>
-            <td class="text-center"><span class="badge ${badgeClass}">${statusText || 'Not Started'}</span></td>
-            <td class="small text-muted">${notes}</td> </tr>`;
-      });
-      document.getElementById('proj-total').innerText = counts.total; document.getElementById('proj-expired').innerText = counts.expired; document.getElementById('proj-done').innerText = counts.done;
-    }
-
-    // --- TIMELINE LOGIC ---
-    
-    function parseDate(dateStr) {
+    const parseDate = (dateStr) => {
       if (!dateStr || dateStr.trim() === '-' || dateStr.trim() === '') return null;
-      if(dateStr.includes('T')) return new Date(dateStr);
-      
+      if (dateStr.includes('T')) return new Date(dateStr);
       const parts = dateStr.split(' ');
       if (parts.length < 3) return new Date(dateStr);
       const day = parseInt(parts[0]);
@@ -1092,335 +229,645 @@
       const months = { 'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'mei': 4, 'may': 4, 'jun': 5, 'jul': 6, 'ags': 7, 'aug': 7, 'sep': 8, 'okt': 9, 'oct': 9, 'nov': 10, 'des': 11, 'dec': 11 };
       const month = months[monthStr] !== undefined ? months[monthStr] : 0;
       return new Date(year, month, day);
-    }
-    
-    function formatMonthYear(date) {
-        const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
-        return `${months[date.getMonth()]} ${date.getFullYear().toString().substr(2,2)}`;
-    }
+    };
 
-    function drawGanttChart(type) {
-      let containerId, startFilterVal, endFilterVal, sourceData;
-      let searchKeyword = "";
+    const formatMonthYear = (date) => {
+      const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
+      return `${months[date.getMonth()]} ${date.getFullYear().toString().substr(2, 2)}`;
+    };
 
-      if (type === 'penugasan') {
-          containerId = 'chart_penugasan';
-          startFilterVal = document.getElementById('filterTugasStart').value;
-          endFilterVal = document.getElementById('filterTugasEnd').value;
-          sourceData = dataTugas;
-          searchKeyword = document.getElementById('searchTugasGantt').value.toLowerCase();
-      } else {
-          containerId = type === 'kontrak' ? 'chart_kontrak' : 'chart_schedule';
-          startFilterVal = document.getElementById('filterStartDate').value;
-          endFilterVal = document.getElementById('filterEndDate').value;
-          sourceData = dataProject;
-          searchKeyword = document.getElementById('searchProjectGantt').value.toLowerCase();
-      }
+    const useCounter = (end, duration = 800) => {
+      const [count, setCount] = useState(0);
+      useEffect(() => {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+          if (!startTimestamp) startTimestamp = timestamp;
+          const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+          setCount(Math.floor(progress * end));
+          if (progress < 1) window.requestAnimationFrame(step);
+        };
+        window.requestAnimationFrame(step);
+      }, [end, duration]);
+      return count;
+    };
 
-      const container = document.getElementById(containerId); container.innerHTML = ''; 
-      const today = new Date(); today.setHours(0,0,0,0);
-      let validItems = [];
+    // --- COMPONENTS ---
+    const LoadingOverlay = ({ text }) => (
+      <div id="loading-overlay">
+        <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem' }}></div>
+        <div className="mt-3 fw-bold text-secondary">{text}</div>
+      </div>
+    );
+
+    const LoginSection = ({ onLogin }) => {
+      const [password, setPassword] = useState('');
+      const [loading, setLoading] = useState(false);
+      const [error, setError] = useState(false);
+      const [shake, setShake] = useState(false);
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(false);
+        try {
+          const response = await fetchAPI('login', 'POST', { password });
+          if (response && response.valid) {
+            onLogin(response.role);
+          } else {
+            setError(true);
+            setShake(true);
+            setTimeout(() => setShake(false), 400);
+          }
+        } catch (err) {
+          setError(true);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      return (
+        <div id="login-section">
+          <div className={`login-card ${shake ? 'shake-anim' : ''}`}>
+            <img src="IMG_0992.PNG" alt="Logo" className="login-logo" />
+            <h3 className="login-title">SIDAMON</h3>
+            <p className="login-subtitle">Sistem Database & Monitoring</p>
+            <form onSubmit={handleSubmit}>
+              <div className="form-floating mb-4 text-start">
+                <input type="password" class="form-control" id="passwordInput" placeholder="Password" required value={password} onChange={(e) => { setPassword(e.target.value); setError(false); }} />
+                <label htmlFor="passwordInput">Masukkan Password Akses</label>
+              </div>
+              <button type="submit" className="btn btn-login w-100" disabled={loading}>
+                {loading ? <><span className="spinner-border spinner-border-sm me-2"></span>Memeriksa...</> : 'MASUK DASHBOARD'}
+              </button>
+              {error && (
+                <div className="login-alert">
+                  <i className="bi bi-exclamation-triangle-fill"></i>
+                  <span>Password Salah. Silahkan coba lagi.</span>
+                </div>
+              )}
+            </form>
+          </div>
+          <div className="login-footer">© 2026 Gaharu Sempana Group. All Rights Reserved.<br />Developed by IT Division</div>
+        </div>
+      );
+    };
+
+    const Navbar = ({ role }) => {
+      const [greeting, setGreeting] = useState({ text: '', icon: '', roleText: '' });
+
+      useEffect(() => {
+        const updateGreeting = () => {
+          const hour = new Date().getHours();
+          let timeText = "", icon = "";
+          if (hour >= 5 && hour < 11) { timeText = "Selamat Pagi"; icon = "bi-brightness-alt-high-fill text-warning"; }
+          else if (hour >= 11 && hour < 15) { timeText = "Selamat Siang"; icon = "bi-sun-fill text-warning"; }
+          else if (hour >= 15 && hour < 18) { timeText = "Selamat Sore"; icon = "bi-sunset-fill text-warning"; }
+          else { timeText = "Selamat Malam"; icon = "bi-moon-stars-fill text-white"; }
+
+          let roleText = "Gaharu Sempana Group";
+          if (role === 'SUPER_ADMIN') roleText = "Manajemen Gaharu Sempana Group";
+          else if (role === 'ADMIN') roleText = "Tim Admin Gaharu Sempana Group";
+          else if (role === 'TEKNIS') roleText = "Tim Teknis Gaharu Sempana Group";
+          else if (role === 'ADMIN_INPUT') roleText = "Tim Admin Database Gaharu Sempana Group";
+
+          setGreeting({ text: timeText, icon, roleText });
+        };
+        updateGreeting();
+        const interval = setInterval(updateGreeting, 60000);
+        return () => clearInterval(interval);
+      }, [role]);
+
+      return (
+        <nav className="navbar navbar-dark bg-primary shadow-sm mb-4 py-2">
+          <div className="container-fluid px-4 px-lg-5 d-flex justify-content-between align-items-center">
+            <div className="d-flex align-items-center">
+              <div className="logo-wrapper">
+                <img src="IMG_0992.PNG" alt="Logo" style={{ height: '45px', width: 'auto' }} />
+              </div>
+              <div className="d-flex flex-column justify-content-center">
+                <span className="text-white fw-bold" style={{ fontSize: '1.1rem', letterSpacing: '0.5px', lineHeight: '1.2' }}>SIDAMON Gaharu Sempana Group</span>
+                <span className="text-white text-uppercase" style={{ fontSize: '0.75rem', letterSpacing: '1px', opacity: '0.85' }}>Dashboard Sistem Database & Monitoring</span>
+              </div>
+            </div>
+            <div className="d-none d-md-block greeting-wrapper text-end text-white">
+              <div id="greeting-time" style={{ fontSize: '0.75rem', opacity: 0.9, fontWeight: 300, textTransform: 'uppercase' }}>
+                <i className={`bi ${greeting.icon} me-1`}></i> {greeting.text}
+              </div>
+              <div id="greeting-role" style={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: '1.2' }}>{greeting.roleText}</div>
+            </div>
+          </div>
+        </nav>
+      );
+    };
+
+    const GanttChart = ({ data, type, filterStart, filterEnd, search }) => {
+      const [tooltip, setTooltip] = useState({ show: false, x: 0, y: 0, data: null });
       
-      const filterStart = startFilterVal ? new Date(startFilterVal) : null; if(filterStart) filterStart.setHours(0,0,0,0);
-      const filterEnd = endFilterVal ? new Date(endFilterVal) : null; if(filterEnd) filterEnd.setHours(23,59,59,999); 
+      const processedData = useMemo(() => {
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const validItems = [];
+        let minDate = new Date(2099, 11, 31);
+        let maxDate = new Date(1970, 0, 1);
+        const fStart = filterStart ? new Date(filterStart) : null;
+        const fEnd = filterEnd ? new Date(filterEnd) : null;
+        if (fEnd) fEnd.setHours(23, 59, 59);
 
-      let dataMinDate = new Date(2099, 11, 31); let dataMaxDate = new Date(1970, 0, 1);
-      let hasData = false;
+        data.forEach(row => {
+          if (!row[1]) return;
+          let personName = "", projectName = "", fullTitle = "";
+          let startRaw, endRaw, statusText, status, barClass = 'bar-blue';
 
-      sourceData.forEach((row) => {
-        if (!row[1] || row[1] === "") return; 
-        
-        let personName = "", projectName = "", fullTitle = "";
-        let startRaw, endRaw, statusText, status;
-        let barClass = 'bar-blue'; 
-
-        if (type === 'penugasan') {
-            personName = row[1]; projectName = row[2]; fullTitle = `${personName} - ${projectName}`; 
-            startRaw = row[9]; endRaw = row[10];
-            statusText = row[12] || "Unknown"; status = statusText.toLowerCase();
-
-            if (status.includes('completed')) return; 
+          if (type === 'penugasan') {
+            personName = row[1]; projectName = row[2]; fullTitle = `${personName} - ${projectName}`;
+            startRaw = row[9]; endRaw = row[10]; statusText = row[12] || "Unknown"; status = statusText.toLowerCase();
+            if (status.includes('completed')) return;
             if (status.includes('active')) barClass = 'bar-green';
             else if (status.includes('not started')) barClass = 'bar-grey';
-            else barClass = 'bar-green'; 
-
-        } else {
+            else barClass = 'bar-green';
+          } else {
             projectName = row[2]; fullTitle = projectName;
             statusText = row[16] || "Unknown"; status = statusText.toLowerCase();
             if (status.includes('done') || status.includes('selesai')) return;
-            if (type === 'kontrak') { startRaw = row[8]; endRaw = row[9]; } 
-            else { startRaw = row[12]; endRaw = row[13]; }
-
+            startRaw = type === 'kontrak' ? row[8] : row[12];
+            endRaw = type === 'kontrak' ? row[9] : row[13];
             const itemEndCheck = parseDate(endRaw);
-            const isExpired = itemEndCheck && itemEndCheck < today;
-            barClass = isExpired ? 'bar-red' : 'bar-blue';
-        }
-        if (searchKeyword && !fullTitle.toLowerCase().includes(searchKeyword)) { return; }
-
-        const itemStart = parseDate(startRaw); const itemEnd = parseDate(endRaw);
-        if (itemStart && itemEnd && itemEnd >= itemStart) {
-           let isValid = true;
-           if (filterStart && itemEnd < filterStart) isValid = false;
-           if (filterEnd && itemStart > filterEnd) isValid = false;
-           if (isValid) {
-               hasData = true;
-               if (itemStart < dataMinDate) dataMinDate = new Date(itemStart);
-               if (itemEnd > dataMaxDate) dataMaxDate = new Date(itemEnd);
-               validItems.push({ person: personName, project: projectName, title: fullTitle, start: itemStart, end: itemEnd, barClass, status: statusText });
-           }
-        }
-      });
-
-      if (!hasData) { container.innerHTML = `<div class="text-center py-5 text-muted">Tidak ada data aktif pada rentang tanggal tersebut.</div>`; return; }
-
-      validItems.sort((a, b) => a.start - b.start);
-      let viewStartDate = filterStart ? new Date(filterStart) : new Date(dataMinDate);
-      let viewEndDate = filterEnd ? new Date(filterEnd) : new Date(dataMaxDate);
-
-      viewStartDate.setDate(1); viewEndDate.setDate(1);
-      viewEndDate.setMonth(viewEndDate.getMonth() + 1); viewEndDate.setDate(0); 
-      
-      const totalDays = Math.max(1, Math.ceil((viewEndDate - viewStartDate) / (1000 * 60 * 60 * 24)));
-      const pxPerDay = 5; const chartWidth = totalDays * pxPerDay; 
-      
-      let headerMarkersHTML = ``; let curr = new Date(viewStartDate); curr.setDate(1); 
-      while (curr <= viewEndDate) {
-          const diffTime = curr - viewStartDate;
-          const diffDays = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24))); 
-          const leftPos = diffDays * pxPerDay;
-          if (leftPos < chartWidth) { headerMarkersHTML += `<span class="month-marker" style="left: ${leftPos}px;">${formatMonthYear(curr)}</span>`; }
-          curr.setMonth(curr.getMonth() + 1); 
-      }
-      
-      let stickyHeaderHTML = '';
-      if (type === 'penugasan') {
-          stickyHeaderHTML = `<div class="g-col-personil">NAMA PERSONIL</div><div class="g-col-pekerjaan">NAMA PEKERJAAN</div>`;
-      } else {
-          stickyHeaderHTML = `<div class="g-sticky-col">NAMA PEKERJAAN</div>`;
-      }
-
-      const htmlHeader = `<div class="g-row-container g-header-row">${stickyHeaderHTML}<div class="g-timeline-col" style="min-width: ${chartWidth}px;">${headerMarkersHTML}</div></div>`;
-
-      let htmlBody = ``;
-      validItems.forEach(item => {
-          const sDateStr = item.start.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-          const eDateStr = item.end.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-          const startDiff = Math.ceil((item.start - viewStartDate) / (1000 * 60 * 60 * 24));
-          const duration = Math.ceil((item.end - item.start) / (1000 * 60 * 60 * 24));
-          let leftPx = startDiff * pxPerDay; let widthPx = duration * pxPerDay;
-          if (leftPx < 0) { widthPx = widthPx + leftPx; leftPx = 0; }
-          const widthSafe = Math.max(widthPx, 0); const displayStyle = widthSafe > 0 ? '' : 'display:none;';
-          let stickyColsHTML = '';
-          if (type === 'penugasan') {
-             stickyColsHTML = `<div class="g-col-personil" title="${item.person}">${item.person}</div><div class="g-col-pekerjaan" title="${item.project}">${item.project}</div>`;
-          } else {
-             stickyColsHTML = `<div class="g-sticky-col" title="${item.project}">${item.project}</div>`;
+            if (itemEndCheck && itemEndCheck < today) barClass = 'bar-red';
           }
-          htmlBody += `
-            <div class="g-row-container g-data-row">
-                ${stickyColsHTML}
-                <div class="g-timeline-col" style="min-width: ${chartWidth}px;">
-                    <div class="g-bar ${item.barClass}" style="left: ${leftPx}px; width: ${widthSafe}px; ${displayStyle}"
-                         data-name="${item.title}" data-start="${sDateStr}" data-end="${eDateStr}" data-status="${item.status}"
-                         onmouseenter="showTooltip(event, this)" onmousemove="moveTooltip(event)" onmouseleave="hideTooltip()">
-                    </div>
-                </div>
-            </div>`;
-      });
-      container.innerHTML = `<div class="custom-gantt-wrapper">${htmlHeader}${htmlBody}</div>`;
-    }
 
-    // --- TOOLTIP ---
-    window.showTooltip = function(e, element) {
-      const name = element.getAttribute('data-name');
-      const start = element.getAttribute('data-start');
-      const end = element.getAttribute('data-end');
-      const status = element.getAttribute('data-status');
-      const color = element.classList.contains('bar-red') ? '#d9534f' : '#000080';
-      const bgColor = element.classList.contains('bar-red') ? '#ffe5e5' : '#e6f0ff';
+          if (search && !fullTitle.toLowerCase().includes(search)) return;
 
-      tooltip.style.borderLeftColor = color;
-      tooltip.innerHTML = `
-        <div class="ct-header">${name}</div>
-        <div class="ct-row"><i class="bi bi-calendar-event"></i> Start: ${start}</div>
-        <div class="ct-row"><i class="bi bi-calendar-check"></i> End: ${end}</div>
-        <div class="ct-badge" style="background:${bgColor}; color:${color};">${status}</div>
-      `;
-      tooltip.style.display = 'block';
-      moveTooltip(e);
-    }
-    window.moveTooltip = function(e) {
-      const x = e.clientX; const y = e.clientY;
-      const tWidth = tooltip.offsetWidth; const winWidth = window.innerWidth;
-      let leftPos = x + 15; if (leftPos + tWidth > winWidth - 20) { leftPos = x - tWidth - 10; }
-      tooltip.style.top = (y + 15) + 'px'; tooltip.style.left = leftPos + 'px';
-    }
-    window.hideTooltip = function() { tooltip.style.display = 'none'; }
+          const itemStart = parseDate(startRaw);
+          const itemEnd = parseDate(endRaw);
 
-
-    // --- NAVIGATION ---
-    window.switchView = function(viewName) {
-      document.querySelectorAll('#pills-tab .nav-link').forEach(btn => btn.classList.remove('active'));
-      let navId = ''; if(viewName === 'skk') navId = 'nav-skk'; else if(viewName === 'penugasan') navId = 'nav-penugasan'; else if(viewName === 'project') navId = 'nav-project';
-      const navEl = document.getElementById(navId); if(navEl) navEl.querySelector('button').classList.add('active');
-      document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none'); document.getElementById('view-'+viewName).style.display = 'block';
-    }
-
-    window.switchSubView = function(viewName) {
-      document.querySelectorAll('.sub-nav .btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById('subview-table').style.display = 'none';
-      document.getElementById('subview-gantt-kontrak').style.display = 'none';
-      document.getElementById('subview-gantt-schedule').style.display = 'none';
-      
-      const filterContainer = document.getElementById('dateFilterContainer');
-      const searchContainer = document.getElementById('searchProjectContainer');
-      const ganttSearchContainer = document.getElementById('projectGanttSearchContainer');
-
-      if (viewName === 'table') {
-        document.getElementById('btn-sub-table').classList.add('active');
-        document.getElementById('subview-table').style.display = 'block';
-        currentChartView = '';
-        filterContainer.style.setProperty('display', 'none', 'important');
-        searchContainer.style.display = 'block'; ganttSearchContainer.style.display = 'none';
-      } else {
-        filterContainer.style.setProperty('display', 'flex', 'important');
-        searchContainer.style.display = 'none'; ganttSearchContainer.style.display = 'block';
-        if (viewName === 'gantt-kontrak') {
-          document.getElementById('btn-sub-kontrak').classList.add('active');
-          document.getElementById('subview-gantt-kontrak').style.display = 'block';
-          currentChartView = 'kontrak'; drawGanttChart('kontrak');
-        } else if (viewName === 'gantt-schedule') {
-          document.getElementById('btn-sub-schedule').classList.add('active');
-          document.getElementById('subview-gantt-schedule').style.display = 'block';
-          currentChartView = 'schedule'; drawGanttChart('schedule');
-        }
-      }
-    }
-
-    window.switchTugasSubView = function(viewName) {
-        const btnTable = document.getElementById('btn-tugas-table');
-        const btnGantt = document.getElementById('btn-tugas-gantt');
-        const divTable = document.getElementById('subview-tugas-table');
-        const divGantt = document.getElementById('subview-tugas-gantt');
-        const filterContainer = document.getElementById('tugasFilterContainer');
-        const searchContainer = document.getElementById('tugasSearchContainer');
-        const ganttSearchContainer = document.getElementById('tugasGanttSearchContainer');
-
-        if (viewName === 'table') {
-            btnTable.classList.add('active'); btnGantt.classList.remove('active');
-            divTable.style.display = 'block'; divGantt.style.display = 'none';
-            filterContainer.style.setProperty('display', 'none', 'important');
-            searchContainer.style.display = 'block'; ganttSearchContainer.style.display = 'none';
-        } else {
-            btnTable.classList.remove('active'); btnGantt.classList.add('active');
-            divTable.style.display = 'none'; divGantt.style.display = 'block';
-            filterContainer.style.setProperty('display', 'flex', 'important');
-            searchContainer.style.display = 'none'; ganttSearchContainer.style.display = 'block';
-            drawGanttChart('penugasan');
-        }
-    }
-
-    // --- FILTERS & ANIMATION ---
-    window.applyDateFilter = function() { if(currentChartView) drawGanttChart(currentChartView); }
-    window.resetDateFilter = function() { document.getElementById('filterStartDate').value = ''; document.getElementById('filterEndDate').value = ''; if(currentChartView) drawGanttChart(currentChartView); }
-    window.applyTugasDateFilter = function() { drawGanttChart('penugasan'); }
-    window.resetTugasDateFilter = function() { document.getElementById('filterTugasStart').value = ''; document.getElementById('filterTugasEnd').value = ''; drawGanttChart('penugasan'); }
-
-    function animateValue(id, start, end, duration) {
-      const obj = document.getElementById(id);
-      if (!obj) return;
-      if (activeTimers[id]) clearInterval(activeTimers[id]);
-      if (start === end) {
-        obj.innerHTML = end;
-        return;
-      }
-      const range = end - start;
-      const minTimer = 50; 
-      let stepTime = Math.abs(Math.floor(duration / range));
-      stepTime = Math.max(stepTime, minTimer);
-      
-      const startTime = new Date().getTime();
-      const endTime = startTime + duration;
-      let timer;
-      function run() {
-        const now = new Date().getTime();
-        const remaining = Math.max((endTime - now) / duration, 0);
-        const value = Math.round(end - (remaining * range));
-        obj.innerHTML = value;
-        if (value == end) { clearInterval(timer); }
-      }
-      timer = setInterval(run, stepTime);
-      activeTimers[id] = timer;
-      run();
-    }
-    
-    // --- DROPDOWNS & MODAL ---
-    async function loadDropdowns() {
-      const data = await fetchAPI('getDropdownData');
-      populateDatalist('listNama', data.nama); populateDatalist('listPerusahaan', data.perusahaan);
-      populateDatalist('listSertifikat', data.sertifikat); populateDatalist('listJenjang', data.jenjang);
-    }
-    function populateDatalist(id, items) { const list = document.getElementById(id); list.innerHTML = ''; items.forEach(item => { const op = document.createElement('option'); op.value = item; list.appendChild(op); }); }
-
-    const myModal = new bootstrap.Modal(document.getElementById('modalTambahData'));
-    function openModalAdd() { 
-        document.getElementById('modalLabel').innerHTML = '<i class="bi bi-file-earmark-plus me-2"></i>Input Data Personil';
-        document.getElementById('formInputData').reset(); document.getElementById('editRowNumber').value = ""; myModal.show(); 
-    }
-    function openModalEdit(index) {
-      const item = dataSKK[index]; 
-      document.getElementById('modalLabel').innerHTML = '<i class="bi bi-pencil-square me-2"></i>Edit Data Personil';
-      document.getElementById('editRowNumber').value = item[item.length - 1]; 
-      document.getElementById('inputNama').value = item[1]; document.getElementById('inputPerusahaan').value = item[4]; document.getElementById('inputSertifikat').value = item[5];
-      document.getElementById('inputJenjang').value = item[6]; document.getElementById('inputAsosiasi').value = item[7]; document.getElementById('inputKeterangan').value = item[11] || "";
-      const rawDate = item[8];
-      try { const dateObj = parseDate(rawDate); if(dateObj) { const yyyy = dateObj.getFullYear(); const mm = String(dateObj.getMonth() + 1).padStart(2, '0'); const dd = String(dateObj.getDate()).padStart(2, '0'); document.getElementById('inputMasaBerlaku').value = `${yyyy}-${mm}-${dd}`; } else { document.getElementById('inputMasaBerlaku').value = ""; } } catch(e) { document.getElementById('inputMasaBerlaku').value = ""; }
-      myModal.show();
-    }
-    
-    async function submitForm() {
-      const form = document.getElementById('formInputData');
-      if (!form.checkValidity()) { form.reportValidity(); return; }
-      myModal.hide(); 
-      setTimeout(() => {
-        Swal.fire({
-          title: 'Konfirmasi Password', text: 'Masukkan password Anda untuk menyimpan:', input: 'password',
-          inputAttributes: { autocapitalize: 'off', placeholder: 'Password' }, showCancelButton: true, confirmButtonText: 'Simpan', confirmButtonColor: '#000080',
-          preConfirm: (password) => { if (!password) { Swal.showValidationMessage('Password wajib diisi!'); } return password; }
-        }).then(async (result) => {
-          if (result.isConfirmed) {
-            const passwordInput = result.value;
-            let rowNum = document.getElementById('editRowNumber').value; if(!rowNum) rowNum = "";
-            const payload = {
-              actionPassword: passwordInput, rowNumber: rowNum, 
-              nama: document.getElementById('inputNama').value, perusahaan: document.getElementById('inputPerusahaan').value,
-              sertifikat: document.getElementById('inputSertifikat').value, jenjang: document.getElementById('inputJenjang').value,
-              asosiasi: document.getElementById('inputAsosiasi').value, masaBerlaku: document.getElementById('inputMasaBerlaku').value,
-              keterangan: document.getElementById('inputKeterangan').value
-            };
-            document.getElementById('loading-overlay').style.display = 'flex'; document.getElementById('loading-text').innerText = "Menyimpan Data...";
-            
-            try {
-                const response = await fetchAPI('saveData', 'POST', { password: passwordInput, payload: payload });
-                document.getElementById('loading-overlay').style.display = 'none'; document.getElementById('loading-text').innerText = "Memuat Data...";
-                if(response === "Sukses") { Swal.fire('Berhasil!', 'Data berhasil disimpan.', 'success'); document.getElementById('formInputData').reset(); loadAllData(); } 
-                else { Swal.fire('Gagal!', response, 'error').then(() => { if(response.includes("Password")) myModal.show(); }); }
-            } catch (err) {
-                 document.getElementById('loading-overlay').style.display = 'none'; Swal.fire('Error', err.message, 'error');
-            }
-          } else { myModal.show(); }
+          if (itemStart && itemEnd && itemEnd >= itemStart) {
+            if (fStart && itemEnd < fStart) return;
+            if (fEnd && itemStart > fEnd) return;
+            if (itemStart < minDate) minDate = new Date(itemStart);
+            if (itemEnd > maxDate) maxDate = new Date(itemEnd);
+            validItems.push({ person: personName, project: projectName, title: fullTitle, start: itemStart, end: itemEnd, barClass, status: statusText });
+          }
         });
-      }, 300);
-    }
 
-    // --- SEARCH LISTENERS ---
-    document.getElementById('searchSkk').addEventListener('keyup', (e) => { const k = e.target.value.toLowerCase(); renderSKK(dataSKK.filter(r => (r[1]||"").toLowerCase().includes(k) || (r[5]||"").toLowerCase().includes(k))); });
-    document.getElementById('searchTugas').addEventListener('keyup', (e) => { const k = e.target.value.toLowerCase(); renderTugas(dataTugas.filter(r => (r[1]||"").toLowerCase().includes(k) || (r[2]||"").toLowerCase().includes(k) || (r[6]||"").toLowerCase().includes(k))); });
-    document.getElementById('searchTugasGantt').addEventListener('keyup', (e) => { drawGanttChart('penugasan'); });
-    document.getElementById('searchProject').addEventListener('keyup', e => { const k = e.target.value.toLowerCase(); renderProject(dataProject.filter(r => (r[2]||"").toLowerCase().includes(k) || (r[4]||"").toLowerCase().includes(k))); });
-    document.getElementById('searchProjectGantt').addEventListener('keyup', (e) => { if(currentChartView === 'kontrak') drawGanttChart('kontrak'); else if(currentChartView === 'schedule') drawGanttChart('schedule'); });
+        validItems.sort((a, b) => a.start - b.start);
+        
+        let viewStart = fStart || new Date(minDate);
+        let viewEnd = fEnd || new Date(maxDate);
+        viewStart.setDate(1); viewEnd.setDate(1); viewEnd.setMonth(viewEnd.getMonth() + 1); viewEnd.setDate(0);
+        
+        const totalDays = Math.max(1, Math.ceil((viewEnd - viewStart) / (1000 * 60 * 60 * 24)));
+        const pxPerDay = 5;
+        const chartWidth = totalDays * pxPerDay;
 
+        const markers = [];
+        let curr = new Date(viewStart); curr.setDate(1);
+        while (curr <= viewEnd) {
+          const diffDays = Math.max(0, Math.ceil((curr - viewStart) / (1000 * 60 * 60 * 24)));
+          const leftPos = diffDays * pxPerDay;
+          if (leftPos < chartWidth) markers.push({ left: leftPos, label: formatMonthYear(curr) });
+          curr.setMonth(curr.getMonth() + 1);
+        }
+
+        return { items: validItems, viewStart, chartWidth, pxPerDay, markers, hasData: validItems.length > 0 };
+      }, [data, type, filterStart, filterEnd, search]);
+
+      if (!processedData.hasData) return <div className="text-center py-5 text-muted">Tidak ada data aktif pada rentang tanggal tersebut.</div>;
+
+      const handleMouseMove = (e, item) => {
+        const tWidth = 220; 
+        let leftPos = e.clientX + 15;
+        if (leftPos + tWidth > window.innerWidth) leftPos = e.clientX - tWidth - 10;
+        setTooltip({ show: true, x: leftPos, y: e.clientY + 15, data: item });
+      };
+
+      return (
+        <React.Fragment>
+          <div className="custom-gantt-wrapper">
+            <div className="g-row-container g-header-row">
+              {type === 'penugasan' ? (
+                <React.Fragment>
+                  <div className="g-col-personil">NAMA PERSONIL</div>
+                  <div className="g-col-pekerjaan">NAMA PEKERJAAN</div>
+                </React.Fragment>
+              ) : (
+                <div className="g-sticky-col">NAMA PEKERJAAN</div>
+              )}
+              <div className="g-timeline-col" style={{ minWidth: processedData.chartWidth }}>
+                {processedData.markers.map((m, i) => (
+                  <span key={i} className="month-marker" style={{ left: m.left }}>{m.label}</span>
+                ))}
+              </div>
+            </div>
+            {processedData.items.map((item, idx) => {
+              const startDiff = Math.ceil((item.start - processedData.viewStart) / (1000 * 60 * 60 * 24));
+              const duration = Math.ceil((item.end - item.start) / (1000 * 60 * 60 * 24));
+              let leftPx = startDiff * processedData.pxPerDay;
+              let widthPx = duration * processedData.pxPerDay;
+              if (leftPx < 0) { widthPx += leftPx; leftPx = 0; }
+              const widthSafe = Math.max(widthPx, 0);
+              
+              return (
+                <div className="g-row-container g-data-row" key={idx}>
+                  {type === 'penugasan' ? (
+                    <React.Fragment>
+                      <div className="g-col-personil" title={item.person}>{item.person}</div>
+                      <div className="g-col-pekerjaan" title={item.project}>{item.project}</div>
+                    </React.Fragment>
+                  ) : (
+                    <div className="g-sticky-col" title={item.project}>{item.project}</div>
+                  )}
+                  <div className="g-timeline-col" style={{ minWidth: processedData.chartWidth }}>
+                    <div className={`g-bar ${item.barClass}`} style={{ left: leftPx, width: widthSafe, display: widthSafe > 0 ? 'block' : 'none' }} onMouseMove={(e) => handleMouseMove(e, item)} onMouseLeave={() => setTooltip({ ...tooltip, show: false })}></div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          {tooltip.show && (
+            <div className="custom-tooltip" style={{ display: 'block', top: tooltip.y, left: tooltip.x, borderLeftColor: tooltip.data.barClass.includes('red') ? '#d9534f' : '#000080' }}>
+              <div className="ct-header">{tooltip.data.title}</div>
+              <div className="ct-row"><i className="bi bi-calendar-event"></i> Start: {tooltip.data.start.toLocaleDateString('id-ID')}</div>
+              <div className="ct-row"><i className="bi bi-calendar-check"></i> End: {tooltip.data.end.toLocaleDateString('id-ID')}</div>
+              <div className="ct-badge" style={{ background: tooltip.data.barClass.includes('red') ? '#ffe5e5' : '#e6f0ff', color: tooltip.data.barClass.includes('red') ? '#d9534f' : '#000080' }}>{tooltip.data.status}</div>
+            </div>
+          )}
+        </React.Fragment>
+      );
+    };
+
+    const Dashboard = ({ userRole, logout }) => {
+      const [view, setView] = useState('skk');
+      const [dataSKK, setDataSKK] = useState([]);
+      const [dataTugas, setDataTugas] = useState([]);
+      const [dataProject, setDataProject] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [search, setSearch] = useState('');
+      const [subView, setSubView] = useState('table'); 
+      const [filters, setFilters] = useState({ start: '', end: '' });
+      const [modalData, setModalData] = useState(null);
+      const [dropdowns, setDropdowns] = useState({ nama: [], perusahaan: [], sertifikat: [], jenjang: [] });
+
+      useEffect(() => {
+        const loadData = async () => {
+          setLoading(true);
+          try {
+            if (userRole !== "TEKNIS") {
+              const [resSKK, resTugas] = await Promise.all([fetchAPI('getDataSKK'), fetchAPI('getDataPenugasan')]);
+              setDataSKK(resSKK); setDataTugas(resTugas);
+            }
+            if (userRole === "SUPER_ADMIN" || userRole === "TEKNIS") {
+              const resProj = await fetchAPI('getDataProject');
+              setDataProject(resProj);
+            }
+            if (userRole === "SUPER_ADMIN" || userRole === "ADMIN_INPUT") {
+               const resDrop = await fetchAPI('getDropdownData');
+               setDropdowns(resDrop);
+            }
+          } catch (e) { console.error(e); }
+          finally { setLoading(false); }
+        };
+        loadData();
+      }, [userRole]);
+
+      const statsSKK = useMemo(() => {
+        let activeMap = {};
+        dataTugas.forEach(row => { if(row[1] && (row[12]||"").toLowerCase().includes('active')) activeMap[row[1].trim()] = row[5]; });
+        let total = 0, expired = 0, used = 0;
+        const grouped = {};
+        dataSKK.forEach(row => {
+          if(!row[1]) return;
+          if(!grouped[row[1]]) { grouped[row[1]] = { items: [] }; total++; }
+          let s = (row[10]||"").toLowerCase();
+          let k = (row[11]||"").toLowerCase();
+          if(s.includes('expired')) expired++;
+          let isItemUsed = false;
+          if (activeMap[row[1].trim()]) isItemUsed = true;
+          else if (s.includes('used') || k.includes('used')) isItemUsed = true;
+          if(isItemUsed) grouped[row[1]].used = true;
+        });
+        used = Object.values(grouped).filter(g => g.used).length;
+        return { total, expired, used };
+      }, [dataSKK, dataTugas]);
+
+      const handleSave = async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const formData = {
+          nama: form.inputNama.value,
+          perusahaan: form.inputPerusahaan.value,
+          sertifikat: form.inputSertifikat.value,
+          jenjang: form.inputJenjang.value,
+          asosiasi: form.inputAsosiasi.value,
+          masaBerlaku: form.inputMasaBerlaku.value,
+          keterangan: form.inputKeterangan.value,
+          rowNumber: modalData?.rowNumber || ""
+        };
+        const modalEl = document.getElementById('modalTambahData');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+
+        const { value: password } = await Swal.fire({
+          title: 'Konfirmasi Password', text: 'Masukkan password Anda:', input: 'password',
+          showCancelButton: true, confirmButtonText: 'Simpan', confirmButtonColor: '#000080'
+        });
+
+        if (password) {
+          setLoading(true);
+          try {
+            const res = await fetchAPI('saveData', 'POST', { password, payload: formData });
+            if(res === "Sukses") {
+               Swal.fire('Berhasil', 'Data disimpan', 'success');
+               const resSKK = await fetchAPI('getDataSKK');
+               setDataSKK(resSKK);
+            } else {
+               Swal.fire('Gagal', res, 'error');
+            }
+          } catch(err) { Swal.fire('Error', err.message, 'error'); }
+          finally { setLoading(false); }
+        }
+      };
+
+      const renderSKKTable = () => {
+        let activeMap = {};
+        dataTugas.forEach(row => { if(row[1] && (row[12]||"").toLowerCase().includes('active')) activeMap[row[1].trim()] = row[5]; });
+        const grouped = {};
+        dataSKK.filter(r => !search || (r[1]||"").toLowerCase().includes(search.toLowerCase()) || (r[5]||"").toLowerCase().includes(search.toLowerCase())).forEach((row, idx) => {
+          const name = row[1]; if(!name) return;
+          if(!grouped[name]) grouped[name] = { ...row, items: [] };
+          grouped[name].items.push({ ...row, originalIndex: idx, rowNum: row[row.length-1] });
+        });
+        
+        // Re-calc specific visible stats if needed, or rely on global stats
+        const rows = Object.values(grouped).map((person, i) => {
+          let isUsed = false, hasActive = false, usedProj = "";
+          person.items.forEach(item => {
+            const s = (item[10]||"").toLowerCase();
+            if(activeMap[person[1].trim()]) { isUsed = true; usedProj = activeMap[person[1].trim()]; }
+            else if (s.includes('used') || (item[11]||"").toLowerCase().includes('used')) { isUsed = true; usedProj = "Used"; }
+            if(s.includes('active') || s.includes('available')) hasActive = true;
+          });
+          const badge = isUsed ? <span className="badge-status status-used">{usedProj.includes('Used') ? usedProj : `Used in ${usedProj}`}</span> 
+                      : hasActive ? <span className="badge-status status-active">Available</span>
+                      : <span className="badge-status status-expired">Expired</span>;
+          let btnWA = "-";
+          const hp = person[2];
+          if(hp && hp.match(/\d+/)) {
+             let num = hp.toString().replace(/\D/g, '');
+             if(num.startsWith('0')) num = '62'+num.substring(1);
+             if(num.length > 9) btnWA = <a href={`https://wa.me/${num}`} target="_blank" rel="noreferrer" className="btn btn-success btn-sm text-white fw-bold d-inline-flex align-items-center justify-content-center" style={{fontSize:'0.7rem', padding:'2px 8px', height:'24px'}}><i className="bi bi-whatsapp me-1"></i> Chat</a>;
+             else btnWA = <span className="small text-muted">{hp}</span>;
+          }
+          return (
+            <tr key={i}>
+              <td className="align-middle-person">
+                <div className="fw-bold text-dark">{person[1]}</div>
+                <div className="small text-muted" style={{lineHeight:1.2}}><i className="bi bi-building me-1"></i>{person[4]||'-'}</div>
+              </td>
+              <td className="text-center align-middle-person">{btnWA}</td>
+              <td className="align-middle-person small" style={{lineHeight:1.3}}>{person[3]}</td>
+              <td style={{padding:0}}>{person.items.map((it, k) => <div key={k} className="nested-cell fw-bold" style={{lineHeight:1.3}}>{it[5]}</div>)}</td>
+              <td style={{padding:0}}>{person.items.map((it, k) => <div key={k} className="nested-cell justify-content-center text-center">{it[6]||'-'}</div>)}</td>
+              <td style={{padding:0}}>{person.items.map((it, k) => <div key={k} className="nested-cell justify-content-center text-center small" style={{color: (it[10]||"").includes('expired')?'#dc3545':'inherit', fontWeight: (it[10]||"").includes('expired')?700:'normal'}}>{it[9]||'-'}</div>)}</td>
+              <td className="text-center align-middle-person">{badge}</td>
+              <td style={{padding:0}}>{person.items.map((it, k) => <div key={k} className="nested-cell small text-muted" style={{lineHeight:1.2}}>{it[11]||''}</div>)}</td>
+              {(userRole === 'SUPER_ADMIN' || userRole === 'ADMIN_INPUT') && (
+                <td className="text-center" style={{padding:0}}>
+                  {person.items.map((it, k) => (
+                    <div key={k} className="nested-cell nested-cell-action">
+                      <button className="btn btn-sm btn-outline-primary rounded-circle" style={{width:24, height:24, padding:0}} 
+                        onClick={() => {
+                            setModalData({ rowNumber: it.rowNum, nama: it[1], perusahaan: it[4], sertifikat: it[5], jenjang: it[6], asosiasi: it[7], masaBerlaku: it[8], keterangan: it[11] });
+                            new bootstrap.Modal(document.getElementById('modalTambahData')).show();
+                        }}>
+                        <i className="bi bi-pencil-fill" style={{fontSize:'0.7rem'}}></i>
+                      </button>
+                    </div>
+                  ))}
+                </td>
+              )}
+            </tr>
+          );
+        });
+        return rows;
+      };
+
+      const skkRows = renderSKKTable();
+      const skkTotalAnim = useCounter(statsSKK.total);
+      const skkUsedAnim = useCounter(statsSKK.used);
+      const skkExpiredAnim = useCounter(statsSKK.expired);
+
+      return (
+        <React.Fragment>
+          <Navbar role={userRole} />
+          <div className="container-fluid px-4 px-lg-5 pb-5">
+            <ul className="nav nav-pills mb-4 justify-content-center gap-3">
+              {userRole !== 'TEKNIS' && (
+                <React.Fragment>
+                  <li className="nav-item"><button className={`nav-link ${view==='skk'?'active':''}`} onClick={()=>setView('skk')}><i className="bi bi-person-badge me-2"></i>Sertifikat Keahlian</button></li>
+                  <li className="nav-item"><button className={`nav-link ${view==='penugasan'?'active':''}`} onClick={()=>setView('penugasan')}><i className="bi bi-calendar-check me-2"></i>Waktu Penugasan</button></li>
+                </React.Fragment>
+              )}
+              {(userRole === 'SUPER_ADMIN' || userRole === 'TEKNIS') && (
+                <li className="nav-item"><button className={`nav-link ${view==='project'?'active':''}`} onClick={()=>setView('project')}><i className="bi bi-kanban me-2"></i>Master Project</button></li>
+              )}
+            </ul>
+
+            {view === 'skk' && (
+              <div className="view-section animate__animated animate__fadeIn">
+                <div className="stats-wrapper">
+                  <div className="row g-3 mb-4 justify-content-center">
+                    <div className="col-12 col-sm-6 col-lg-4">
+                      <div className="stat-card bg-gradient-primary p-3 d-flex justify-content-between align-items-center">
+                        <div><div className="stat-label">Total Personil</div><div className="stat-value">{skkTotalAnim}</div></div>
+                        <i className="bi bi-people-fill fs-1 opacity-50"></i>
+                      </div>
+                    </div>
+                    <div className="col-12 col-sm-6 col-lg-4">
+                      <div className="stat-card bg-gradient-danger p-3 d-flex justify-content-between align-items-center">
+                        <div><div className="stat-label">Expired</div><div className="stat-value">{skkExpiredAnim}</div></div>
+                        <i className="bi bi-exclamation-triangle-fill fs-1 opacity-50"></i>
+                      </div>
+                    </div>
+                    <div className="col-12 col-sm-6 col-lg-4">
+                      <div className="stat-card bg-gradient-warning p-3 d-flex justify-content-between align-items-center">
+                        <div><div className="stat-label">Personil Terpakai</div><div className="stat-value">{skkUsedAnim}</div></div>
+                        <i className="bi bi-briefcase-fill fs-1 opacity-50"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="row mb-4 g-2 align-items-center">
+                  <div className={`col-md ${userRole==='ADMIN'?'col-12':''}`}>
+                    <div className="position-relative w-100">
+                      <i className="bi bi-search search-icon"></i>
+                      <input type="text" className="form-control search-input" placeholder="Cari Nama Personil, Sertifikat..." value={search} onChange={e=>setSearch(e.target.value)} />
+                    </div>
+                  </div>
+                  {(userRole === 'SUPER_ADMIN' || userRole === 'ADMIN_INPUT') && (
+                    <div className="col-md-auto">
+                      <button className="btn btn-success rounded-pill fw-bold shadow-sm h-100 px-4" onClick={()=>{setModalData(null); new bootstrap.Modal(document.getElementById('modalTambahData')).show();}}>
+                        <i className="bi bi-plus-lg me-2"></i>Tambah Data
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <div className="table-card">
+                  <div className="table-responsive">
+                    <table className="table table-hover align-middle">
+                      <thead className="table-light">
+                        <tr>
+                          <th style={{width:'20%', minWidth:200}}>Nama Personil</th>
+                          <th className="text-center" style={{width:'10%'}}>Kontak (WA)</th>
+                          <th style={{width:'20%', minWidth:150}}>Jenjang & Bidang Ilmu</th>
+                          <th style={{width:'20%', minWidth:150}}>Sertifikat</th>
+                          <th className="text-center" style={{width:'8%'}}>Jenjang</th>
+                          <th className="text-center" style={{width:'8%'}}>Sisa Waktu</th>
+                          <th className="text-center" style={{width:'10%'}}>Status</th>
+                          <th style={{width:'15%'}}>Keterangan</th>
+                          {(userRole === 'SUPER_ADMIN' || userRole === 'ADMIN_INPUT') && <th className="text-center" style={{width:'5%'}}>Aksi</th>}
+                        </tr>
+                      </thead>
+                      <tbody>{skkRows}</tbody>
+                    </table>
+                    {skkRows.length === 0 && <div className="text-center py-4 text-muted">Data tidak ditemukan.</div>}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {view === 'penugasan' && (
+              <div className="view-section animate__animated animate__fadeIn">
+                 <div className="table-card">
+                    <div className="row gy-3 align-items-center mb-4">
+                       <div className="col-12 col-xl-auto">
+                          <div className="sub-nav btn-group w-100">
+                             <button className={`btn ${subView==='table'?'active':''}`} onClick={()=>setSubView('table')}><i className="bi bi-table me-1"></i>Tabel</button>
+                             <button className={`btn ${subView==='gantt'?'active':''}`} onClick={()=>setSubView('gantt')}><i className="bi bi-bar-chart-steps me-1"></i>Timeline</button>
+                          </div>
+                       </div>
+                       <div className="col-12 col-xl ms-xl-auto">
+                          <div className="position-relative w-100">
+                             <i className="bi bi-search search-icon"></i>
+                             <input type="text" className="form-control search-input" placeholder="Cari..." value={search} onChange={e=>setSearch(e.target.value)}/>
+                          </div>
+                       </div>
+                    </div>
+                    {subView === 'table' ? (
+                       <div className="table-responsive">
+                          <table className="table table-hover align-middle">
+                             <thead><tr><th style={{minWidth:180}}>Nama Personil</th><th style={{minWidth:200}}>Nama Paket</th><th className="text-center">LPSE</th><th>Sertifikat</th><th className="text-center">Status</th></tr></thead>
+                             <tbody>
+                                {dataTugas.filter(r=>(r[12]||"").toLowerCase()!=='completed' && (!search || (r[1]||"").toLowerCase().includes(search.toLowerCase()))).map((row, i) => {
+                                   let status = (row[12]||"").toLowerCase();
+                                   let badge = status.includes('active')?'status-active':status.includes('not started')?'status-not-started':'status-expired';
+                                   return (
+                                      <tr key={i}>
+                                         <td className="fw-bold">{row[1]}</td><td>{row[2]}</td><td className="text-center">{row[5]||'-'}</td><td className="small">{row[6]}</td>
+                                         <td className="text-center"><span className={`badge-status ${badge}`}>{row[12]}</span></td>
+                                      </tr>
+                                   )
+                                })}
+                             </tbody>
+                          </table>
+                       </div>
+                    ) : (
+                       <GanttChart data={dataTugas} type="penugasan" search={search.toLowerCase()} />
+                    )}
+                 </div>
+              </div>
+            )}
+
+            {view === 'project' && (
+               <div className="view-section animate__animated animate__fadeIn">
+                  <div className="table-card">
+                     <div className="row gy-3 align-items-center mb-4">
+                        <div className="col-12 col-xl-auto">
+                           <div className="sub-nav btn-group w-100">
+                              <button className={`btn ${subView==='table'?'active':''}`} onClick={()=>setSubView('table')}><i className="bi bi-table me-1"></i>Tabel</button>
+                              <button className={`btn ${subView==='gantt-kontrak'?'active':''}`} onClick={()=>setSubView('gantt-kontrak')}>Timeline Kontrak</button>
+                              <button className={`btn ${subView==='gantt-schedule'?'active':''}`} onClick={()=>setSubView('gantt-schedule')}>Timeline Schedule</button>
+                           </div>
+                        </div>
+                        {subView !== 'table' && (
+                           <div className="col-12 col-xl-auto d-flex gap-2">
+                              <input type="date" className="form-control form-control-sm" onChange={e=>setFilters({...filters, start:e.target.value})} />
+                              <input type="date" className="form-control form-control-sm" onChange={e=>setFilters({...filters, end:e.target.value})} />
+                           </div>
+                        )}
+                        <div className="col-12 col-xl ms-xl-auto">
+                            <div className="position-relative">
+                               <i className="bi bi-search search-icon"></i>
+                               <input type="text" className="form-control search-input" placeholder="Cari Project..." value={search} onChange={e=>setSearch(e.target.value)}/>
+                            </div>
+                        </div>
+                     </div>
+                     {subView === 'table' ? (
+                        <div className="table-responsive">
+                           <table className="table table-hover align-middle">
+                              <thead className="table-light text-center"><tr><th>Pekerjaan</th><th>Kordinator</th><th>Link</th><th>Priority</th><th>Status</th></tr></thead>
+                              <tbody>
+                                 {dataProject.filter(r=>(!search || (r[2]||"").toLowerCase().includes(search.toLowerCase()))).map((row, i) => (
+                                    <tr key={i}>
+                                       <td className="fw-bold">{row[2]}</td><td>{row[4]}</td>
+                                       <td className="text-center">{row[5] && row[5].includes('http') ? <a href={row[5]} target="_blank" rel="noreferrer" className="btn btn-primary btn-sm px-2 py-0" style={{height:24, fontSize:'0.7rem'}}>Link</a> : '-'}</td>
+                                       <td className="text-center"><span className={`badge ${row[7]==='High'?'bg-danger':row[7]==='Medium'?'bg-warning text-dark':'bg-info'}`}>{row[7]||'Low'}</span></td>
+                                       <td className="text-center"><span className="badge bg-secondary">{row[16]}</span></td>
+                                    </tr>
+                                 ))}
+                              </tbody>
+                           </table>
+                        </div>
+                     ) : (
+                        <GanttChart data={dataProject} type={subView === 'gantt-kontrak' ? 'kontrak' : 'schedule'} filterStart={filters.start} filterEnd={filters.end} search={search.toLowerCase()} />
+                     )}
+                  </div>
+               </div>
+            )}
+          </div>
+
+          {loading && <LoadingOverlay text="Memuat Data..." />}
+
+          {/* MODAL */}
+          <div className="modal fade" id="modalTambahData" tabIndex="-1" aria-hidden="true">
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header bg-primary text-white">
+                  <h5 className="modal-title">{modalData ? 'Edit Data' : 'Input Data'}</h5>
+                  <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div className="modal-body">
+                  <form id="formInputData" onSubmit={handleSave}>
+                    <div className="mb-3"><label className="form-label small fw-bold">Nama Personil</label><input className="form-control" name="inputNama" list="listNama" required defaultValue={modalData?.nama} autoComplete="off"/><datalist id="listNama">{dropdowns.nama.map(d=><option key={d} value={d}/>)}</datalist></div>
+                    <div className="mb-3"><label className="form-label small fw-bold">Perusahaan</label><input className="form-control" name="inputPerusahaan" list="listPerusahaan" required defaultValue={modalData?.perusahaan} autoComplete="off"/><datalist id="listPerusahaan">{dropdowns.perusahaan.map(d=><option key={d} value={d}/>)}</datalist></div>
+                    <div className="row">
+                       <div className="col-md-6 mb-3"><label className="form-label small fw-bold">Sertifikat</label><input className="form-control" name="inputSertifikat" list="listSertifikat" required defaultValue={modalData?.sertifikat} autoComplete="off"/><datalist id="listSertifikat">{dropdowns.sertifikat.map(d=><option key={d} value={d}/>)}</datalist></div>
+                       <div className="col-md-6 mb-3"><label className="form-label small fw-bold">Jenjang</label><input className="form-control" name="inputJenjang" list="listJenjang" required defaultValue={modalData?.jenjang} autoComplete="off"/><datalist id="listJenjang">{dropdowns.jenjang.map(d=><option key={d} value={d}/>)}</datalist></div>
+                    </div>
+                    <div className="mb-3"><label className="form-label small fw-bold">Asosiasi</label><input type="text" className="form-control" name="inputAsosiasi" defaultValue={modalData?.asosiasi} /></div>
+                    <div className="mb-3"><label className="form-label small fw-bold">Masa Berlaku</label><input type="date" className="form-control" name="inputMasaBerlaku" required defaultValue={modalData?.masaBerlaku ? (() => { 
+                        const d = parseDate(modalData.masaBerlaku); return d ? d.toISOString().split('T')[0] : ''; 
+                    })() : ''} /></div>
+                    <div className="mb-3"><label className="form-label small fw-bold">Keterangan</label><textarea className="form-control" name="inputKeterangan" rows="2" defaultValue={modalData?.keterangan}></textarea></div>
+                    <div className="modal-footer px-0 pb-0">
+                       <button type="button" className="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
+                       <button type="submit" className="btn btn-primary rounded-pill">Simpan Data</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </React.Fragment>
+      );
+    };
+
+    const App = () => {
+      const [userRole, setUserRole] = useState(null);
+      if (!userRole) return <LoginSection onLogin={setUserRole} />;
+      return <Dashboard userRole={userRole} logout={() => setUserRole(null)} />;
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
   </script>
 </body>
 </html>
-
