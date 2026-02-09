@@ -654,18 +654,18 @@
 
     // --- RENDER LOGIC ---
 
-    // FUNGSI RENDER SKK (GROUPED & LOGIKA PRIORITAS STATUS CROSS-CHECK)
+    // FUNGSI RENDER SKK (DIPERBAIKI UNTUK HITUNG EXPIRED PER ITEM)
     function renderSKK(data) {
       const tbody = document.getElementById('bodySkk'); 
       tbody.innerHTML = '';
       
-      let expired = 0, usedSet = new Set();
-      
-      // 1. Hitung Statistik (Data Mentah) -> Tidak dipakai untuk card, tapi untuk log internal
+      // Reset Variabel Statistik
+      let statTotal = 0;   // Menghitung Jumlah Orang
+      let statUsed = 0;    // Menghitung Jumlah Orang yang Terpakai
+      let statExpired = 0; // Menghitung JUMLAH SERTIFIKAT yang Expired
       
       if(data.length === 0) {
           document.getElementById('msgSkk').classList.remove('d-none');
-          // Reset Card
           animateValue("skk-total", 0, 0, 800); 
           animateValue("skk-expired", 0, 0, 800); 
           animateValue("skk-used", 0, 0, 800);
@@ -674,7 +674,7 @@
           document.getElementById('msgSkk').classList.add('d-none');
       }
 
-      // 2.a. PREPARE MAP DARI DATA PENUGASAN (CROSS-CHECK)
+      // 1. PREPARE MAP DARI DATA PENUGASAN (CROSS-CHECK)
       const activeAssignmentsMap = {};
       if(dataTugas && dataTugas.length > 0) {
           dataTugas.forEach(row => {
@@ -687,7 +687,7 @@
           });
       }
 
-      // 2.b. GROUPING DATA SKK
+      // 2. GROUPING DATA SKK
       const groupedData = {};
       
       data.forEach((row, originalIndex) => {
@@ -708,34 +708,35 @@
               sertifikat: row[5],
               jenjang: row[6],
               sisaWaktu: row[9],
-              statusRaw: row[10], // Penting: Simpan status mentah per item (Kolom K)
+              statusRaw: row[10], // Kolom K
               ketRaw: row[11],    
               originalIndex: originalIndex
           });
       });
 
-      // Variable Penghitung Statistik Akhir
-      let statTotal = Object.keys(groupedData).length;
-      let statUsed = 0;
-      let statExpired = 0;
+      statTotal = Object.keys(groupedData).length;
 
-      // 3. RENDER DATA GROUPED DENGAN LOGIKA PRIORITAS & CROSS-CHECK
+      // 3. RENDER DATA GROUPED
       Object.values(groupedData).forEach(person => {
           
-          // --- A. LOGIKA PENENTUAN STATUS GLOBAL PERSONIL ---
           let isUsed = false;
           let hasActive = false;
           let usedProjectName = ""; 
           let spreadsheetUsedText = ""; 
 
-          // Cek Data Internal SKK Terlebih Dahulu (Prioritas Teks dari Spreadsheet)
+          // Cek Data Internal SKK & HITUNG EXPIRED PER ITEM
           person.items.forEach(item => {
               let s = (item.statusRaw || "").toLowerCase();
               let k = (item.ketRaw || "").toLowerCase();
               
+              // --- FIX: Hitung Expired per Sertifikat ---
+              if (s.includes('expired')) {
+                  statExpired++;
+              }
+              // ------------------------------------------
+
               if (s.includes('used') || k.includes('used')) {
                   isUsed = true;
-                  // Priority 1: Ambil teks langsung dari Kolom Status (K)
                   if(item.statusRaw && item.statusRaw.toLowerCase().includes('used')) {
                       spreadsheetUsedText = item.statusRaw;
                   } else if (item.ketRaw) {
@@ -747,7 +748,7 @@
               }
           });
 
-          // Fallback Cross-Check: Jika di SKK tidak terdeteksi Used, cek di Data Penugasan
+          // Fallback Cross-Check: Cek Data Penugasan
           if (!isUsed) {
               const activeJobFromTugas = activeAssignmentsMap[person.nama.trim()];
               if (activeJobFromTugas) {
@@ -755,25 +756,23 @@
                   usedProjectName = `Used in ${activeJobFromTugas}`; 
               }
           } else {
-              // Jika terdeteksi via spreadsheet, pakai teks spreadsheet
               usedProjectName = spreadsheetUsedText ? spreadsheetUsedText : "Used";
           }
 
-          // Tentukan Badge Status Akhir & Update Statistik
+          // Tentukan Badge Status Akhir (Hanya status visual orang tersebut)
           let finalBadge = "";
           
           if (isUsed) {
-              statUsed++;
+              statUsed++; // Hitung orang yang terpakai
               finalBadge = `<span class="badge-status status-used">${usedProjectName}</span>`; 
           } else if (hasActive) {
-              // Active / Available tidak dihitung di card Expired/Used
               finalBadge = `<span class="badge-status status-active">Available</span>`;
           } else {
-              statExpired++;
+              // Jika tidak Used dan tidak ada yang Active sama sekali, status orangnya Expired
               finalBadge = `<span class="badge-status status-expired">Expired</span>`;
           }
 
-          // --- B. RENDER KOLOM LAINNYA ---
+          // --- RENDER VISUAL TABEL ---
           let btnWA = "-";
           if(person.hp && person.hp.match(/\d+/)) {
               let cleanNum = person.hp.toString().replace(/\D/g, ''); 
@@ -788,10 +787,9 @@
           let htmlSertifikat = '', htmlJenjang = '', htmlSisa = '', htmlKet = '', htmlAksi = '';
 
           person.items.forEach(item => {
-              // Warna teks sisa waktu: Merah & Tebal jika expired
               let sisaStyle = "";
               if ((item.statusRaw||"").toLowerCase().includes('expired')) {
-                  sisaStyle = "color: #dc3545; font-weight: 700;"; // Red Danger Bootstrap Color & Bold
+                  sisaStyle = "color: #dc3545; font-weight: 700;"; 
               }
 
               htmlSertifikat += `<div class="nested-cell fw-bold" title="${item.sertifikat}">${item.sertifikat}</div>`;
@@ -831,7 +829,7 @@
           `;
       });
 
-      // Update Card Stats dengan Angka Real
+      // Update Card Stats dengan Angka Baru
       animateValue("skk-total", 0, statTotal, 800); 
       animateValue("skk-expired", 0, statExpired, 800); 
       animateValue("skk-used", 0, statUsed, 800);
