@@ -1,4 +1,4 @@
-// --- Code.gs (Final Version: Login/Logout Audit) ---
+// --- Code.gs (Final - Audit Log Fixed & Secured) ---
 
 // 1. MASUKKAN ID SPREADSHEET UTAMA
 const MAIN_SS_ID = "1NYw4b9mSXoa_tYxo38mWZizQahq0wBee-9cU9oUk23o"; 
@@ -48,6 +48,7 @@ function doPost(e) {
       result = verifyPassword(data.password);
       // --- LOG LOGIN ---
       if (result.valid) {
+        // Merekam Role yang berhasil login
         logAudit("LOGIN", "User Login: " + result.role);
       } else {
         logAudit("LOGIN_FAIL", "Gagal Login (Password Salah)");
@@ -60,8 +61,8 @@ function doPost(e) {
       result = { status: "Success" };
     }
     else if (action === 'saveData') {
+      // Log disimpan di dalam processForm agar lebih detail
       result = processForm(data.payload);
-       // Log simpan data sudah ditangani di dalam fungsi processForm
     } 
     else {
       result = { error: "Action not defined" };
@@ -69,6 +70,8 @@ function doPost(e) {
     
     return responseJSON(result);
   } catch (err) {
+    // Log error sistem
+    logAudit("SYSTEM_ERROR", "doPost Error: " + err.toString());
     return responseJSON({ error: "Gagal memproses data: " + err.toString() });
   }
 }
@@ -78,39 +81,47 @@ function responseJSON(data) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// --- FUNGSI AUDIT LOG (Script Properties) ---
+// --- FUNGSI AUDIT LOG (Dengan LockService) ---
 function logAudit(type, message) {
+  // Gunakan LockService agar log tidak bentrok jika akses bersamaan
+  var lock = LockService.getScriptLock();
   try {
+    // Tunggu maksimal 5 detik untuk giliran menulis log
+    lock.waitLock(5000); 
+    
     var scriptProps = PropertiesService.getScriptProperties();
     var logsJSON = scriptProps.getProperty("AUDIT_LOGS");
     var logs = logsJSON ? JSON.parse(logsJSON) : [];
     
     var now = new Date();
-    // Format waktu agar mudah dibaca di JSON (opsional, tapi timestamp ISO lebih aman)
+    // Tambah log baru di urutan pertama
     var newLog = {
-      timestamp: now.toISOString(),
+      timestamp: now.toISOString(), // ISO String lebih aman untuk sorting
       type: type,
       message: message
     };
     
-    logs.unshift(newLog); // Tambah di awal (terbaru)
+    logs.unshift(newLog); 
 
     // Bersihkan log > 6 bulan (180 hari)
     var cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - 180);
-    
     logs = logs.filter(function(log) {
       return new Date(log.timestamp) > cutoffDate;
     });
 
-    // Batasi jumlah log agar tidak error memori (Max 100 log terakhir)
+    // Batasi jumlah log maks 100 agar script tidak berat
     if (logs.length > 100) {
       logs = logs.slice(0, 100);
     }
 
     scriptProps.setProperty("AUDIT_LOGS", JSON.stringify(logs));
+    
   } catch (e) {
     console.error("Gagal mencatat log: " + e.toString());
+  } finally {
+    // Lepaskan kunci agar proses lain bisa lanjut
+    lock.releaseLock();
   }
 }
 
@@ -135,6 +146,7 @@ function verifyPassword(inputPassword) {
     var storedPasswords = sheet.getRange("A2:A5").getValues().flat();
     var input = inputPassword.toString().trim();
 
+    // Mapping Role Berdasarkan Baris Password
     if (storedPasswords[0] && input === storedPasswords[0].toString()) return { valid: true, role: "SUPER_ADMIN" };
     if (storedPasswords[1] && input === storedPasswords[1].toString()) return { valid: true, role: "ADMIN" };
     if (storedPasswords[2] && input === storedPasswords[2].toString()) return { valid: true, role: "TEKNIS" };
@@ -285,7 +297,7 @@ function processForm(data) {
     
     SpreadsheetApp.flush(); 
     
-    // Log Activity
+    // Log Activity (Sukses)
     logAudit(actionType, "Personil: " + data.nama + ", Row: " + targetRow);
     
     return "Sukses";
