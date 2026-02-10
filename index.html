@@ -195,25 +195,26 @@
       .stat-value { font-size: 2rem; }
 
       /* --- FIX TIMELINE MOBILE (GANTT) --- */
-      /* Matikan fungsi Sticky agar tidak menutupi layar HP dan kolom nama ikut ter-scroll */
+      /* FIX: Matikan sticky dan set Lebar TETAP agar header dan data sejajar */
       .g-sticky-col, .g-col-personil, .g-col-pekerjaan {
         position: static !important; 
-        width: auto !important;
-        min-width: 120px !important; 
-        max-width: 200px;            
+        width: 140px !important;      /* FORCE FIXED WIDTH */
+        min-width: 140px !important;  
+        max-width: 140px !important;            
         box-shadow: none !important;
         border-right: 1px solid #eee !important;
         flex-shrink: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
-      .g-col-pekerjaan { left: auto !important; } /* Reset left position untuk kolom ke-2 */
+      .g-col-pekerjaan { left: auto !important; } 
       
-      /* Container row agar item tidak gepeng */
       .g-row-container {
         width: max-content; 
         min-width: 100%;
       }
       
-      /* Wrapper utama scrollable */
       .custom-gantt-wrapper {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
