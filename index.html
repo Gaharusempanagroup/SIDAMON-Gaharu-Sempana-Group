@@ -279,7 +279,8 @@
 
   <div id="dashboard-section">
     <nav class="navbar navbar-dark bg-primary shadow-sm mb-4 py-2 sticky-top">
-      <div class="container-fluid px-4 px-lg-5"> <div class="d-flex align-items-center">
+      <div class="container-fluid px-3 px-lg-5 d-flex justify-content-between align-items-center flex-nowrap">
+        <div class="d-flex align-items-center">
           <div class="logo-wrapper">
               <img src="IMG_0992.PNG" alt="Logo" style="height: 45px; width: auto;">
           </div>
@@ -920,6 +921,9 @@
 
     // --- FUNGSI HAPUS LOG (2 Langkah: Tanggal -> Password) ---
     function handleClearLogs() {
+        // FIX: Hapus tabindex agar fokus bisa pindah ke Swal
+        document.getElementById('modalLogHistory').removeAttribute('tabindex');
+        
         // Langkah 1: Pilih Tanggal
         Swal.fire({
             title: 'Hapus History Log',
@@ -1611,30 +1615,11 @@
     }
     
     window.moveTooltip = function(e) {
-      const winWidth = window.innerWidth;
-      const winHeight = window.innerHeight;
-      const tWidth = tooltip.offsetWidth;
-      const tHeight = tooltip.offsetHeight;
-      
-      let x = e.clientX;
-      let y = e.clientY;
-
-      let leftPos = x + 15;
-      if (leftPos + tWidth > winWidth) {
-          leftPos = x - tWidth - 15;
-      }
-      if (leftPos < 0) { leftPos = 10; }
-
-      let topPos = y + 15;
-      if (topPos + tHeight > winHeight) {
-          topPos = y - tHeight - 15;
-      }
-      if (topPos < 0) { topPos = 10; }
-
-      tooltip.style.left = leftPos + 'px';
-      tooltip.style.top = topPos + 'px';
+      const x = e.clientX; const y = e.clientY;
+      const tWidth = tooltip.offsetWidth; const winWidth = window.innerWidth;
+      let leftPos = x + 15; if (leftPos + tWidth > winWidth - 20) { leftPos = x - tWidth - 10; }
+      tooltip.style.top = (y + 15) + 'px'; tooltip.style.left = leftPos + 'px';
     }
-    
     window.hideTooltip = function() { tooltip.style.display = 'none'; }
 
 
