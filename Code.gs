@@ -1,22 +1,18 @@
-// --- Code.gs (Versi API - FIXED) ---
+// --- Code.gs (Versi API - FIXED & ENHANCED) ---
 
-// 1. MASUKKAN ID SPREADSHEET UTAMA (Tempat data SKK & Penugasan)
+// 1. MASUKKAN ID SPREADSHEET UTAMA
 const MAIN_SS_ID = "1NYw4b9mSXoa_tYxo38mWZizQahq0wBee-9cU9oUk23o"; 
 
-// 2. ID Spreadsheet Project (Sudah ada sebelumnya)
+// 2. ID Spreadsheet Project
 const PROJECT_SS_ID = "1kPWraQ0VJNB36sdJVlkP7dDZAZKBvisAtrggGYLraqc"; 
 
-
 /**
- * Handle GET Requests (API Endpoint)
+ * Handle GET Requests
  */
 function doGet(e) {
-  // --- PENGAMAN ---
-  // Jika e undefined (dijalankan dari editor), buat dummy object agar tidak error
   if (!e || !e.parameter) {
-    return ContentService.createTextOutput("Error: Jangan jalankan doGet() langsung dari editor. Gunakan Deploy > Test Deploy, atau fungsi debugDoGet().");
+    return ContentService.createTextOutput("Error: Gunakan Deploy > Test Deploy.");
   }
-  // ----------------
 
   var action = e.parameter.action;
   var result = {};
@@ -29,6 +25,9 @@ function doGet(e) {
     result = getDataProject();
   } else if (action === 'getDropdownData') {
     result = getDropdownData();
+  } else if (action === 'getAuditLogs') {
+    // Fitur Baru: Ambil Log
+    result = getAuditLogs(e.parameter.role);
   } else {
     result = { error: "Action not defined" };
   }
@@ -37,23 +36,24 @@ function doGet(e) {
 }
 
 /**
- * Handle POST Requests (Login & Save)
+ * Handle POST Requests
  */
 function doPost(e) {
   try {
-    // UBAH CARA AMBIL DATA
-    // Google Apps Script kadang menerima data sebagai postData.contents (string)
-    // bukan object JSON langsung jika dikirim dari fetch API eksternal
     var jsonString = e.postData.contents;
     var data = JSON.parse(jsonString);
-    
     var action = data.action;
     var result = {};
 
     if (action === 'login') {
       result = verifyPassword(data.password);
+      // Fitur Baru: Log Login Sukses
+      if (result.valid) {
+        logAudit("LOGIN", "User logged in as " + result.role);
+      }
     } else if (action === 'saveData') {
       result = processForm(data.payload);
+       // Fitur Baru: Log Simpan Data (sukses/gagal dicatat di processForm)
     } else {
       result = { error: "Action not defined" };
     }
@@ -69,11 +69,56 @@ function responseJSON(data) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// --- FUNGSI LOGIC (Sekarang menggunakan openById) ---
+// --- FUNGSI AUDIT LOG (Script Properties) ---
+function logAudit(type, message) {
+  try {
+    var scriptProps = PropertiesService.getScriptProperties();
+    var logsJSON = scriptProps.getProperty("AUDIT_LOGS");
+    var logs = logsJSON ? JSON.parse(logsJSON) : [];
+    
+    var now = new Date();
+    var newLog = {
+      timestamp: now.toISOString(),
+      type: type,
+      message: message
+    };
+    
+    logs.unshift(newLog); // Tambah di awal (terbaru)
+
+    // Bersihkan log > 6 bulan (180 hari)
+    var cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - 180);
+    
+    logs = logs.filter(function(log) {
+      return new Date(log.timestamp) > cutoffDate;
+    });
+
+    // Batasi ukuran (ScriptProperties max ~9KB per key, aman di 50-100 items text)
+    // Jika terlalu banyak, hapus yang terlama
+    if (logs.length > 100) {
+      logs = logs.slice(0, 100);
+    }
+
+    scriptProps.setProperty("AUDIT_LOGS", JSON.stringify(logs));
+  } catch (e) {
+    console.error("Gagal mencatat log: " + e.toString());
+  }
+}
+
+function getAuditLogs(role) {
+  if (role !== "SUPER_ADMIN") return { error: "Unauthorized" };
+  try {
+    var logsJSON = PropertiesService.getScriptProperties().getProperty("AUDIT_LOGS");
+    return logsJSON ? JSON.parse(logsJSON) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+// --- FUNGSI LOGIC ---
 
 function verifyPassword(inputPassword) {
   try {
-    // UBAH getActiveSpreadsheet() JADI openById(MAIN_SS_ID)
     var ss = SpreadsheetApp.openById(MAIN_SS_ID);
     var sheet = ss.getSheetByName("Admin");
     if (!sheet) return { valid: false, message: "Sheet Admin hilang" }; 
@@ -92,9 +137,7 @@ function verifyPassword(inputPassword) {
 
 function getDataSKK() {
   try {
-    // UBAH getActiveSpreadsheet() JADI openById(MAIN_SS_ID)
     var ss = SpreadsheetApp.openById(MAIN_SS_ID);
-    
     var sheet = ss.getSheetByName("Dashboard SKK");
     var dbSheet = ss.getSheetByName("Database"); 
     
@@ -130,9 +173,7 @@ function getDataSKK() {
 
 function getDataPenugasan() {
   try {
-    // UBAH getActiveSpreadsheet() JADI openById(MAIN_SS_ID)
     var ss = SpreadsheetApp.openById(MAIN_SS_ID);
-    
     var sheet = ss.getSheetByName("Dashboard Waktu Penugasan");
     if (!sheet) return [];
     var data = sheet.getDataRange().getDisplayValues();
@@ -143,7 +184,6 @@ function getDataPenugasan() {
 
 function getDataProject() {
   try {
-    // Project menggunakan ID terpisah (sudah benar)
     var ss = SpreadsheetApp.openById(PROJECT_SS_ID);
     var sheet = ss.getSheetByName("Project");
     if (!sheet) return [];
@@ -154,9 +194,7 @@ function getDataProject() {
 }
 
 function getDropdownData() {
-  // UBAH getActiveSpreadsheet() JADI openById(MAIN_SS_ID)
   var ss = SpreadsheetApp.openById(MAIN_SS_ID);
-  
   var dbSheet = ss.getSheetByName("Database");
   if (!dbSheet) return { error: "Sheet 'Database' tidak ditemukan!" };
 
@@ -177,7 +215,6 @@ function getDropdownData() {
 }
 
 function processForm(data) {
-  // UBAH getActiveSpreadsheet() JADI openById(MAIN_SS_ID)
   var ss = SpreadsheetApp.openById(MAIN_SS_ID);
   
   var sheetAdmin = ss.getSheetByName("Admin");
@@ -190,6 +227,7 @@ function processForm(data) {
   var inputPass = data.actionPassword.toString();
 
   if (inputPass !== superAdminPass.toString() && inputPass !== adminInputPass.toString()) {
+    logAudit("INPUT_FAIL", "Wrong Password Attempt for: " + data.nama);
     return "Password Salah! Akses Ditolak.";
   }
 
@@ -205,8 +243,11 @@ function processForm(data) {
     if (!sheet) return "Error: Sheet 'Dashboard SKK' tidak ditemukan.";
 
     var targetRow;
+    var actionType = "INSERT";
+    
     if (data.rowNumber && data.rowNumber != "") {
       targetRow = parseInt(data.rowNumber);
+      actionType = "UPDATE";
       if (isNaN(targetRow) || targetRow < 7) return "Error: Baris tidak valid.";
     } else {
       var lastRow = sheet.getLastRow();
@@ -234,9 +275,14 @@ function processForm(data) {
     sheet.getRange(targetRow, 12).setValue(data.keterangan);
     
     SpreadsheetApp.flush(); 
+    
+    // Log Activity
+    logAudit(actionType, "Personil: " + data.nama + ", Row: " + targetRow);
+    
     return "Sukses";
 
   } catch (e) {
+    logAudit("ERROR", "Save Error: " + e.toString());
     return "Gagal Sistem: " + e.toString();
   } finally {
     lock.releaseLock();
