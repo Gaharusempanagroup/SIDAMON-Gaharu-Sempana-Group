@@ -207,6 +207,20 @@
         background-size: 12px;
         padding-right: 2rem; cursor: pointer;
     }
+
+    /* --- FITUR BARU: SKELETON LOADING --- */
+    .skeleton { background: #e0e0e0; background: linear-gradient(to right, #e0e0e0 0%, #f0f0f0 50%, #e0e0e0 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite linear; border-radius: 4px; display: inline-block; }
+    .skeleton-text { height: 16px; width: 80%; margin-bottom: 5px; }
+    .skeleton-cell { height: 40px; width: 100%; }
+    @keyframes shimmer { 0% {background-position: -1000px 0;} 100% {background-position: 1000px 0;} }
+
+    /* --- FITUR BARU: PAGINATION --- */
+    .pagination-wrapper { display: flex; justify-content: center; align-items: center; gap: 5px; margin-top: 15px; }
+    .btn-page { border: 1px solid #ddd; background: white; color: var(--primary-color); border-radius: 8px; padding: 5px 12px; font-size: 0.85rem; transition: all 0.2s; }
+    .btn-page:hover { background: #f0f7ff; border-color: var(--primary-color); }
+    .btn-page.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+    .btn-page:disabled { opacity: 0.5; cursor: not-allowed; }
+
   </style>
 </head>
 <body class="login-mode">
@@ -261,11 +275,15 @@
           </div>
         </div>
         
-        <div class="d-none d-md-block greeting-wrapper text-end text-white">
-            <div id="greeting-time" style="font-size: 0.75rem; opacity: 0.9; font-weight: 300; letter-spacing: 0.5px; text-transform: uppercase;">
-                </div>
-            <div id="greeting-role" style="font-size: 0.9rem; font-weight: 600; letter-spacing: 0.5px; line-height: 1.2;">
-                </div>
+        <div class="d-flex align-items-center gap-3">
+             <div class="d-none d-md-block greeting-wrapper text-end text-white">
+                <div id="greeting-time" style="font-size: 0.75rem; opacity: 0.9; font-weight: 300; letter-spacing: 0.5px; text-transform: uppercase;">
+                    </div>
+                <div id="greeting-role" style="font-size: 0.9rem; font-weight: 600; letter-spacing: 0.5px; line-height: 1.2;">
+                    </div>
+            </div>
+            <button class="btn btn-outline-light btn-sm rounded-circle shadow-sm" id="btnAuditLog" onclick="showAuditLog()" title="Audit Log" style="display:none; width:35px; height:35px;"><i class="bi bi-clock-history"></i></button>
+            <button class="btn btn-danger btn-sm rounded-pill px-3 shadow-sm" onclick="handleLogout()"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
         </div>
       </div>
     </nav>
@@ -336,6 +354,7 @@
             </table>
             <div id="msgSkk" class="text-center py-4 text-muted d-none">Data tidak ditemukan.</div>
           </div>
+          <div id="pagination-skk" class="pagination-wrapper"></div>
         </div>
       </div>
       
@@ -412,6 +431,7 @@
               </table>
               <div id="msgTugas" class="text-center py-4 text-muted d-none">Data tidak ditemukan.</div>
             </div>
+             <div id="pagination-tugas" class="pagination-wrapper"></div>
           </div>
           <div id="subview-tugas-gantt" style="display: none;">
             <div class="alert alert-success py-2 small mb-3 border-0 shadow-sm" style="background-color: #e8f5e9; color: #1b5e20;">
@@ -498,6 +518,7 @@
                 <tbody id="bodyProject"></tbody>
               </table>
             </div>
+            <div id="pagination-project" class="pagination-wrapper"></div>
           </div>
           <div id="subview-gantt-kontrak" style="display: none;">
             <div class="alert alert-info py-2 small mb-3 border-0 shadow-sm" style="background-color: #e3f2fd; color: #0d47a1;">
@@ -545,10 +566,36 @@
     </div>
   </div>
 
+  <div class="modal fade" id="modalAuditLog" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold"><i class="bi bi-shield-lock-fill me-2"></i>System Audit Log</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body bg-light">
+          <div class="table-responsive bg-white rounded shadow-sm border p-2">
+            <table class="table table-sm table-striped mb-0" style="font-size: 0.85rem;">
+                <thead><tr><th>Waktu</th><th>Tipe</th><th>Pesan</th></tr></thead>
+                <tbody id="bodyAuditLog"></tbody>
+            </table>
+          </div>
+          <div class="text-muted small mt-2">* Log disimpan maksimal 6 bulan dan akan dihapus otomatis.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // --- KONFIGURASI PENTING ---
     const CONST_API_URL = "https://script.google.com/macros/s/AKfycbxzZ50romtTo7HIMfX8fi9k7_YKpstDFu1B_hjcYfxbJS-a598BkmzATYzUeC03Laktug/exec";
+
+    // --- GLOBAL VARIABLES FOR PAGINATION ---
+    const ITEMS_PER_PAGE = 20; 
+    let currentPageSkk = 1;
+    let currentPageTugas = 1;
+    let currentPageProject = 1;
 
     // --- HELPER FUNCTION UNTUK FETCH API ---
     async function fetchAPI(action, method = 'GET', data = null) {
@@ -582,6 +629,15 @@
     const tooltip = document.getElementById('gantt-tooltip');
     const activeTimers = {};
 
+    // --- INIT ---
+    // Cek Session saat Load
+    window.addEventListener('DOMContentLoaded', () => {
+        const storedRole = sessionStorage.getItem('userRole');
+        if (storedRole) {
+            loginSuccess(storedRole, false); // False = jangan animasi login ulang, langsung load
+        }
+    });
+
     function hideLoginError() {
         document.getElementById('login-alert').style.display = 'none';
     }
@@ -601,20 +657,7 @@
       try {
           const response = await fetchAPI('login', 'POST', { password: pass });
           if (response && response.valid) {
-            currentUserRole = response.role; 
-            document.getElementById('login-section').style.display = 'none';
-            document.getElementById('dashboard-section').style.display = 'block';
-            document.body.classList.remove('login-mode');
-            document.body.style.position = ''; 
-            document.body.style.overflow = 'auto'; 
-            document.title = "SIDAMON Gaharu Sempana Group"; 
-            
-            applyRoleAccess(currentUserRole);
-            updateGreeting(currentUserRole); 
-            
-            // --- OPTIMASI LOAD DATA (PARALLEL) ---
-            loadAllData(); 
-            
+             loginSuccess(response.role, true);
           } else {
             btn.innerHTML = originalBtnText; btn.disabled = false;
             passInput.value = ''; passInput.focus();
@@ -627,6 +670,31 @@
             alertBox.style.display = 'flex'; alertBox.innerHTML = '<i class="bi bi-wifi-off"></i> Koneksi Error.';
             btn.innerHTML = originalBtnText; btn.disabled = false; 
       }
+    }
+
+    function loginSuccess(role, isFirstLogin) {
+        currentUserRole = role; 
+        sessionStorage.setItem('userRole', role); // SIMPAN SESSION
+        
+        document.getElementById('login-section').style.display = 'none';
+        document.getElementById('dashboard-section').style.display = 'block';
+        document.body.classList.remove('login-mode');
+        document.body.style.position = ''; 
+        document.body.style.overflow = 'auto'; 
+        document.title = "SIDAMON Gaharu Sempana Group"; 
+        
+        applyRoleAccess(currentUserRole);
+        updateGreeting(currentUserRole); 
+        
+        // Show Logout Button
+        if(role === 'SUPER_ADMIN') document.getElementById('btnAuditLog').style.display = 'inline-block';
+
+        loadAllData(); 
+    }
+
+    function handleLogout() {
+        sessionStorage.removeItem('userRole');
+        location.reload();
     }
 
     function updateGreeting(role) {
@@ -689,36 +757,48 @@
         }
     }
 
-    // --- OPTIMASI UTAMA: PARALLEL FETCHING ---
+    // --- SKELETON RENDERER ---
+    function showSkeleton(tableId) {
+        const tbody = document.getElementById(tableId);
+        let rows = '';
+        for(let i=0; i<5; i++) {
+            rows += `<tr>
+                <td><div class="skeleton skeleton-text" style="width:60%"></div><div class="skeleton skeleton-text" style="width:40%"></div></td>
+                <td><div class="skeleton skeleton-cell"></div></td>
+                <td><div class="skeleton skeleton-cell"></div></td>
+                <td><div class="skeleton skeleton-cell"></div></td>
+                <td><div class="skeleton skeleton-cell"></div></td>
+                <td><div class="skeleton skeleton-cell"></div></td>
+                <td><div class="skeleton skeleton-cell"></div></td>
+                <td><div class="skeleton skeleton-cell"></div></td>
+                <td><div class="skeleton skeleton-cell"></div></td>
+            </tr>`;
+        }
+        tbody.innerHTML = rows;
+    }
+
     async function loadAllData() {
-      document.getElementById('loading-overlay').style.display = 'flex';
+      // GANTI SPINNER DENGAN SKELETON DI TABEL
+      if(currentUserRole !== "TEKNIS") { showSkeleton('bodySkk'); showSkeleton('bodyTugas'); }
+      if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "TEKNIS") { showSkeleton('bodyProject'); }
       
       const promises = [];
       let loadSKK = false, loadTugas = false, loadProject = false, loadDropdown = false;
 
-      // Tentukan apa saja yang perlu diload berdasarkan Role
       if(currentUserRole !== "TEKNIS") {
-          promises.push(fetchAPI('getDataSKK'));
-          loadSKK = true;
-          promises.push(fetchAPI('getDataPenugasan'));
-          loadTugas = true;
-      } else {
-          // Placeholder agar index array tetap konsisten jika logika kompleks,
-          // tapi disini kita pakai push dinamis dan mapping hasil.
+          promises.push(fetchAPI('getDataSKK')); loadSKK = true;
+          promises.push(fetchAPI('getDataPenugasan')); loadTugas = true;
       }
 
       if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "TEKNIS") {
-          promises.push(fetchAPI('getDataProject'));
-          loadProject = true;
+          promises.push(fetchAPI('getDataProject')); loadProject = true;
       }
 
       if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT") {
-          promises.push(fetchAPI('getDropdownData'));
-          loadDropdown = true;
+          promises.push(fetchAPI('getDropdownData')); loadDropdown = true;
       }
 
       try {
-          // Eksekusi semua request secara BERSAMAAN
           const results = await Promise.all(promises);
           
           let resultIndex = 0;
@@ -728,13 +808,12 @@
           let dropdownData = null;
           if (loadDropdown) dropdownData = results[resultIndex++];
 
-          // Render setelah data tersedia
           if (loadSKK && loadTugas) {
-              renderSKK(dataSKK); 
-              renderTugas(dataTugas);
+              renderSKK(dataSKK, 1); 
+              renderTugas(dataTugas, 1);
           }
           if (loadProject) {
-              renderProject(dataProject);
+              renderProject(dataProject, 1);
           }
           if (loadDropdown && dropdownData) {
               populateDatalist('listNama', dropdownData.nama); populateDatalist('listPerusahaan', dropdownData.perusahaan);
@@ -745,21 +824,72 @@
           console.error(e); 
           alert("Gagal memuat sebagian data. Silakan refresh.");
       }
-      finally { 
-          document.getElementById('loading-overlay').style.display = 'none'; 
-      }
     }
 
-    // --- RENDER LOGIC OPTIMIZED (Batch DOM Update) ---
+    // --- RENDER LOGIC WITH CLIENT-SIDE PAGINATION ---
 
-    function renderSKK(data) {
+    function setupPagination(totalItems, currentPage, containerId, renderCallback) {
+        const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+
+        if (totalPages <= 1) return;
+
+        // Prev Button
+        const btnPrev = document.createElement('button');
+        btnPrev.className = 'btn-page';
+        btnPrev.innerHTML = '<i class="bi bi-chevron-left"></i>';
+        btnPrev.disabled = currentPage === 1;
+        btnPrev.onclick = () => renderCallback(currentPage - 1);
+        container.appendChild(btnPrev);
+
+        // Page Numbers (Simple logic: Show all if < 7, else show range)
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, currentPage + 2);
+
+        if (startPage > 1) {
+             const btnFirst = document.createElement('button');
+             btnFirst.className = 'btn-page'; btnFirst.innerText = '1';
+             btnFirst.onclick = () => renderCallback(1);
+             container.appendChild(btnFirst);
+             if(startPage > 2) container.appendChild(document.createTextNode('...'));
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const btn = document.createElement('button');
+            btn.className = `btn-page ${i === currentPage ? 'active' : ''}`;
+            btn.innerText = i;
+            btn.onclick = () => renderCallback(i);
+            container.appendChild(btn);
+        }
+
+        if (endPage < totalPages) {
+             if(endPage < totalPages - 1) container.appendChild(document.createTextNode('...'));
+             const btnLast = document.createElement('button');
+             btnLast.className = 'btn-page'; btnLast.innerText = totalPages;
+             btnLast.onclick = () => renderCallback(totalPages);
+             container.appendChild(btnLast);
+        }
+
+        // Next Button
+        const btnNext = document.createElement('button');
+        btnNext.className = 'btn-page';
+        btnNext.innerHTML = '<i class="bi bi-chevron-right"></i>';
+        btnNext.disabled = currentPage === totalPages;
+        btnNext.onclick = () => renderCallback(currentPage + 1);
+        container.appendChild(btnNext);
+    }
+
+    function renderSKK(data, page = 1) {
+      currentPageSkk = page;
       const tbody = document.getElementById('bodySkk'); 
-      let htmlContent = []; // Gunakan Array untuk menampung HTML
+      let htmlContent = []; 
       
       let statTotal = 0, statUsed = 0, statExpired = 0;
       
       if(!data || data.length === 0) {
           document.getElementById('msgSkk').classList.remove('d-none');
+          document.getElementById('pagination-skk').innerHTML = ''; // Clear pagination
           animateValue("skk-total", 0, 0, 800); animateValue("skk-expired", 0, 0, 800); animateValue("skk-used", 0, 0, 800);
           tbody.innerHTML = '';
           return;
@@ -767,7 +897,7 @@
           document.getElementById('msgSkk').classList.add('d-none');
       }
 
-      // 1. PREPARE MAP (Optimasi Lookup O(1))
+      // 1. PREPARE MAP (Optimasi Lookup)
       const activeAssignmentsMap = new Map();
       if(dataTugas && dataTugas.length > 0) {
           for(let i=0; i<dataTugas.length; i++){
@@ -775,14 +905,13 @@
               const pName = (row[1] || "").trim();
               const pStatus = (row[12] || "").toLowerCase();
               if (pName && pStatus.includes('active')) {
-                  activeAssignmentsMap.set(pName, row[5] || ""); // Simpan LPSE
+                  activeAssignmentsMap.set(pName, row[5] || ""); 
               }
           }
       }
 
       // 2. GROUPING DATA
       const groupedData = {};
-      // Kurangi overhead loop dengan for biasa jika data sangat besar, tapi forEach cukup ok utk <5000 row
       for(let i=0; i<data.length; i++) {
           const row = data[i];
           const nama = row[1];
@@ -799,24 +928,40 @@
           });
       }
 
-      const keys = Object.keys(groupedData);
-      statTotal = keys.length;
+      const allKeys = Object.keys(groupedData);
+      statTotal = allKeys.length;
 
-      // 3. GENERATE HTML STRING
+      // 3. PAGINATION SLICE (Slice Keys, not Rows, to keep grouping intact)
+      const startIndex = (page - 1) * ITEMS_PER_PAGE;
+      const endIndex = startIndex + ITEMS_PER_PAGE;
+      const pagedKeys = allKeys.slice(startIndex, endIndex);
+
+      // 4. STAT CALCULATION (Must calculate on ALL data, not just paged)
+      // Note: For performance on huge datasets, consider calculating stats separately once.
+      // Here we iterate all for stats, but only render pagedKeys for DOM.
+      allKeys.forEach(key => {
+          const person = groupedData[key];
+          let isUsed = false;
+          person.items.forEach(item => {
+             if ((item.statusRaw||"").toLowerCase().includes('expired')) statExpired++;
+             if ((item.statusRaw||"").toLowerCase().includes('used') || (item.ketRaw||"").toLowerCase().includes('used')) isUsed = true;
+          });
+          if (activeAssignmentsMap.has(person.nama.trim())) isUsed = true;
+          if (isUsed) statUsed++;
+      });
+      
       const canEdit = (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT");
       
-      for(let i=0; i<keys.length; i++) {
-          const person = groupedData[keys[i]];
+      // 5. RENDER ONLY PAGED KEYS
+      for(let i=0; i<pagedKeys.length; i++) {
+          const person = groupedData[pagedKeys[i]];
           let isUsed = false, hasActive = false;
           let usedProjectName = "", spreadsheetUsedText = "";
 
-          // Cek Data Internal
           for(let j=0; j<person.items.length; j++){
               const item = person.items[j];
               const s = (item.statusRaw || "").toLowerCase();
               const k = (item.ketRaw || "").toLowerCase();
-              
-              if (s.includes('expired')) statExpired++;
               if (s.includes('used') || k.includes('used')) {
                   isUsed = true;
                   if(s.includes('used')) spreadsheetUsedText = item.statusRaw;
@@ -825,7 +970,6 @@
               if (s.includes('active') || s.includes('available')) hasActive = true;
           }
 
-          // Cross Check Data Penugasan
           const activeJobFromTugas = activeAssignmentsMap.get(person.nama.trim());
 
           if (activeJobFromTugas) {
@@ -837,7 +981,6 @@
 
           let finalBadge = "";
           if (isUsed) {
-              statUsed++; 
               finalBadge = `<span class="badge-status status-used" style="white-space: normal;">${usedProjectName}</span>`; 
           } else if (hasActive) {
               finalBadge = `<span class="badge-status status-active">Available</span>`;
@@ -845,7 +988,6 @@
               finalBadge = `<span class="badge-status status-expired">Expired</span>`;
           }
 
-          // Render Kolom
           let btnWA = "-";
           if(person.hp && /\d/.test(person.hp)) {
               let cleanNum = person.hp.toString().replace(/\D/g, ''); 
@@ -858,29 +1000,21 @@
           }
 
           let htmlSertifikat = '', htmlJenjang = '', htmlSisa = '', htmlKet = '', htmlAksi = '';
-
-          // Loop item lagi hanya untuk string concatenation
           const itemLen = person.items.length;
           for(let k=0; k<itemLen; k++){
               const item = person.items[k];
               let sisaStyle = (item.statusRaw||"").toLowerCase().includes('expired') ? "color: #dc3545; font-weight: 700;" : "";
-              
               htmlSertifikat += `<div class="nested-cell fw-bold" title="${item.sertifikat}" style="white-space: normal; line-height: 1.3;">${item.sertifikat}</div>`;
               htmlJenjang += `<div class="nested-cell text-center justify-content-center">${item.jenjang || '-'}</div>`;
               htmlSisa += `<div class="nested-cell text-center justify-content-center small" style="${sisaStyle}">${item.sisaWaktu || '-'}</div>`;
               htmlKet += `<div class="nested-cell small text-muted" title="${item.ketRaw || ''}" style="white-space: normal; line-height: 1.2;">${item.ketRaw || ''}</div>`;
-              
               if (canEdit) {
                   htmlAksi += `<div class="nested-cell nested-cell-action">
-                      <button class="btn btn-sm btn-outline-primary rounded-circle" onclick="openModalEdit(${item.originalIndex})" style="width: 24px; height: 24px; padding: 0;" title="Edit">
-                          <i class="bi bi-pencil-fill" style="font-size: 0.7rem;"></i>
-                      </button>
+                      <button class="btn btn-sm btn-outline-primary rounded-circle" onclick="openModalEdit(${item.originalIndex})" style="width: 24px; height: 24px; padding: 0;" title="Edit"><i class="bi bi-pencil-fill" style="font-size: 0.7rem;"></i></button>
                   </div>`;
               }
           }
-
           const styleAksi = canEdit ? '' : 'display:none;';
-
           htmlContent.push(`
             <tr>
               <td class="align-middle-person" style="white-space: normal !important; word-wrap: break-word;">
@@ -899,31 +1033,31 @@
           `);
       }
 
-      // UPDATE DOM SEKALI SAJA
       tbody.innerHTML = htmlContent.join('');
+      setupPagination(allKeys.length, currentPageSkk, 'pagination-skk', (p) => renderSKK(data, p));
       
       animateValue("skk-total", 0, statTotal, 800); 
       animateValue("skk-expired", 0, statExpired, 800); 
       animateValue("skk-used", 0, statUsed, 800);
     }
 
-    function renderTugas(data) {
+    function renderTugas(data, page = 1) {
+       currentPageTugas = page;
        const tbody = document.getElementById('bodyTugas'); 
        let htmlContent = [];
        
        let active = 0; 
-       // Filter dulu
        const filtered = data.filter(row => (row[12]||"").toLowerCase() !== 'completed');
        
        if(filtered.length === 0) { 
            document.getElementById('msgTugas').classList.remove('d-none');
+           document.getElementById('pagination-tugas').innerHTML = '';
            tbody.innerHTML = '';
            return;
        } else {
            document.getElementById('msgTugas').classList.add('d-none');
        }
        
-       // Hitung Active
        for(let i=0; i<filtered.length; i++) {
            if((filtered[i][12]||"").toLowerCase().includes('active')) active++;
        }
@@ -950,8 +1084,13 @@
        }
 
        const persons = Object.values(groupedData);
-       for(let i=0; i<persons.length; i++) {
-           const person = persons[i];
+       
+       // PAGINATION
+       const startIndex = (page - 1) * ITEMS_PER_PAGE;
+       const pagedPersons = persons.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+       for(let i=0; i<pagedPersons.length; i++) {
+           const person = pagedPersons[i];
            let hPekerjaan = '', hLpse = '', hMetode = '', hKontrak = '', hSertifikat = '', hStart = '', hEnd = '', hStatus = '';
 
            for(let j=0; j<person.items.length; j++){
@@ -981,26 +1120,24 @@
            `);
        }
        tbody.innerHTML = htmlContent.join('');
+       setupPagination(persons.length, currentPageTugas, 'pagination-tugas', (p) => renderTugas(data, p));
     }
 
-    function renderProject(data) {
+    function renderProject(data, page = 1) {
+      currentPageProject = page;
       const tbody = document.getElementById('bodyProject'); 
       let htmlContent = [];
       let counts = { total: 0, expired: 0, done: 0 }; 
       const today = new Date(); today.setHours(0, 0, 0, 0);
 
+      // Stat Calculation (All Data)
       for(let i=0; i<data.length; i++) {
         const row = data[i];
         if (!row[1]) continue;
         counts.total++;
-        const pekerjaan = row[2]; const kordinator = row[4]; const urlSchedule = row[5];
-        const priority = (row[7] || "").trim();
         let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13];
         const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim();
-        const notes = row[18] || ""; 
-
         const isDone = rawStatus.includes('done') || rawStatus.includes('selesai');
-
         const isExpired = (dateStr) => {
           if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false;
           const targetDate = parseDate(dateStr); return targetDate && targetDate < today;
@@ -1008,11 +1145,33 @@
         const kontrakExpired = !isDone && isExpired(deadKontrakRaw);
         const scheduleExpired = !isDone && isExpired(deadScheduleRaw);
         if (kontrakExpired || scheduleExpired) counts.expired++;
+        if (isDone) counts.done++;
+      }
+
+      // Pagination
+      const validRows = data.filter(r => r[1]);
+      const startIndex = (page - 1) * ITEMS_PER_PAGE;
+      const pagedRows = validRows.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+      for(let i=0; i<pagedRows.length; i++) {
+        const row = pagedRows[i];
+        const pekerjaan = row[2]; const kordinator = row[4]; const urlSchedule = row[5];
+        const priority = (row[7] || "").trim();
+        let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13];
+        const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim();
+        const notes = row[18] || ""; 
+        const isDone = rawStatus.includes('done') || rawStatus.includes('selesai');
+        const isExpired = (dateStr) => {
+          if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false;
+          const targetDate = parseDate(dateStr); return targetDate && targetDate < today;
+        };
+        const kontrakExpired = !isDone && isExpired(deadKontrakRaw);
+        const scheduleExpired = !isDone && isExpired(deadScheduleRaw);
 
         let deadKontrakView = deadKontrakRaw || '-'; let deadScheduleView = deadScheduleRaw || '-';
         if (isDone) {
             const iconCheck = '<i class="bi bi-check-circle-fill text-success" style="font-size: 1.2rem;"></i>';
-            deadKontrakView = iconCheck; deadScheduleView = iconCheck; counts.done++;
+            deadKontrakView = iconCheck; deadScheduleView = iconCheck;
         } else {
             if (kontrakExpired) deadKontrakView = `<span class="text-danger fw-bold">EXPIRED</span>`;
             if (scheduleExpired) deadScheduleView = `<span class="text-danger fw-bold">EXPIRED</span>`;
@@ -1042,7 +1201,40 @@
       }
       
       tbody.innerHTML = htmlContent.join('');
+      setupPagination(validRows.length, currentPageProject, 'pagination-project', (p) => renderProject(data, p));
       document.getElementById('proj-total').innerText = counts.total; document.getElementById('proj-expired').innerText = counts.expired; document.getElementById('proj-done').innerText = counts.done;
+    }
+
+    // --- AUDIT LOG ---
+    async function showAuditLog() {
+        const modal = new bootstrap.Modal(document.getElementById('modalAuditLog'));
+        const tbody = document.getElementById('bodyAuditLog');
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center">Memuat log...</td></tr>';
+        modal.show();
+
+        try {
+            const logs = await fetchAPI('getAuditLogs', 'GET', { role: currentUserRole });
+            if (logs && logs.length > 0) {
+                let html = '';
+                logs.forEach(log => {
+                    const date = new Date(log.timestamp).toLocaleString('id-ID');
+                    let color = 'text-dark';
+                    if(log.type === 'LOGIN') color = 'text-success';
+                    if(log.type === 'ERROR' || log.type.includes('FAIL')) color = 'text-danger';
+                    
+                    html += `<tr>
+                        <td class="small text-muted" style="white-space:nowrap;">${date}</td>
+                        <td class="fw-bold ${color} small">${log.type}</td>
+                        <td class="small">${log.message}</td>
+                    </tr>`;
+                });
+                tbody.innerHTML = html;
+            } else {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Belum ada aktivitas terekam.</td></tr>';
+            }
+        } catch (e) {
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center text-danger">Gagal memuat log.</td></tr>';
+        }
     }
 
     // --- TIMELINE LOGIC ---
@@ -1348,35 +1540,27 @@
       const form = document.getElementById('formInputData');
       if (!form.checkValidity()) { form.reportValidity(); return; }
 
-      // --- LOGIKA BARU: CEK DUPLIKASI DATA ---
-      // Ambil nilai input dan bersihkan spasi/huruf kapital agar pencarian akurat
       const namaInput = document.getElementById('inputNama').value.trim().toLowerCase();
       const sertifikatInput = document.getElementById('inputSertifikat').value.trim().toLowerCase();
       let editRowNumber = document.getElementById('editRowNumber').value;
       if (!editRowNumber) editRowNumber = "";
 
-      // Cek apakah data sudah ada di dataSKK
       const isDuplicate = dataSKK.some(row => {
           const rowNama = (row[1] || "").toString().toLowerCase().trim();
           const rowSertifikat = (row[5] || "").toString().toLowerCase().trim();
-          const rowID = row[row.length - 1]; // Mengambil ID unik (biasanya kolom terakhir)
+          const rowID = row[row.length - 1]; 
 
-          // Jika Nama DAN Sertifikat sama
           if (rowNama === namaInput && rowSertifikat === sertifikatInput) {
-              // KONDISI EDIT: Jika ID row sama dengan yang sedang diedit, 
-              // berarti ini data sendiri (bukan duplikat), return false.
               if (editRowNumber && String(rowID) === String(editRowNumber)) {
                   return false; 
               }
-              // Jika ID beda (milik orang lain) atau sedang Tambah Baru, return true (Duplikat).
               return true;
           }
           return false;
       });
 
-      // Jika ditemukan duplikat, stop proses dan munculkan alert
       if (isDuplicate) {
-          myModal.hide(); // Tutup modal input
+          myModal.hide(); 
           Swal.fire({
               title: 'Data Sudah Ada!',
               text: `Personil "${document.getElementById('inputNama').value}" dengan sertifikat "${document.getElementById('inputSertifikat').value}" sudah terdaftar.`,
@@ -1384,11 +1568,10 @@
               confirmButtonColor: '#000080',
               confirmButtonText: 'Cek Kembali'
           }).then(() => {
-              myModal.show(); // Buka kembali modal agar user bisa ganti
+              myModal.show(); 
           });
-          return; // Hentikan eksekusi fungsi
+          return; 
       }
-      // --- AKHIR LOGIKA BARU ---
 
       myModal.hide(); 
       setTimeout(() => {
@@ -1421,11 +1604,28 @@
       }, 300);
     }
 
-    // --- SEARCH LISTENERS ---
-    document.getElementById('searchSkk').addEventListener('keyup', (e) => { const k = e.target.value.toLowerCase(); renderSKK(dataSKK.filter(r => (r[1]||"").toLowerCase().includes(k) || (r[5]||"").toLowerCase().includes(k))); });
-    document.getElementById('searchTugas').addEventListener('keyup', (e) => { const k = e.target.value.toLowerCase(); renderTugas(dataTugas.filter(r => (r[1]||"").toLowerCase().includes(k) || (r[2]||"").toLowerCase().includes(k) || (r[6]||"").toLowerCase().includes(k))); });
+    // --- SEARCH LISTENERS (Updated for Pagination) ---
+    // Note: When searching, we reset page to 1
+    document.getElementById('searchSkk').addEventListener('keyup', (e) => { 
+        const k = e.target.value.toLowerCase(); 
+        const filtered = dataSKK.filter(r => (r[1]||"").toLowerCase().includes(k) || (r[5]||"").toLowerCase().includes(k));
+        renderSKK(filtered, 1); 
+    });
+    
+    document.getElementById('searchTugas').addEventListener('keyup', (e) => { 
+        const k = e.target.value.toLowerCase(); 
+        const filtered = dataTugas.filter(r => (r[1]||"").toLowerCase().includes(k) || (r[2]||"").toLowerCase().includes(k) || (r[6]||"").toLowerCase().includes(k));
+        renderTugas(filtered, 1); 
+    });
+
     document.getElementById('searchTugasGantt').addEventListener('keyup', (e) => { drawGanttChart('penugasan'); });
-    document.getElementById('searchProject').addEventListener('keyup', e => { const k = e.target.value.toLowerCase(); renderProject(dataProject.filter(r => (r[2]||"").toLowerCase().includes(k) || (r[4]||"").toLowerCase().includes(k))); });
+    
+    document.getElementById('searchProject').addEventListener('keyup', e => { 
+        const k = e.target.value.toLowerCase(); 
+        const filtered = dataProject.filter(r => (r[2]||"").toLowerCase().includes(k) || (r[4]||"").toLowerCase().includes(k));
+        renderProject(filtered, 1); 
+    });
+    
     document.getElementById('searchProjectGantt').addEventListener('keyup', (e) => { if(currentChartView === 'kontrak') drawGanttChart('kontrak'); else if(currentChartView === 'schedule') drawGanttChart('schedule'); });
 
   </script>
