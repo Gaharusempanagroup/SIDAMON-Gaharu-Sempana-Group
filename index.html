@@ -915,13 +915,12 @@
 
     // --- FUNGSI HAPUS LOG (MANUAL) ---
     function handleClearLogs() {
-        // Tutup modal history sementara agar SweetAlert terlihat jelas (opsional, tapi lebih rapi)
-        // modalLogHistory.hide(); 
-
+        // Langkah 1: Pilih Rentang Tanggal
         Swal.fire({
             title: 'Hapus History Log',
             html: `
                 <div class="text-start">
+                    <p class="small text-muted mb-3">Pilih rentang tanggal data yang ingin dihapus permanen.</p>
                     <div class="mb-3">
                         <label class="form-label small fw-bold">Dari Tanggal</label>
                         <input type="date" id="swal-start" class="form-control">
@@ -930,58 +929,82 @@
                         <label class="form-label small fw-bold">Sampai Tanggal</label>
                         <input type="date" id="swal-end" class="form-control">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-danger">Konfirmasi Password Super Admin</label>
-                        <input type="password" id="swal-pass" class="form-control" placeholder="Masukkan Password...">
-                    </div>
                 </div>
             `,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc3545',
-            confirmButtonText: 'Hapus Data',
+            confirmButtonText: 'Lanjut Hapus',
             cancelButtonText: 'Batal',
             preConfirm: () => {
                 const start = document.getElementById('swal-start').value;
                 const end = document.getElementById('swal-end').value;
-                const pass = document.getElementById('swal-pass').value;
                 
-                if (!start || !end || !pass) {
-                    Swal.showValidationMessage('Semua kolom wajib diisi!');
+                if (!start || !end) {
+                    Swal.showValidationMessage('Tanggal awal dan akhir wajib diisi!');
                 }
-                return { startDate: start, endDate: end, password: pass };
+                return { startDate: start, endDate: end };
             }
-        }).then(async (result) => {
+        }).then((result) => {
             if (result.isConfirmed) {
-                const data = result.value;
-                
-                // Tampilkan Loading
-                Swal.fire({
-                    title: 'Menghapus...',
-                    didOpen: () => Swal.showLoading()
-                });
+                const dateData = result.value;
 
-                try {
-                    const response = await fetchAPI('clearLogs', 'POST', data);
-                    
-                    if (response.status === "Sukses") {
-                        await Swal.fire(
-                            'Terhapus!',
-                            `Berhasil menghapus ${response.count} data log.`,
-                            'success'
-                        );
-                        // Buka kembali modal history dan refresh data
-                        // modalLogHistory.show(); // Jika tadi di-hide
-                        loadSystemLogs(); 
-                    } else {
-                        Swal.fire('Gagal!', response.error || 'Terjadi kesalahan.', 'error');
-                    }
-                } catch (e) {
-                    Swal.fire('Error!', e.message, 'error');
-                }
-            } else {
-                // Jika batal, pastikan modal history tetap terbuka/fokus
-                // modalLogHistory.show();
+                // Langkah 2: Konfirmasi Password (Style sama dengan Edit/Tambah Data)
+                setTimeout(() => {
+                    Swal.fire({
+                        title: 'Konfirmasi Password', 
+                        text: 'Masukkan password Super Admin untuk menghapus:', 
+                        input: 'password',
+                        inputAttributes: { 
+                            autocapitalize: 'off', 
+                            placeholder: 'Password' 
+                        }, 
+                        showCancelButton: true, 
+                        confirmButtonText: 'Hapus Sekarang', 
+                        confirmButtonColor: '#dc3545', // Merah untuk bahaya
+                        preConfirm: (password) => { 
+                            if (!password) { 
+                                Swal.showValidationMessage('Password wajib diisi!'); 
+                            } 
+                            return password; 
+                        }
+                    }).then(async (passResult) => {
+                        if (passResult.isConfirmed) {
+                            const passwordInput = passResult.value;
+                            
+                            // Gabungkan data tanggal dan password
+                            const payload = {
+                                startDate: dateData.startDate,
+                                endDate: dateData.endDate,
+                                password: passwordInput
+                            };
+
+                            // Tampilkan Loading
+                            Swal.fire({
+                                title: 'Menghapus...',
+                                allowOutsideClick: false,
+                                didOpen: () => Swal.showLoading()
+                            });
+
+                            try {
+                                const response = await fetchAPI('clearLogs', 'POST', payload);
+                                
+                                if (response.status === "Sukses") {
+                                    await Swal.fire(
+                                        'Terhapus!',
+                                        `Berhasil menghapus ${response.count} data log.`,
+                                        'success'
+                                    );
+                                    loadSystemLogs(); // Refresh tabel log
+                                } else {
+                                    Swal.fire('Gagal!', response.error || 'Password Salah atau Terjadi kesalahan.', 'error');
+                                }
+                            } catch (e) {
+                                Swal.fire('Error!', e.message, 'error');
+                            }
+                        }
+                    });
+                }, 300); // Delay sedikit agar transisi smooth
             }
         });
     }
@@ -1843,3 +1866,4 @@
   </script>
 </body>
 </html>
+
