@@ -121,7 +121,7 @@
     .nested-cell-action { justify-content: center; }
     .align-middle-person { vertical-align: middle !important; }
 
-    /* GANTT */
+    /* GANTT BASE STYLES (Desktop) */
     .custom-gantt-wrapper { display: flex; flex-direction: column; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow-x: auto; position: relative; max-width: 100%; font-family: 'Segoe UI', sans-serif; }
     .custom-gantt-wrapper::-webkit-scrollbar { height: 8px; width: 8px; }
     .custom-gantt-wrapper::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 0 0 10px 10px; }
@@ -193,6 +193,31 @@
 
       .stat-card { margin-bottom: 10px; }
       .stat-value { font-size: 2rem; }
+
+      /* --- FIX TIMELINE MOBILE (GANTT) --- */
+      /* Matikan fungsi Sticky agar tidak menutupi layar HP dan kolom nama ikut ter-scroll */
+      .g-sticky-col, .g-col-personil, .g-col-pekerjaan {
+        position: static !important; 
+        width: auto !important;
+        min-width: 120px !important; 
+        max-width: 200px;            
+        box-shadow: none !important;
+        border-right: 1px solid #eee !important;
+        flex-shrink: 0;
+      }
+      .g-col-pekerjaan { left: auto !important; } /* Reset left position untuk kolom ke-2 */
+      
+      /* Container row agar item tidak gepeng */
+      .g-row-container {
+        width: max-content; 
+        min-width: 100%;
+      }
+      
+      /* Wrapper utama scrollable */
+      .custom-gantt-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
     }
   </style>
 </head>
