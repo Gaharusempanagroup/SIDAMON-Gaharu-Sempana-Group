@@ -1,74 +1,70 @@
 // --- Code.gs (Versi API - FIXED) ---
 
-// 1. MASUKKAN ID SPREADSHEET UTAMA (Tempat data SKK & Penugasan)
-const MAIN_SS_ID = "1NYw4b9mSXoa_tYxo38mWZizQahq0wBee-9cU9oUk23o"; 
+const MAIN_SS_ID = "1NYw4b9mSXoa_tYxo38mWZizQahq0wBee-9cU9oUk23o"; //
+const PROJECT_SS_ID = "1kPWraQ0VJNB36sdJVlkP7dDZAZKBvisAtrggGYLraqc"; //
+// BUAT SPREADSHEET BARU UNTUK LOG, LALU MASUKKAN ID-NYA DISINI
+const LOG_SS_ID = "1MXMctX5NCHKk3-79q-goqMPPbefszskXulivWZJXMVU"; 
 
-// 2. ID Spreadsheet Project (Sudah ada sebelumnya)
-const PROJECT_SS_ID = "1kPWraQ0VJNB36sdJVlkP7dDZAZKBvisAtrggGYLraqc"; 
-
-
-/**
- * Handle GET Requests (API Endpoint)
- */
 function doGet(e) {
-  // --- PENGAMAN ---
-  // Jika e undefined (dijalankan dari editor), buat dummy object agar tidak error
   if (!e || !e.parameter) {
-    return ContentService.createTextOutput("Error: Jangan jalankan doGet() langsung dari editor. Gunakan Deploy > Test Deploy, atau fungsi debugDoGet().");
+    return ContentService.createTextOutput("Error: Gunakan Deploy > Test Deploy."); //
   }
-  // ----------------
-
   var action = e.parameter.action;
   var result = {};
 
-  if (action === 'getDataSKK') {
-    result = getDataSKK();
-  } else if (action === 'getDataPenugasan') {
-    result = getDataPenugasan();
-  } else if (action === 'getDataProject') {
-    result = getDataProject();
-  } else if (action === 'getDropdownData') {
-    result = getDropdownData();
-  } else {
-    result = { error: "Action not defined" };
-  }
+  if (action === 'getDataSKK') { result = getDataSKK(); } //
+  else if (action === 'getDataPenugasan') { result = getDataPenugasan(); } //
+  else if (action === 'getDataProject') { result = getDataProject(); } //
+  else if (action === 'getDropdownData') { result = getDropdownData(); } //
+  else if (action === 'getAuditLogs') { result = getAuditLogs(e.parameter.role); }
+  else { result = { error: "Action not defined" }; }
 
   return responseJSON(result);
 }
 
-/**
- * Handle POST Requests (Login & Save)
- */
 function doPost(e) {
   try {
-    // UBAH CARA AMBIL DATA
-    // Google Apps Script kadang menerima data sebagai postData.contents (string)
-    // bukan object JSON langsung jika dikirim dari fetch API eksternal
-    var jsonString = e.postData.contents;
-    var data = JSON.parse(jsonString);
-    
+    var data = JSON.parse(e.postData.contents); //
     var action = data.action;
     var result = {};
 
     if (action === 'login') {
       result = verifyPassword(data.password);
+      if(result.valid) {
+        writeAuditLog(result.role, "LOGIN", "User berhasil login ke dashboard");
+      }
     } else if (action === 'saveData') {
       result = processForm(data.payload);
+      writeAuditLog(data.role || "UNKNOWN", "SAVE_DATA", "Menyimpan/Edit data personil: " + data.payload.nama);
     } else {
       result = { error: "Action not defined" };
     }
-    
     return responseJSON(result);
   } catch (err) {
-    return responseJSON({ error: "Gagal memproses data: " + err.toString() });
+    return responseJSON({ error: err.toString() }); //
   }
 }
 
 function responseJSON(data) {
-  return ContentService.createTextOutput(JSON.stringify(data))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON); //
 }
 
+// --- LOGIKA AUDIT LOG (TERPISAH) ---
+function writeAuditLog(role, action, detail) {
+  try {
+    var ss = SpreadsheetApp.openById(LOG_SS_ID);
+    var sheet = ss.getSheets()[0];
+    sheet.appendRow([new Date(), role, action, detail]);
+  } catch (e) { console.log("Gagal log: " + e.toString()); }
+}
+
+function getAuditLogs(role) {
+  if (role !== "SUPER_ADMIN") return [];
+  try {
+    var ss = SpreadsheetApp.openById(LOG_SS_ID);
+    return ss.getSheets()[0].getDataRange().getDisplayValues().reverse();
+  } catch (e) { return []; }
+}
 // --- FUNGSI LOGIC (Sekarang menggunakan openById) ---
 
 function verifyPassword(inputPassword) {
@@ -242,3 +238,4 @@ function processForm(data) {
     lock.releaseLock();
   }
 }
+
