@@ -1,4 +1,4 @@
-// --- Code.gs (Versi API - FIXED & ENHANCED) ---
+// --- Code.gs (Final Version: Login/Logout Audit) ---
 
 // 1. MASUKKAN ID SPREADSHEET UTAMA
 const MAIN_SS_ID = "1NYw4b9mSXoa_tYxo38mWZizQahq0wBee-9cU9oUk23o"; 
@@ -26,7 +26,6 @@ function doGet(e) {
   } else if (action === 'getDropdownData') {
     result = getDropdownData();
   } else if (action === 'getAuditLogs') {
-    // Fitur Baru: Ambil Log
     result = getAuditLogs(e.parameter.role);
   } else {
     result = { error: "Action not defined" };
@@ -47,14 +46,24 @@ function doPost(e) {
 
     if (action === 'login') {
       result = verifyPassword(data.password);
-      // Fitur Baru: Log Login Sukses
+      // --- LOG LOGIN ---
       if (result.valid) {
-        logAudit("LOGIN", "User logged in as " + result.role);
+        logAudit("LOGIN", "User Login: " + result.role);
+      } else {
+        logAudit("LOGIN_FAIL", "Gagal Login (Password Salah)");
       }
-    } else if (action === 'saveData') {
+    } 
+    else if (action === 'logout') {
+      // --- LOG LOGOUT ---
+      var role = data.role || "Unknown";
+      logAudit("LOGOUT", "User Logout: " + role);
+      result = { status: "Success" };
+    }
+    else if (action === 'saveData') {
       result = processForm(data.payload);
-       // Fitur Baru: Log Simpan Data (sukses/gagal dicatat di processForm)
-    } else {
+       // Log simpan data sudah ditangani di dalam fungsi processForm
+    } 
+    else {
       result = { error: "Action not defined" };
     }
     
@@ -77,6 +86,7 @@ function logAudit(type, message) {
     var logs = logsJSON ? JSON.parse(logsJSON) : [];
     
     var now = new Date();
+    // Format waktu agar mudah dibaca di JSON (opsional, tapi timestamp ISO lebih aman)
     var newLog = {
       timestamp: now.toISOString(),
       type: type,
@@ -93,8 +103,7 @@ function logAudit(type, message) {
       return new Date(log.timestamp) > cutoffDate;
     });
 
-    // Batasi ukuran (ScriptProperties max ~9KB per key, aman di 50-100 items text)
-    // Jika terlalu banyak, hapus yang terlama
+    // Batasi jumlah log agar tidak error memori (Max 100 log terakhir)
     if (logs.length > 100) {
       logs = logs.slice(0, 100);
     }
