@@ -3,7 +3,6 @@
 const MAIN_SS_ID = "1NYw4b9mSXoa_tYxo38mWZizQahq0wBee-9cU9oUk23o";
 const PROJECT_SS_ID = "1kPWraQ0VJNB36sdJVlkP7dDZAZKBvisAtrggGYLraqc";
 
-// --- DO GET ---
 function doGet(e) {
   if (!e || !e.parameter) {
     return ContentService.createTextOutput("Error: Gunakan Deploy > Test Deploy.");
@@ -21,7 +20,6 @@ function doGet(e) {
   } else if (action === 'getDropdownData') {
     result = getDropdownData();
   } else if (action === 'getAuditLogs') {
-    // Audit Log hanya bisa diambil lewat request ini
     result = getAuditLogs(e.parameter.role);
   } else {
     result = { error: "Action not defined" };
@@ -30,7 +28,6 @@ function doGet(e) {
   return responseJSON(result);
 }
 
-// --- DO POST ---
 function doPost(e) {
   try {
     var jsonString = e.postData.contents;
@@ -44,7 +41,6 @@ function doPost(e) {
         logAudit(result.role, "Login", "User masuk ke sistem");
       }
     } else if (action === 'saveData') {
-      // Kirim currentUserRole dari frontend untuk logging
       result = processForm(data.payload, data.userRole);
     } else {
       result = { error: "Action not defined" };
@@ -60,8 +56,6 @@ function responseJSON(data) {
   return ContentService.createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
 }
-
-// --- CORE LOGIC ---
 
 function verifyPassword(inputPassword) {
   try {
@@ -154,7 +148,6 @@ function processForm(data, userRole) {
   var ss = SpreadsheetApp.openById(MAIN_SS_ID);
   var sheetAdmin = ss.getSheetByName("Admin");
   
-  // Verifikasi password server-side lagi
   var passwords = sheetAdmin.getRange("A2:A5").getValues().flat();
   var superAdminPass = passwords[0];
   var adminInputPass = passwords[3];
@@ -200,7 +193,6 @@ function processForm(data, userRole) {
     
     SpreadsheetApp.flush();
     
-    // --- AUDIT LOGGING ---
     logAudit(userRole || "UNKNOWN", actionType, "Nama: " + data.nama + ", Sertifikat: " + data.sertifikat);
     
     return "Sukses";
@@ -212,8 +204,6 @@ function processForm(data, userRole) {
   }
 }
 
-// --- AUDIT LOG SYSTEM (SCRIPT PROPERTIES) ---
-
 function logAudit(user, action, details) {
   try {
     var props = PropertiesService.getScriptProperties();
@@ -222,7 +212,6 @@ function logAudit(user, action, details) {
     
     var now = new Date();
     
-    // 1. Tambah Log Baru
     logs.push({
       date: now.toISOString(),
       user: user,
@@ -230,16 +219,11 @@ function logAudit(user, action, details) {
       details: details
     });
     
-    // 2. Bersihkan Data Lama (> 1 Tahun)
-    // 1 Tahun = 365 * 24 * 60 * 60 * 1000 ms
     var oneYearAgo = new Date(now.getTime() - (365 * 24 * 60 * 60 * 1000));
-    
     logs = logs.filter(function(log) {
       return new Date(log.date) > oneYearAgo;
     });
 
-    // 3. Safety Cap (Mencegah ScriptProperties Penuh - Max 500kb total)
-    // Kita batasi simpan 500 log terakhir saja agar aman
     if (logs.length > 500) {
       logs = logs.slice(logs.length - 500);
     }
