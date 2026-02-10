@@ -53,7 +53,6 @@
     @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
 
     /* --- NAVBAR RESPONSIVE --- */
-    .navbar-brand { font-size: 1rem; white-space: normal; line-height: 1.2; }
     .navbar-toggler { border: none; padding: 0.25rem 0.5rem; }
     .navbar-toggler:focus { box-shadow: none; outline: none; }
     
@@ -65,7 +64,7 @@
     /* --- DASHBOARD STYLES --- */
     #dashboard-section { display: none; padding-bottom: 50px; }
     
-    .logo-wrapper { background: transparent !important; padding: 0 !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; border-radius: 0 !important; margin-right: 10px; display: flex; align-items: center; justify-content: center; }
+    .logo-wrapper { background: transparent !important; padding: 0 !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; border-radius: 0 !important; margin-right: 15px; display: flex; align-items: center; justify-content: center; }
     
     @keyframes slideInSmooth { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     
@@ -183,7 +182,6 @@
     @media (max-width: 768px) {
       .navbar .container-fluid { padding-left: 15px; padding-right: 15px; }
       .logo-wrapper img { height: 35px !important; }
-      .navbar-brand span { font-size: 0.9rem !important; }
       
       .greeting-wrapper { display: none !important; } 
       
@@ -246,8 +244,8 @@
           </div>
           
           <div class="d-none d-md-flex flex-column justify-content-center">
-            <span class="text-white fw-bold navbar-brand m-0 p-0" style="letter-spacing: 0.5px;">SIDAMON</span>
-            <span class="text-white text-uppercase" style="font-size: 0.65rem; letter-spacing: 1px; opacity: 0.85; margin-top: -2px;">Gaharu Sempana Group</span>
+            <span class="text-white fw-bold" style="font-size: 1.1rem; letter-spacing: 0.5px; line-height: 1.2;">SIDAMON Gaharu Sempana Group</span>
+            <span class="text-white text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px; opacity: 0.85;">Dashboard Sistem Database & Monitoring</span>
           </div>
 
           <div class="d-flex d-md-none flex-column justify-content-center">
@@ -1708,4 +1706,3 @@
   </script>
 </body>
 </html>
-
