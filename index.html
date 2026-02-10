@@ -149,6 +149,9 @@
     .month-marker { position: absolute; top: 0; height: 100%; border-left: 1px dashed #e0e0e0; font-size: 11px; padding-left: 8px; padding-top: 18px; color: #888; font-weight: 600; pointer-events: none; text-transform: uppercase; }
     .g-header-row .month-marker { border-left: 1px solid #d1d3e2; color: #555; }
     
+    /* FIX: SweetAlert Input Focus */
+    .swal2-container { z-index: 20000 !important; }
+
     .custom-tooltip { position: fixed; display: none; background: rgba(255, 255, 255, 0.98); border: 1px solid #eee; border-left: 5px solid var(--primary-color); padding: 12px 16px; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 9999; pointer-events: none; min-width: 200px; max-width: 300px; font-size: 0.85rem; animation: fadeIn 0.2s ease-in-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     .ct-header { font-weight: bold; color: #333; margin-bottom: 5px; line-height: 1.2; font-size: 0.95rem; border-bottom: 1px solid #f0f0f0; padding-bottom: 5px; }
@@ -913,9 +916,12 @@
         }
     }
 
-    // --- FUNGSI HAPUS LOG (MANUAL) ---
+    // --- FUNGSI HAPUS LOG (2 Langkah: Tanggal -> Password) ---
     function handleClearLogs() {
-        // Langkah 1: Pilih Rentang Tanggal
+        // FIX: Hapus tabindex agar fokus bisa pindah ke Swal
+        document.getElementById('modalLogHistory').removeAttribute('tabindex');
+        
+        // Langkah 1: Pilih Tanggal
         Swal.fire({
             title: 'Hapus History Log',
             html: `
@@ -939,72 +945,48 @@
             preConfirm: () => {
                 const start = document.getElementById('swal-start').value;
                 const end = document.getElementById('swal-end').value;
-                
-                if (!start || !end) {
-                    Swal.showValidationMessage('Tanggal awal dan akhir wajib diisi!');
-                }
+                if (!start || !end) { Swal.showValidationMessage('Tanggal wajib diisi!'); }
                 return { startDate: start, endDate: end };
             }
         }).then((result) => {
             if (result.isConfirmed) {
                 const dateData = result.value;
 
-                // Langkah 2: Konfirmasi Password (Style sama dengan Edit/Tambah Data)
+                // Langkah 2: Konfirmasi Password (Native Input Swal)
                 setTimeout(() => {
                     Swal.fire({
                         title: 'Konfirmasi Password', 
                         text: 'Masukkan password Super Admin untuk menghapus:', 
                         input: 'password',
-                        inputAttributes: { 
-                            autocapitalize: 'off', 
-                            placeholder: 'Password' 
-                        }, 
+                        inputAttributes: { autocapitalize: 'off', placeholder: 'Password' }, 
                         showCancelButton: true, 
                         confirmButtonText: 'Hapus Sekarang', 
-                        confirmButtonColor: '#dc3545', // Merah untuk bahaya
+                        confirmButtonColor: '#dc3545',
                         preConfirm: (password) => { 
-                            if (!password) { 
-                                Swal.showValidationMessage('Password wajib diisi!'); 
-                            } 
+                            if (!password) { Swal.showValidationMessage('Password wajib diisi!'); } 
                             return password; 
                         }
                     }).then(async (passResult) => {
                         if (passResult.isConfirmed) {
                             const passwordInput = passResult.value;
-                            
-                            // Gabungkan data tanggal dan password
-                            const payload = {
-                                startDate: dateData.startDate,
-                                endDate: dateData.endDate,
-                                password: passwordInput
-                            };
+                            const payload = { startDate: dateData.startDate, endDate: dateData.endDate, password: passwordInput };
 
-                            // Tampilkan Loading
-                            Swal.fire({
-                                title: 'Menghapus...',
-                                allowOutsideClick: false,
-                                didOpen: () => Swal.showLoading()
-                            });
+                            Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
                             try {
                                 const response = await fetchAPI('clearLogs', 'POST', payload);
-                                
                                 if (response.status === "Sukses") {
-                                    await Swal.fire(
-                                        'Terhapus!',
-                                        `Berhasil menghapus ${response.count} data log.`,
-                                        'success'
-                                    );
-                                    loadSystemLogs(); // Refresh tabel log
+                                    await Swal.fire('Terhapus!', `Berhasil menghapus ${response.count} data log.`, 'success');
+                                    loadSystemLogs(); 
                                 } else {
-                                    Swal.fire('Gagal!', response.error || 'Password Salah atau Terjadi kesalahan.', 'error');
+                                    Swal.fire('Gagal!', response.error || 'Terjadi kesalahan.', 'error');
                                 }
                             } catch (e) {
                                 Swal.fire('Error!', e.message, 'error');
                             }
                         }
                     });
-                }, 300); // Delay sedikit agar transisi smooth
+                }, 300);
             }
         });
     }
@@ -1628,32 +1610,12 @@
       tooltip.style.display = 'block';
       moveTooltip(e);
     }
-    
     window.moveTooltip = function(e) {
-      const winWidth = window.innerWidth;
-      const winHeight = window.innerHeight;
-      const tWidth = tooltip.offsetWidth;
-      const tHeight = tooltip.offsetHeight;
-      
-      let x = e.clientX;
-      let y = e.clientY;
-
-      let leftPos = x + 15;
-      if (leftPos + tWidth > winWidth) {
-          leftPos = x - tWidth - 15;
-      }
-      if (leftPos < 0) { leftPos = 10; }
-
-      let topPos = y + 15;
-      if (topPos + tHeight > winHeight) {
-          topPos = y - tHeight - 15;
-      }
-      if (topPos < 0) { topPos = 10; }
-
-      tooltip.style.left = leftPos + 'px';
-      tooltip.style.top = topPos + 'px';
+      const x = e.clientX; const y = e.clientY;
+      const tWidth = tooltip.offsetWidth; const winWidth = window.innerWidth;
+      let leftPos = x + 15; if (leftPos + tWidth > winWidth - 20) { leftPos = x - tWidth - 10; }
+      tooltip.style.top = (y + 15) + 'px'; tooltip.style.left = leftPos + 'px';
     }
-    
     window.hideTooltip = function() { tooltip.style.display = 'none'; }
 
 
@@ -1866,4 +1828,3 @@
   </script>
 </body>
 </html>
-
