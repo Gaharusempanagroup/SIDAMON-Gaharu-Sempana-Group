@@ -83,53 +83,67 @@ function responseJSON(data) {
 
 // --- FUNGSI AUDIT LOG (Dengan LockService) ---
 function logAudit(type, message) {
-  // Gunakan LockService agar log tidak bentrok jika akses bersamaan
   var lock = LockService.getScriptLock();
   try {
-    // Tunggu maksimal 5 detik untuk giliran menulis log
-    lock.waitLock(5000); 
-    
-    var scriptProps = PropertiesService.getScriptProperties();
-    var logsJSON = scriptProps.getProperty("AUDIT_LOGS");
-    var logs = logsJSON ? JSON.parse(logsJSON) : [];
-    
-    var now = new Date();
-    // Tambah log baru di urutan pertama
-    var newLog = {
-      timestamp: now.toISOString(), // ISO String lebih aman untuk sorting
-      type: type,
-      message: message
-    };
-    
-    logs.unshift(newLog); 
+    // Tunggu antrian kunci (agar tidak bentrok antar user)
+    lock.waitLock(10000); 
 
-    // Bersihkan log > 6 bulan (180 hari)
-    var cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - 180);
-    logs = logs.filter(function(log) {
-      return new Date(log.timestamp) > cutoffDate;
-    });
-
-    // Batasi jumlah log maks 100 agar script tidak berat
-    if (logs.length > 100) {
-      logs = logs.slice(0, 100);
+    var ss = SpreadsheetApp.openById(MAIN_SS_ID);
+    // Pastikan Anda sudah membuat Sheet bernama "Audit_Log" di Spreadsheet Database
+    var sheet = ss.getSheetByName("Audit_Log"); 
+    
+    if (!sheet) {
+      // Auto-create jika belum ada (opsional)
+      sheet = ss.insertSheet("Audit_Log");
+      sheet.appendRow(["Timestamp", "Type", "Message"]);
     }
 
-    scriptProps.setProperty("AUDIT_LOGS", JSON.stringify(logs));
-    
+    var now = new Date();
+    // Format Waktu Jakarta/WITA sesuai server
+    var timeString = Utilities.formatDate(now, "GMT+8", "yyyy-MM-dd HH:mm:ss");
+
+    // Simpan ke baris paling bawah (Append Row jauh lebih cepat & stabil)
+    sheet.appendRow([timeString, type, message]);
+
   } catch (e) {
     console.error("Gagal mencatat log: " + e.toString());
   } finally {
-    // Lepaskan kunci agar proses lain bisa lanjut
     lock.releaseLock();
   }
 }
 
 function getAuditLogs(role) {
-  if (role !== "SUPER_ADMIN") return { error: "Unauthorized" };
+  // Hanya Super Admin yang boleh lihat
+  if (role !== "SUPER_ADMIN") return [];
+
   try {
-    var logsJSON = PropertiesService.getScriptProperties().getProperty("AUDIT_LOGS");
-    return logsJSON ? JSON.parse(logsJSON) : [];
+    var ss = SpreadsheetApp.openById(MAIN_SS_ID);
+    var sheet = ss.getSheetByName("Audit_Log");
+    
+    if (!sheet) return [];
+
+    var lastRow = sheet.getLastRow();
+    if (lastRow < 2) return []; // Belum ada data
+
+    // Ambil 50 data terakhir saja agar loading cepat
+    // Kita ambil dari bawah ke atas
+    var startRow = Math.max(2, lastRow - 49); 
+    var numRows = lastRow - startRow + 1;
+    
+    var data = sheet.getRange(startRow, 1, numRows, 3).getValues();
+
+    // Mapping ke format JSON untuk dikirim ke frontend
+    var logs = data.map(function(row) {
+      return {
+        timestamp: row[0],
+        type: row[1],
+        message: row[2]
+      };
+    });
+
+    // Reverse agar yang terbaru muncul di atas
+    return logs.reverse();
+
   } catch (e) {
     return [];
   }
