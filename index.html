@@ -695,20 +695,27 @@
 
     // --- UPDATE FUNGSI LOGOUT ---
     async function handleLogout() {
-        // 1. Ambil role saat ini sebelum dihapus
+        // 1. Ambil role saat ini
         const currentRole = sessionStorage.getItem('userRole');
         
-        // 2. Kirim sinyal ke server untuk mencatat log (jika role ada)
+        // 2. Kirim Log di Background (Tanpa Await)
+        // Kita menggunakan fetch manual dengan opsi 'keepalive: true'
+        // Ini memastikan log tetap terkirim meskipun halaman langsung di-reload.
         if (currentRole) {
-            try {
-                // Kita gunakan await agar log terkirim sebelum halaman reload
-                await fetchAPI('logout', 'POST', { role: currentRole });
-            } catch (e) {
-                console.log("Gagal mencatat log logout, melanjutkan logout lokal.");
-            }
+            const url = `${CONST_API_URL}?action=logout`;
+            const payload = JSON.stringify({ action: 'logout', role: currentRole });
+            
+            fetch(url, {
+                method: 'POST',
+                body: payload,
+                // KUNCI UTAMA: keepalive mencegah request dibatalkan saat browser refresh
+                keepalive: true, 
+                headers: { "Content-Type": "text/plain;charset=utf-8" }
+            }).catch(e => console.log("Log logout background error (ignored):", e));
         }
 
-        // 3. Hapus sesi dan reload
+        // 3. Hapus sesi & Reload INSTAN
+        // Tidak ada 'await', jadi browser tidak akan menunggu server.
         sessionStorage.removeItem('userRole');
         location.reload();
     }
@@ -1646,3 +1653,4 @@
   </script>
 </body>
 </html>
+
