@@ -64,6 +64,7 @@
     /* --- DASHBOARD STYLES --- */
     #dashboard-section { display: none; padding-bottom: 50px; }
     
+    /* Logo Wrapper: Center aligned with padding */
     .logo-wrapper { background: transparent !important; padding: 0 !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; border-radius: 0 !important; margin-right: 15px; display: flex; align-items: center; justify-content: center; }
     
     @keyframes slideInSmooth { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -274,8 +275,7 @@
 
   <div id="dashboard-section">
     <nav class="navbar navbar-dark bg-primary shadow-sm mb-4 py-2 sticky-top">
-      <div class="container-fluid px-4 px-lg-5">
-        <div class="d-flex align-items-center">
+      <div class="container-fluid px-4 px-lg-5"> <div class="d-flex align-items-center">
           <div class="logo-wrapper">
               <img src="IMG_0992.PNG" alt="Logo" style="height: 45px; width: auto;">
           </div>
@@ -451,8 +451,8 @@
                    <span class="input-group-text bg-light border-end-0 text-muted">Sampai</span>
                    <input type="date" id="filterTugasEnd" class="form-control border-start-0">
                 </div>
-                <div class="d-flex gap-2 w-100 w-md-auto">
-                    <button class="btn btn-sm btn-primary rounded-pill px-3 flex-grow-1 flex-md-grow-0" onclick="applyTugasDateFilter()">Filter</button>
+                <div class="d-flex gap-2 w-100 w-xl-auto">
+                    <button class="btn btn-sm btn-primary rounded-pill px-3 flex-grow-1 flex-xl-grow-0" onclick="applyTugasDateFilter()">Filter</button>
                     <button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="resetTugasDateFilter()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button>
                 </div>
             </div>
@@ -541,8 +541,8 @@
                    <span class="input-group-text bg-light border-end-0 text-muted">Sampai</span>
                    <input type="date" id="filterEndDate" class="form-control border-start-0">
                 </div>
-                <div class="d-flex gap-2 w-100 w-md-auto">
-                    <button class="btn btn-sm btn-primary rounded-pill px-3 flex-grow-1 flex-md-grow-0" onclick="applyDateFilter()">Filter</button>
+                <div class="d-flex gap-2 w-100 w-xl-auto">
+                    <button class="btn btn-sm btn-primary rounded-pill px-3 flex-grow-1 flex-xl-grow-0" onclick="applyDateFilter()">Filter</button>
                     <button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="resetDateFilter()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button>
                 </div>
             </div>
@@ -627,9 +627,14 @@
   <div class="modal fade" id="modalLogHistory" aria-labelledby="modalLogLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
-        <div class="modal-header bg-warning text-dark">
-          <h5 class="modal-title fw-bold" id="modalLogLabel"><i class="bi bi-clock-history me-2"></i>History Aktivitas User</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-header bg-warning text-dark d-flex justify-content-between align-items-center">
+          <h5 class="modal-title fw-bold" id="modalLogLabel"><i class="bi bi-clock-history me-2"></i>History Aktivitas</h5>
+          <div class="d-flex gap-2">
+              <button class="btn btn-danger btn-sm fw-bold shadow-sm" onclick="handleClearLogs()">
+                  <i class="bi bi-trash3-fill me-1"></i>Hapus
+              </button>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
         </div>
         <div class="modal-body p-0">
           <div class="log-table-container">
@@ -651,6 +656,7 @@
           </div>
         </div>
         <div class="modal-footer">
+          <div class="small text-muted me-auto fst-italic">*Hanya menampilkan 200 aktivitas terakhir.</div>
           <button type="button" class="btn btn-secondary btn-sm rounded-pill" data-bs-dismiss="modal">Tutup</button>
         </div>
       </div>
@@ -886,6 +892,7 @@
                     else if (log.action === 'LOGOUT') badgeClass = 'bg-danger';
                     else if (log.action === 'TAMBAH DATA') badgeClass = 'bg-primary';
                     else if (log.action === 'EDIT DATA') badgeClass = 'bg-info text-dark';
+                    else if (log.action === 'HAPUS LOG') badgeClass = 'bg-warning text-dark';
 
                     html += `
                         <tr class="log-entry-row">
@@ -904,6 +911,79 @@
             loading.style.display = 'none';
             tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-danger">Gagal memuat log.</td></tr>';
         }
+    }
+
+    // --- FUNGSI HAPUS LOG (MANUAL) ---
+    function handleClearLogs() {
+        // Tutup modal history sementara agar SweetAlert terlihat jelas (opsional, tapi lebih rapi)
+        // modalLogHistory.hide(); 
+
+        Swal.fire({
+            title: 'Hapus History Log',
+            html: `
+                <div class="text-start">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Dari Tanggal</label>
+                        <input type="date" id="swal-start" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Sampai Tanggal</label>
+                        <input type="date" id="swal-end" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-danger">Konfirmasi Password Super Admin</label>
+                        <input type="password" id="swal-pass" class="form-control" placeholder="Masukkan Password...">
+                    </div>
+                </div>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            confirmButtonText: 'Hapus Data',
+            cancelButtonText: 'Batal',
+            preConfirm: () => {
+                const start = document.getElementById('swal-start').value;
+                const end = document.getElementById('swal-end').value;
+                const pass = document.getElementById('swal-pass').value;
+                
+                if (!start || !end || !pass) {
+                    Swal.showValidationMessage('Semua kolom wajib diisi!');
+                }
+                return { startDate: start, endDate: end, password: pass };
+            }
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const data = result.value;
+                
+                // Tampilkan Loading
+                Swal.fire({
+                    title: 'Menghapus...',
+                    didOpen: () => Swal.showLoading()
+                });
+
+                try {
+                    const response = await fetchAPI('clearLogs', 'POST', data);
+                    
+                    if (response.status === "Sukses") {
+                        await Swal.fire(
+                            'Terhapus!',
+                            `Berhasil menghapus ${response.count} data log.`,
+                            'success'
+                        );
+                        // Buka kembali modal history dan refresh data
+                        // modalLogHistory.show(); // Jika tadi di-hide
+                        loadSystemLogs(); 
+                    } else {
+                        Swal.fire('Gagal!', response.error || 'Terjadi kesalahan.', 'error');
+                    }
+                } catch (e) {
+                    Swal.fire('Error!', e.message, 'error');
+                }
+            } else {
+                // Jika batal, pastikan modal history tetap terbuka/fokus
+                // modalLogHistory.show();
+            }
+        });
     }
 
     // --- SKELETON RENDERER ---
