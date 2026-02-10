@@ -57,42 +57,24 @@
     
     .logo-wrapper { background: transparent !important; padding: 0 !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; border-radius: 0 !important; margin-right: 15px; display: flex; align-items: center; justify-content: center; }
     
-    /* UPDATED GREETING (MATCHING INDEX 2) */
     @keyframes slideInSmooth { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     .greeting-wrapper { animation: slideInSmooth 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); padding: 6px 0; margin-left: 15px; border: none !important; border-left: none !important; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); cursor: default; }
     .greeting-wrapper:hover { background: transparent !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; transform: translateY(-2px); }
     .greeting-wrapper:hover #greeting-role { text-shadow: 0 0 12px rgba(255, 255, 255, 0.8); }
     
-    /* UPDATED MENU BUTTONS (MATCHING INDEX 2) */
     .nav-pills .nav-link { border-radius: 50px; padding: 10px 25px; font-weight: 600; color: #555; background: white; border: 1px solid #ddd; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; touch-action: manipulation; }
     .nav-pills .nav-link.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); box-shadow: 0 4px 15px rgba(0, 0, 128, 0.3); }
     .nav-pills .nav-link:hover:not(.active) { background-color: #f8f9fa; transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); color: var(--primary-color); }
     .btn:active, .nav-link:active { transform: scale(0.95) !important; background-color: #f0f0f0; }
     
-    /* UPDATED SUB MENU (MATCHING INDEX 2) */
     .sub-nav .btn { border-radius: 20px; font-size: 0.85rem; font-weight: 600; padding: 6px 15px; border: 1px solid #ddd; background: white; color: #555; transition: all 0.2s ease; touch-action: manipulation; }
     .sub-nav .btn.active { background-color: #000080; color: white; border-color: #000080; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
     
-    /* UPDATED STATS CARDS (MATCHING INDEX 2 - WITH ICON ANIMATION) */
     .stats-wrapper { max-width: 1100px; margin: 0 auto; }
-    .stat-card { 
-        border: none; 
-        border-radius: 12px; 
-        box-shadow: 0 4px 6px rgba(0,0,0,0.07); 
-        transition: transform 0.3s ease, box-shadow 0.3s ease; 
-        color: white; 
-        overflow: hidden; 
-        height: 100%; 
-        position: relative; 
-        z-index: 1; 
-    }
-    .stat-card:hover { 
-        transform: translateY(-5px); 
-        box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important; 
-    }
+    .stat-card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.07); transition: transform 0.3s ease, box-shadow 0.3s ease; color: white; overflow: hidden; height: 100%; position: relative; z-index: 1; }
+    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important; }
     .stat-card i { transition: all 0.5s ease; }
     .stat-card:hover i { transform: scale(1.2) rotate(10deg); opacity: 0.7 !important; }
-
     .stat-value { font-size: 2.5rem; font-weight: 700; line-height: 1; }
     .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
     
@@ -175,6 +157,10 @@
     .btn-page.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
     .btn-page:disabled { opacity: 0.5; cursor: not-allowed; }
 
+    /* --- LOG MODAL --- */
+    .log-table-container { max-height: 400px; overflow-y: auto; }
+    .log-entry-row { transition: background 0.2s; font-size: 0.85rem; }
+    .log-entry-row:hover { background: #f8f9fa; }
   </style>
 </head>
 <body class="login-mode">
@@ -236,6 +222,9 @@
                 <div id="greeting-role" style="font-size: 0.9rem; font-weight: 600; letter-spacing: 0.5px; line-height: 1.2;">
                     </div>
             </div>
+            <button class="btn btn-warning btn-sm rounded-pill px-3 shadow-sm" id="btn-log-history" onclick="showLogHistory()" style="display:none;">
+                <i class="bi bi-clock-history me-1"></i>History
+            </button>
             <button class="btn btn-danger btn-sm rounded-pill px-3 shadow-sm" onclick="handleLogout()"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
         </div>
       </div>
@@ -519,10 +508,42 @@
     </div>
   </div>
 
+  <div class="modal fade" id="modalLogHistory" aria-labelledby="modalLogLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header bg-warning text-dark">
+          <h5 class="modal-title fw-bold" id="modalLogLabel"><i class="bi bi-clock-history me-2"></i>History Aktivitas User</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="log-table-container">
+             <table class="table table-sm table-striped mb-0">
+                <thead class="table-light sticky-top">
+                   <tr>
+                      <th class="ps-3">Waktu</th>
+                      <th>Role</th>
+                      <th>Aksi</th>
+                      <th>Detail</th>
+                   </tr>
+                </thead>
+                <tbody id="bodyLogHistory">
+                    </tbody>
+             </table>
+             <div id="loadingLog" class="text-center py-4">
+                <div class="spinner-border text-secondary spinner-border-sm" role="status"></div>
+             </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm rounded-pill" data-bs-dismiss="modal">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // --- KONFIGURASI PENTING ---
-    // GANTI DENGAN URL WEB APP BARU ANDA
     const CONST_API_URL = "https://script.google.com/macros/s/AKfycbw5HBU0rbZ2occIJ77QlUQpt2nMAQrFu_pKdEkS0kJmK8ooi6SQQL1M0xU_3NztAqRACw/exec";
 
     // --- GLOBAL VARIABLES FOR PAGINATION ---
@@ -547,7 +568,6 @@
             return await response.json();
         } catch (error) {
             console.error("Fetch Error:", error);
-            // Jangan alert jika ini logout agar user tidak stuck
             if(action !== 'logout') alert("Gagal menghubungi server: " + error.message);
             throw error;
         }
@@ -569,7 +589,7 @@
     window.addEventListener('DOMContentLoaded', () => {
         const storedRole = sessionStorage.getItem('userRole');
         if (storedRole) {
-            loginSuccess(storedRole, false); // False = jangan animasi login ulang, langsung load
+            loginSuccess(storedRole, false); 
         }
     });
 
@@ -609,7 +629,7 @@
 
     function loginSuccess(role, isFirstLogin) {
         currentUserRole = role; 
-        sessionStorage.setItem('userRole', role); // SIMPAN SESSION
+        sessionStorage.setItem('userRole', role); 
         
         document.getElementById('login-section').style.display = 'none';
         document.getElementById('dashboard-section').style.display = 'block';
@@ -627,7 +647,6 @@
     async function handleLogout() {
         const currentRole = sessionStorage.getItem('userRole');
         
-        // Tampilkan loading sebentar (UX lebih baik)
         Swal.fire({
             title: 'Logging out...',
             allowOutsideClick: false,
@@ -636,8 +655,6 @@
 
         if (currentRole) {
             try {
-                // Gunakan fetchAPI helper yang sudah ada, tapi kita tunggu (await)
-                // Kita gunakan POST agar data terkirim aman
                 await fetch(CONST_API_URL, {
                     method: 'POST',
                     body: JSON.stringify({ action: 'logout', role: currentRole }),
@@ -645,13 +662,10 @@
                 });
             } catch (e) {
                 console.error("Logout log failed", e);
-                // Tetap lanjut logout meski log gagal (jangan menahan user)
             }
         }
 
         sessionStorage.removeItem('userRole');
-        
-        // Reload halaman setelah request selesai
         window.location.reload();
     }
 
@@ -675,17 +689,11 @@
         }
 
         let roleText = "";
-        if (role === 'SUPER_ADMIN') {
-            roleText = "Manajemen Gaharu Sempana Group";
-        } else if (role === 'ADMIN') {
-            roleText = "Tim Admin Gaharu Sempana Group";
-        } else if (role === 'TEKNIS') {
-            roleText = "Tim Teknis Gaharu Sempana Group";
-        } else if (role === 'ADMIN_INPUT') {
-            roleText = "Tim Admin Database Gaharu Sempana Group";
-        } else {
-            roleText = "Gaharu Sempana Group";
-        }
+        if (role === 'SUPER_ADMIN') roleText = "Manajemen Gaharu Sempana Group";
+        else if (role === 'ADMIN') roleText = "Tim Admin Gaharu Sempana Group";
+        else if (role === 'TEKNIS') roleText = "Tim Teknis Gaharu Sempana Group";
+        else if (role === 'ADMIN_INPUT') roleText = "Tim Admin Database Gaharu Sempana Group";
+        else roleText = "Gaharu Sempana Group";
 
         document.getElementById('greeting-time').innerHTML = `${icon} ${timeText}`;
         document.getElementById('greeting-role').innerText = roleText;
@@ -698,12 +706,17 @@
         const btnAdd = document.getElementById('btnAddDataContainer');
         const thAksi = document.getElementById('th-aksi-skk');
         const searchContainer = document.getElementById('searchSkkContainer');
+        const btnHistory = document.getElementById('btn-log-history');
 
         navSkk.style.display = 'block'; navTugas.style.display = 'block'; navProject.style.display = 'block';
         btnAdd.style.display = 'block'; thAksi.style.display = 'table-cell';
         if(searchContainer) { searchContainer.classList.remove('col-12'); searchContainer.classList.add('col-md'); }
+        btnHistory.style.display = 'none'; // Default hidden
 
-        if (role === "SUPER_ADMIN") { switchView('skk'); } 
+        if (role === "SUPER_ADMIN") { 
+            switchView('skk'); 
+            btnHistory.style.display = 'block'; // Show History only for Super Admin
+        } 
         else if (role === "ADMIN_INPUT") { navProject.style.display = 'none'; switchView('skk'); }
         else if (role === "ADMIN") {
             navProject.style.display = 'none'; btnAdd.style.display = 'none'; thAksi.style.display = 'none'; 
@@ -712,6 +725,52 @@
         } 
         else if (role === "TEKNIS") {
             navSkk.style.display = 'none'; navTugas.style.display = 'none'; switchView('project');
+        }
+    }
+
+    // --- LOG HISTORY FUNCTIONS ---
+    const modalLogHistory = new bootstrap.Modal(document.getElementById('modalLogHistory'));
+    
+    function showLogHistory() {
+        modalLogHistory.show();
+        loadSystemLogs();
+    }
+
+    async function loadSystemLogs() {
+        const tbody = document.getElementById('bodyLogHistory');
+        const loading = document.getElementById('loadingLog');
+        tbody.innerHTML = '';
+        loading.style.display = 'block';
+
+        try {
+            const logs = await fetchAPI('getSystemLogs');
+            loading.style.display = 'none';
+            
+            if (logs && logs.length > 0) {
+                let html = '';
+                logs.forEach(log => {
+                    let badgeClass = 'bg-secondary';
+                    if (log.action === 'LOGIN') badgeClass = 'bg-success';
+                    else if (log.action === 'LOGOUT') badgeClass = 'bg-danger';
+                    else if (log.action === 'TAMBAH DATA') badgeClass = 'bg-primary';
+                    else if (log.action === 'EDIT DATA') badgeClass = 'bg-info text-dark';
+
+                    html += `
+                        <tr class="log-entry-row">
+                            <td class="ps-3 text-nowrap text-muted small">${log.time}</td>
+                            <td class="fw-bold" style="font-size:0.8rem;">${log.role}</td>
+                            <td><span class="badge ${badgeClass} rounded-pill" style="font-size:0.7rem;">${log.action}</span></td>
+                            <td class="text-muted small">${log.details || '-'}</td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+            } else {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">Belum ada riwayat aktivitas.</td></tr>';
+            }
+        } catch (e) {
+            loading.style.display = 'none';
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-danger">Gagal memuat log.</td></tr>';
         }
     }
 
