@@ -627,20 +627,36 @@
     }
 
     // --- LOGOUT TANPA DELAY ---
-    function handleLogout() {
+    // --- GANTI FUNGSI LOGOUT LAMA DENGAN INI ---
+    async function handleLogout() {
         const currentRole = sessionStorage.getItem('userRole');
+        
+        // Tampilkan loading sebentar (UX lebih baik)
+        Swal.fire({
+            title: 'Logging out...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading() }
+        });
+
         if (currentRole) {
-            // Gunakan keepalive: true agar request tetap jalan walaupun halaman reload
-            // fetch ini "fire and forget"
-            fetch(CONST_API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'logout', role: currentRole }),
-                keepalive: true,
-                headers: { "Content-Type": "text/plain;charset=utf-8" }
-            }).catch(e => console.error("Logout log failed", e));
+            try {
+                // Gunakan fetchAPI helper yang sudah ada, tapi kita tunggu (await)
+                // Kita gunakan POST agar data terkirim aman
+                await fetch(CONST_API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'logout', role: currentRole }),
+                    headers: { "Content-Type": "text/plain;charset=utf-8" }
+                });
+            } catch (e) {
+                console.error("Logout log failed", e);
+                // Tetap lanjut logout meski log gagal (jangan menahan user)
+            }
         }
+
         sessionStorage.removeItem('userRole');
-        location.reload();
+        
+        // Reload halaman setelah request selesai
+        window.location.reload();
     }
 
     function updateGreeting(role) {
@@ -1161,7 +1177,7 @@
             if (logs && logs.length > 0) {
                 let html = '';
                 logs.forEach(log => {
-                    const date = new Date(log.timestamp).toLocaleString('id-ID');
+                    const date = log.timestamp;;
                     let color = 'text-dark';
                     if(log.type === 'LOGIN') color = 'text-success';
                     if(log.type === 'LOGOUT') color = 'text-warning';
