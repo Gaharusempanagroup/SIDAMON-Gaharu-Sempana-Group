@@ -613,7 +613,8 @@
             return await response.json();
         } catch (error) {
             console.error("Fetch Error:", error);
-            alert("Gagal menghubungi server: " + error.message);
+            // Jangan alert jika ini logout, agar user tidak stuck
+            if(action !== 'logout') alert("Gagal menghubungi server: " + error.message);
             throw error;
         }
     }
@@ -686,13 +687,28 @@
         applyRoleAccess(currentUserRole);
         updateGreeting(currentUserRole); 
         
-        // Show Logout Button
+        // Show Audit Log Button for Super Admin
         if(role === 'SUPER_ADMIN') document.getElementById('btnAuditLog').style.display = 'inline-block';
 
         loadAllData(); 
     }
 
-    function handleLogout() {
+    // --- UPDATE FUNGSI LOGOUT ---
+    async function handleLogout() {
+        // 1. Ambil role saat ini sebelum dihapus
+        const currentRole = sessionStorage.getItem('userRole');
+        
+        // 2. Kirim sinyal ke server untuk mencatat log (jika role ada)
+        if (currentRole) {
+            try {
+                // Kita gunakan await agar log terkirim sebelum halaman reload
+                await fetchAPI('logout', 'POST', { role: currentRole });
+            } catch (e) {
+                console.log("Gagal mencatat log logout, melanjutkan logout lokal.");
+            }
+        }
+
+        // 3. Hapus sesi dan reload
         sessionStorage.removeItem('userRole');
         location.reload();
     }
@@ -778,7 +794,7 @@
     }
 
     async function loadAllData() {
-      // GANTI SPINNER DENGAN SKELETON DI TABEL
+      // SKELETON LOADING
       if(currentUserRole !== "TEKNIS") { showSkeleton('bodySkk'); showSkeleton('bodyTugas'); }
       if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "TEKNIS") { showSkeleton('bodyProject'); }
       
@@ -937,8 +953,6 @@
       const pagedKeys = allKeys.slice(startIndex, endIndex);
 
       // 4. STAT CALCULATION (Must calculate on ALL data, not just paged)
-      // Note: For performance on huge datasets, consider calculating stats separately once.
-      // Here we iterate all for stats, but only render pagedKeys for DOM.
       allKeys.forEach(key => {
           const person = groupedData[key];
           let isUsed = false;
@@ -1220,7 +1234,9 @@
                     const date = new Date(log.timestamp).toLocaleString('id-ID');
                     let color = 'text-dark';
                     if(log.type === 'LOGIN') color = 'text-success';
+                    if(log.type === 'LOGOUT') color = 'text-warning';
                     if(log.type === 'ERROR' || log.type.includes('FAIL')) color = 'text-danger';
+                    if(log.type === 'INSERT' || log.type === 'UPDATE') color = 'text-primary';
                     
                     html += `<tr>
                         <td class="small text-muted" style="white-space:nowrap;">${date}</td>
@@ -1605,7 +1621,6 @@
     }
 
     // --- SEARCH LISTENERS (Updated for Pagination) ---
-    // Note: When searching, we reset page to 1
     document.getElementById('searchSkk').addEventListener('keyup', (e) => { 
         const k = e.target.value.toLowerCase(); 
         const filtered = dataSKK.filter(r => (r[1]||"").toLowerCase().includes(k) || (r[5]||"").toLowerCase().includes(k));
