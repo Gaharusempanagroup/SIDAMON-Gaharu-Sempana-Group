@@ -1,10 +1,13 @@
-// --- Code.gs (Final - No Audit Log) ---
+// --- Code.gs (Final - With Internal Audit Log) ---
 
 // 1. MASUKKAN ID SPREADSHEET UTAMA
 const MAIN_SS_ID = "1NYw4b9mSXoa_tYxo38mWZizQahq0wBee-9cU9oUk23o"; 
 
 // 2. ID Spreadsheet Project
 const PROJECT_SS_ID = "1kPWraQ0VJNB36sdJVlkP7dDZAZKBvisAtrggGYLraqc"; 
+
+// --- KONFIGURASI LOG ---
+const MAX_LOG_ENTRIES = 200; // Simpan 200 aktifitas terakhir (agar script properties tidak penuh)
 
 /**
  * Handle GET Requests
@@ -25,6 +28,8 @@ function doGet(e) {
     result = getDataProject();
   } else if (action === 'getDropdownData') {
     result = getDropdownData();
+  } else if (action === 'getSystemLogs') {
+    result = getSystemLogs(); // Endpoint baru untuk mengambil log
   } else {
     result = { error: "Action not defined" };
   }
@@ -46,10 +51,11 @@ function doPost(e) {
       result = verifyPassword(data.password);
     } 
     else if (action === 'logout') {
+      logUserActivity(data.role, "LOGOUT", "User logged out");
       result = { status: "Success" };
     }
     else if (action === 'saveData') {
-      result = processForm(data.payload);
+      result = processForm(data.payload, data.password);
     } 
     else {
       result = { error: "Action not defined" };
@@ -66,7 +72,7 @@ function responseJSON(data) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// --- FUNGSI LOGIC ---
+// --- FUNGSI LOGIC UTAMA ---
 
 function verifyPassword(inputPassword) {
   try {
@@ -77,15 +83,84 @@ function verifyPassword(inputPassword) {
     var storedPasswords = sheet.getRange("A2:A5").getValues().flat();
     var input = inputPassword.toString().trim();
 
-    // Mapping Role Berdasarkan Baris Password
-    if (storedPasswords[0] && input === storedPasswords[0].toString()) return { valid: true, role: "SUPER_ADMIN" };
-    if (storedPasswords[1] && input === storedPasswords[1].toString()) return { valid: true, role: "ADMIN" };
-    if (storedPasswords[2] && input === storedPasswords[2].toString()) return { valid: true, role: "TEKNIS" };
-    if (storedPasswords[3] && input === storedPasswords[3].toString()) return { valid: true, role: "ADMIN_INPUT" };
+    var role = null;
+    if (storedPasswords[0] && input === storedPasswords[0].toString()) role = "SUPER_ADMIN";
+    else if (storedPasswords[1] && input === storedPasswords[1].toString()) role = "ADMIN";
+    else if (storedPasswords[2] && input === storedPasswords[2].toString()) role = "TEKNIS";
+    else if (storedPasswords[3] && input === storedPasswords[3].toString()) role = "ADMIN_INPUT";
+
+    if (role) {
+      logUserActivity(role, "LOGIN", "Login berhasil");
+      return { valid: true, role: role };
+    }
     
     return { valid: false };
   } catch (e) { return { valid: false, error: e.toString() }; }
 }
+
+// --- FITUR LOG HISTORY (INTERNAL MEMORY) ---
+
+function logUserActivity(role, action, details) {
+  var lock = LockService.getScriptLock();
+  // Tunggu maksimal 5 detik untuk menghindari tabrakan penulisan
+  try {
+    lock.waitLock(5000); 
+  } catch (e) {
+    console.log("Could not get lock");
+    return; // Skip logging jika sibuk, agar user experience tidak terganggu
+  }
+
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var currentLogsJSON = props.getProperty('SYSTEM_LOGS');
+    var logs = [];
+
+    if (currentLogsJSON) {
+      try {
+        logs = JSON.parse(currentLogsJSON);
+      } catch (e) { logs = []; }
+    }
+
+    // Format Waktu Indonesia (WIB/WITA/WIT tergantung server, kita set statis string)
+    var now = new Date();
+    var timeString = Utilities.formatDate(now, "Asia/Jakarta", "dd-MM-yyyy HH:mm:ss");
+
+    var newLog = {
+      time: timeString,
+      role: role || "UNKNOWN",
+      action: action,
+      details: details
+    };
+
+    // Tambahkan ke paling atas (Terbaru)
+    logs.unshift(newLog);
+
+    // LOGIKA AUTO DELETE (FIFO): Jika lebih dari MAX_LOG_ENTRIES, hapus yang lama
+    if (logs.length > MAX_LOG_ENTRIES) {
+      logs = logs.slice(0, MAX_LOG_ENTRIES);
+    }
+
+    props.setProperty('SYSTEM_LOGS', JSON.stringify(logs));
+
+  } catch (e) {
+    console.error("Error saving log: " + e.toString());
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function getSystemLogs() {
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var json = props.getProperty('SYSTEM_LOGS');
+    if (!json) return [];
+    return JSON.parse(json);
+  } catch (e) {
+    return [];
+  }
+}
+
+// --- FUNGSI DATA ---
 
 function getDataSKK() {
   try {
@@ -166,7 +241,7 @@ function getDropdownData() {
   return dropdowns;
 }
 
-function processForm(data) {
+function processForm(data, passwordAuth) {
   var ss = SpreadsheetApp.openById(MAIN_SS_ID);
   
   var sheetAdmin = ss.getSheetByName("Admin");
@@ -176,11 +251,12 @@ function processForm(data) {
   var superAdminPass = passwords[0];
   var adminInputPass = passwords[3];
   
-  var inputPass = data.actionPassword.toString();
+  var inputPass = passwordAuth.toString();
+  var currentRole = "";
 
-  if (inputPass !== superAdminPass.toString() && inputPass !== adminInputPass.toString()) {
-    return "Password Salah! Akses Ditolak.";
-  }
+  if (inputPass === superAdminPass.toString()) currentRole = "SUPER_ADMIN";
+  else if (inputPass === adminInputPass.toString()) currentRole = "ADMIN_INPUT";
+  else return "Password Salah! Akses Ditolak.";
 
   var lock = LockService.getScriptLock();
   try {
@@ -194,10 +270,12 @@ function processForm(data) {
     if (!sheet) return "Error: Sheet 'Dashboard SKK' tidak ditemukan.";
 
     var targetRow;
+    var actionType = "";
     
     if (data.rowNumber && data.rowNumber != "") {
       targetRow = parseInt(data.rowNumber);
       if (isNaN(targetRow) || targetRow < 7) return "Error: Baris tidak valid.";
+      actionType = "EDIT DATA";
     } else {
       var lastRow = sheet.getLastRow();
       var rangeB = sheet.getRange("B1:B" + (lastRow + 10)).getValues();
@@ -210,6 +288,7 @@ function processForm(data) {
       }
       if (targetRow === -1) targetRow = lastRow + 1;
       if (targetRow < 7) targetRow = 7;
+      actionType = "TAMBAH DATA";
     }
 
     sheet.getRange(targetRow, 2).setValue(data.nama); 
@@ -225,6 +304,9 @@ function processForm(data) {
     
     SpreadsheetApp.flush(); 
     
+    // CATAT KE LOG
+    logUserActivity(currentRole, actionType, `${data.nama} - ${data.sertifikat}`);
+
     return "Sukses";
 
   } catch (e) {
