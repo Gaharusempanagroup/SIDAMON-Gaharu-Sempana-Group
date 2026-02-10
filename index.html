@@ -57,21 +57,42 @@
     
     .logo-wrapper { background: transparent !important; padding: 0 !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; border-radius: 0 !important; margin-right: 15px; display: flex; align-items: center; justify-content: center; }
     
+    /* UPDATED GREETING (MATCHING INDEX 2) */
     @keyframes slideInSmooth { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     .greeting-wrapper { animation: slideInSmooth 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); padding: 6px 0; margin-left: 15px; border: none !important; border-left: none !important; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); cursor: default; }
     .greeting-wrapper:hover { background: transparent !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; transform: translateY(-2px); }
     .greeting-wrapper:hover #greeting-role { text-shadow: 0 0 12px rgba(255, 255, 255, 0.8); }
     
-    .nav-pills .nav-link { border-radius: 50px; padding: 10px 25px; font-weight: 600; color: #555; background: white; border: 1px solid #ddd; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    /* UPDATED MENU BUTTONS (MATCHING INDEX 2) */
+    .nav-pills .nav-link { border-radius: 50px; padding: 10px 25px; font-weight: 600; color: #555; background: white; border: 1px solid #ddd; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; touch-action: manipulation; }
     .nav-pills .nav-link.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); box-shadow: 0 4px 15px rgba(0, 0, 128, 0.3); }
     .nav-pills .nav-link:hover:not(.active) { background-color: #f8f9fa; transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); color: var(--primary-color); }
+    .btn:active, .nav-link:active { transform: scale(0.95) !important; background-color: #f0f0f0; }
     
-    .sub-nav .btn { border-radius: 20px; font-size: 0.85rem; font-weight: 600; padding: 6px 15px; border: 1px solid #ddd; background: white; color: #555; transition: all 0.2s ease; }
+    /* UPDATED SUB MENU (MATCHING INDEX 2) */
+    .sub-nav .btn { border-radius: 20px; font-size: 0.85rem; font-weight: 600; padding: 6px 15px; border: 1px solid #ddd; background: white; color: #555; transition: all 0.2s ease; touch-action: manipulation; }
     .sub-nav .btn.active { background-color: #000080; color: white; border-color: #000080; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
     
+    /* UPDATED STATS CARDS (MATCHING INDEX 2 - WITH ICON ANIMATION) */
     .stats-wrapper { max-width: 1100px; margin: 0 auto; }
-    .stat-card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.07); transition: transform 0.3s ease, box-shadow 0.3s ease; color: white; overflow: hidden; height: 100%; position: relative; z-index: 1; }
-    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important; }
+    .stat-card { 
+        border: none; 
+        border-radius: 12px; 
+        box-shadow: 0 4px 6px rgba(0,0,0,0.07); 
+        transition: transform 0.3s ease, box-shadow 0.3s ease; 
+        color: white; 
+        overflow: hidden; 
+        height: 100%; 
+        position: relative; 
+        z-index: 1; 
+    }
+    .stat-card:hover { 
+        transform: translateY(-5px); 
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important; 
+    }
+    .stat-card i { transition: all 0.5s ease; }
+    .stat-card:hover i { transform: scale(1.2) rotate(10deg); opacity: 0.7 !important; }
+
     .stat-value { font-size: 2.5rem; font-weight: 700; line-height: 1; }
     .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
     
