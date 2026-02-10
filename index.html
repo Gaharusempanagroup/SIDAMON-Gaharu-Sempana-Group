@@ -195,29 +195,34 @@
       .stat-value { font-size: 2rem; }
 
       /* --- FIX TIMELINE MOBILE (GANTT) --- */
-      /* FIX: Matikan sticky dan set Lebar TETAP agar header dan data sejajar */
+      /* FIX: Matikan sticky agar tidak menutupi layar dan teks tidak terpotong */
       .g-sticky-col, .g-col-personil, .g-col-pekerjaan {
-        position: static !important; 
-        width: 140px !important;      /* FORCE FIXED WIDTH */
-        min-width: 140px !important;  
-        max-width: 140px !important;            
+        position: static !important;  /* MATIKAN STICKY */
+        width: auto !important;
+        min-width: 200px !important;  /* Lebar minimal nyaman baca */
+        max-width: none !important;   /* Hilangkan batasan lebar */
+        white-space: nowrap !important; /* Jangan wrap agar row height konsisten */
+        overflow: visible !important;
         box-shadow: none !important;
         border-right: 1px solid #eee !important;
         flex-shrink: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
       }
-      .g-col-pekerjaan { left: auto !important; } 
       
+      .g-col-pekerjaan { margin-left: 0 !important; left: auto !important; } 
+      
+      /* Container row agar bisa scroll horizontal full */
       .g-row-container {
         width: max-content; 
         min-width: 100%;
+        display: flex;
+        justify-content: flex-start;
       }
       
+      /* Wrapper utama scrollable */
       .custom-gantt-wrapper {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        width: 100%;
       }
     }
   </style>
