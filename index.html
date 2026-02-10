@@ -1525,12 +1525,32 @@
       tooltip.style.display = 'block';
       moveTooltip(e);
     }
+    
     window.moveTooltip = function(e) {
-      const x = e.clientX; const y = e.clientY;
-      const tWidth = tooltip.offsetWidth; const winWidth = window.innerWidth;
-      let leftPos = x + 15; if (leftPos + tWidth > winWidth - 20) { leftPos = x - tWidth - 10; }
-      tooltip.style.top = (y + 15) + 'px'; tooltip.style.left = leftPos + 'px';
+      const winWidth = window.innerWidth;
+      const winHeight = window.innerHeight;
+      const tWidth = tooltip.offsetWidth;
+      const tHeight = tooltip.offsetHeight;
+      
+      let x = e.clientX;
+      let y = e.clientY;
+
+      let leftPos = x + 15;
+      if (leftPos + tWidth > winWidth) {
+          leftPos = x - tWidth - 15;
+      }
+      if (leftPos < 0) { leftPos = 10; }
+
+      let topPos = y + 15;
+      if (topPos + tHeight > winHeight) {
+          topPos = y - tHeight - 15;
+      }
+      if (topPos < 0) { topPos = 10; }
+
+      tooltip.style.left = leftPos + 'px';
+      tooltip.style.top = topPos + 'px';
     }
+    
     window.hideTooltip = function() { tooltip.style.display = 'none'; }
 
 
