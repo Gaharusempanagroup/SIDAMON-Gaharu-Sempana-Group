@@ -1,4 +1,4 @@
-// --- Code.gs (Final - With Internal Audit Log) ---
+// --- Code.gs (Final - Manual Delete + Auto Limit) ---
 
 // 1. MASUKKAN ID SPREADSHEET UTAMA
 const MAIN_SS_ID = "1NYw4b9mSXoa_tYxo38mWZizQahq0wBee-9cU9oUk23o"; 
@@ -7,7 +7,7 @@ const MAIN_SS_ID = "1NYw4b9mSXoa_tYxo38mWZizQahq0wBee-9cU9oUk23o";
 const PROJECT_SS_ID = "1kPWraQ0VJNB36sdJVlkP7dDZAZKBvisAtrggGYLraqc"; 
 
 // --- KONFIGURASI LOG ---
-const MAX_LOG_ENTRIES = 200; // Simpan 200 aktifitas terakhir (agar script properties tidak penuh)
+const MAX_LOG_ENTRIES = 200; // Batas simpan log otomatis (FIFO)
 
 /**
  * Handle GET Requests
@@ -29,7 +29,7 @@ function doGet(e) {
   } else if (action === 'getDropdownData') {
     result = getDropdownData();
   } else if (action === 'getSystemLogs') {
-    result = getSystemLogs(); // Endpoint baru untuk mengambil log
+    result = getSystemLogs();
   } else {
     result = { error: "Action not defined" };
   }
@@ -57,6 +57,10 @@ function doPost(e) {
     else if (action === 'saveData') {
       result = processForm(data.payload, data.password);
     } 
+    else if (action === 'clearLogs') {
+      // Fitur Hapus Manual
+      result = clearLogData(data.startDate, data.endDate, data.password);
+    }
     else {
       result = { error: "Action not defined" };
     }
@@ -72,7 +76,7 @@ function responseJSON(data) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// --- FUNGSI LOGIC UTAMA ---
+// --- FUNGSI AUTH & LOGIC ---
 
 function verifyPassword(inputPassword) {
   try {
@@ -98,16 +102,15 @@ function verifyPassword(inputPassword) {
   } catch (e) { return { valid: false, error: e.toString() }; }
 }
 
-// --- FITUR LOG HISTORY (INTERNAL MEMORY) ---
+// --- LOG SYSTEM (INTERNAL MEMORY) ---
 
 function logUserActivity(role, action, details) {
   var lock = LockService.getScriptLock();
-  // Tunggu maksimal 5 detik untuk menghindari tabrakan penulisan
   try {
     lock.waitLock(5000); 
   } catch (e) {
-    console.log("Could not get lock");
-    return; // Skip logging jika sibuk, agar user experience tidak terganggu
+    console.log("Could not get lock for logging");
+    return;
   }
 
   try {
@@ -116,12 +119,9 @@ function logUserActivity(role, action, details) {
     var logs = [];
 
     if (currentLogsJSON) {
-      try {
-        logs = JSON.parse(currentLogsJSON);
-      } catch (e) { logs = []; }
+      try { logs = JSON.parse(currentLogsJSON); } catch (e) { logs = []; }
     }
 
-    // Format Waktu Indonesia (WIB/WITA/WIT tergantung server, kita set statis string)
     var now = new Date();
     var timeString = Utilities.formatDate(now, "Asia/Jakarta", "dd-MM-yyyy HH:mm:ss");
 
@@ -132,10 +132,9 @@ function logUserActivity(role, action, details) {
       details: details
     };
 
-    // Tambahkan ke paling atas (Terbaru)
-    logs.unshift(newLog);
+    logs.unshift(newLog); // Tambah di awal (terbaru)
 
-    // LOGIKA AUTO DELETE (FIFO): Jika lebih dari MAX_LOG_ENTRIES, hapus yang lama
+    // LOGIKA OTOMATIS: Hapus jika melebihi batas (FIFO)
     if (logs.length > MAX_LOG_ENTRIES) {
       logs = logs.slice(0, MAX_LOG_ENTRIES);
     }
@@ -160,7 +159,67 @@ function getSystemLogs() {
   }
 }
 
-// --- FUNGSI DATA ---
+// --- FUNGSI HAPUS LOG MANUAL ---
+function clearLogData(startDateStr, endDateStr, passwordInput) {
+  var lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(5000);
+    
+    // 1. Verifikasi Password (Hanya Super Admin)
+    var ss = SpreadsheetApp.openById(MAIN_SS_ID);
+    var sheetAdmin = ss.getSheetByName("Admin");
+    if (!sheetAdmin) return { error: "Sheet Admin tidak ditemukan" };
+    
+    var passwords = sheetAdmin.getRange("A2:A5").getValues().flat();
+    var superAdminPass = passwords[0];
+    
+    if (passwordInput.toString() !== superAdminPass.toString()) {
+      return { error: "Password Salah! Akses Ditolak." };
+    }
+
+    // 2. Ambil Log
+    var props = PropertiesService.getScriptProperties();
+    var currentLogsJSON = props.getProperty('SYSTEM_LOGS');
+    if (!currentLogsJSON) return { status: "Sukses", count: 0 };
+    
+    var logs = JSON.parse(currentLogsJSON);
+    var initialCount = logs.length;
+    
+    // 3. Filter Tanggal
+    // Input format yyyy-mm-dd
+    var start = new Date(startDateStr); start.setHours(0,0,0,0);
+    var end = new Date(endDateStr); end.setHours(23,59,59,999);
+    
+    var newLogs = logs.filter(function(log) {
+      // Log format "dd-MM-yyyy HH:mm:ss"
+      var parts = log.time.split(' '); 
+      var dParts = parts[0].split('-'); 
+      var tParts = parts[1].split(':'); 
+      var logDate = new Date(dParts[2], dParts[1] - 1, dParts[0], tParts[0], tParts[1], tParts[2]);
+      
+      // Hapus jika logDate berada di dalam rentang start & end
+      // Return TRUE jika logDate < start ATAU logDate > end (Berarti di luar range, simpan)
+      return (logDate < start || logDate > end);
+    });
+
+    // 4. Simpan
+    props.setProperty('SYSTEM_LOGS', JSON.stringify(newLogs));
+    var deletedCount = initialCount - newLogs.length;
+    
+    // Log aksi penghapusan ini (Agar ada jejak siapa yang menghapus)
+    // Ini juga akan memicu FIFO otomatis jika log penuh lagi
+    logUserActivity("SUPER_ADMIN", "HAPUS LOG", "Menghapus " + deletedCount + " data (" + startDateStr + " s/d " + endDateStr + ")");
+
+    return { status: "Sukses", count: deletedCount };
+
+  } catch (e) {
+    return { error: "Gagal: " + e.toString() };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// --- DATA FETCHING ---
 
 function getDataSKK() {
   try {
