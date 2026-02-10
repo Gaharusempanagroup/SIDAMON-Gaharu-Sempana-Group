@@ -1,12 +1,22 @@
-// --- Code.gs (Versi PRO - Session, Audit Log, Export) ---
+// --- Code.gs (Versi API - FIXED) ---
 
-const MAIN_SS_ID = "1NYw4b9mSXoa_tYxo38mWZizQahq0wBee-9cU9oUk23o";
-const PROJECT_SS_ID = "1kPWraQ0VJNB36sdJVlkP7dDZAZKBvisAtrggGYLraqc";
+// 1. MASUKKAN ID SPREADSHEET UTAMA (Tempat data SKK & Penugasan)
+const MAIN_SS_ID = "1NYw4b9mSXoa_tYxo38mWZizQahq0wBee-9cU9oUk23o"; 
 
+// 2. ID Spreadsheet Project (Sudah ada sebelumnya)
+const PROJECT_SS_ID = "1kPWraQ0VJNB36sdJVlkP7dDZAZKBvisAtrggGYLraqc"; 
+
+
+/**
+ * Handle GET Requests (API Endpoint)
+ */
 function doGet(e) {
+  // --- PENGAMAN ---
+  // Jika e undefined (dijalankan dari editor), buat dummy object agar tidak error
   if (!e || !e.parameter) {
-    return ContentService.createTextOutput("Error: Gunakan Deploy > Test Deploy.");
+    return ContentService.createTextOutput("Error: Jangan jalankan doGet() langsung dari editor. Gunakan Deploy > Test Deploy, atau fungsi debugDoGet().");
   }
+  // ----------------
 
   var action = e.parameter.action;
   var result = {};
@@ -19,8 +29,6 @@ function doGet(e) {
     result = getDataProject();
   } else if (action === 'getDropdownData') {
     result = getDropdownData();
-  } else if (action === 'getAuditLogs') {
-    result = getAuditLogs(e.parameter.role);
   } else {
     result = { error: "Action not defined" };
   }
@@ -28,20 +36,24 @@ function doGet(e) {
   return responseJSON(result);
 }
 
+/**
+ * Handle POST Requests (Login & Save)
+ */
 function doPost(e) {
   try {
+    // UBAH CARA AMBIL DATA
+    // Google Apps Script kadang menerima data sebagai postData.contents (string)
+    // bukan object JSON langsung jika dikirim dari fetch API eksternal
     var jsonString = e.postData.contents;
     var data = JSON.parse(jsonString);
+    
     var action = data.action;
     var result = {};
 
     if (action === 'login') {
       result = verifyPassword(data.password);
-      if (result.valid) {
-        logAudit(result.role, "Login", "User masuk ke sistem");
-      }
     } else if (action === 'saveData') {
-      result = processForm(data.payload, data.userRole);
+      result = processForm(data.payload);
     } else {
       result = { error: "Action not defined" };
     }
@@ -57,8 +69,11 @@ function responseJSON(data) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+// --- FUNGSI LOGIC (Sekarang menggunakan openById) ---
+
 function verifyPassword(inputPassword) {
   try {
+    // UBAH getActiveSpreadsheet() JADI openById(MAIN_SS_ID)
     var ss = SpreadsheetApp.openById(MAIN_SS_ID);
     var sheet = ss.getSheetByName("Admin");
     if (!sheet) return { valid: false, message: "Sheet Admin hilang" }; 
@@ -77,24 +92,34 @@ function verifyPassword(inputPassword) {
 
 function getDataSKK() {
   try {
+    // UBAH getActiveSpreadsheet() JADI openById(MAIN_SS_ID)
     var ss = SpreadsheetApp.openById(MAIN_SS_ID);
+    
     var sheet = ss.getSheetByName("Dashboard SKK");
     var dbSheet = ss.getSheetByName("Database"); 
+    
     if (!sheet || !dbSheet) return [];
     
     var data = sheet.getDataRange().getDisplayValues();
     var dbData = dbSheet.getDataRange().getValues();
     var contactMap = {};
+    
     for (var j = 1; j < dbData.length; j++) {
-      if (dbData[j][1]) contactMap[dbData[j][1]] = dbData[j][2];
+      var dbName = dbData[j][1];
+      var dbContact = dbData[j][2];
+      if (dbName) contactMap[dbName] = dbContact;
     }
 
     if (data.length <= 6) return [];
+
     var result = [];
     for (var i = 6; i < data.length; i++) {
       if (data[i][1] !== "" && data[i][1] !== null) {
-        var rowData = data[i];
-        if (contactMap[rowData[1]]) rowData[2] = contactMap[rowData[1]];
+        var rowData = data[i]; 
+        var namaPersonil = rowData[1];
+        if (contactMap[namaPersonil]) {
+           rowData[2] = contactMap[namaPersonil];
+        }
         rowData.push(i + 1); 
         result.push(rowData);
       }
@@ -105,7 +130,9 @@ function getDataSKK() {
 
 function getDataPenugasan() {
   try {
+    // UBAH getActiveSpreadsheet() JADI openById(MAIN_SS_ID)
     var ss = SpreadsheetApp.openById(MAIN_SS_ID);
+    
     var sheet = ss.getSheetByName("Dashboard Waktu Penugasan");
     if (!sheet) return [];
     var data = sheet.getDataRange().getDisplayValues();
@@ -116,6 +143,7 @@ function getDataPenugasan() {
 
 function getDataProject() {
   try {
+    // Project menggunakan ID terpisah (sudah benar)
     var ss = SpreadsheetApp.openById(PROJECT_SS_ID);
     var sheet = ss.getSheetByName("Project");
     if (!sheet) return [];
@@ -126,31 +154,39 @@ function getDataProject() {
 }
 
 function getDropdownData() {
+  // UBAH getActiveSpreadsheet() JADI openById(MAIN_SS_ID)
   var ss = SpreadsheetApp.openById(MAIN_SS_ID);
+  
   var dbSheet = ss.getSheetByName("Database");
-  if (!dbSheet) return { error: "Sheet Database hilang" };
+  if (!dbSheet) return { error: "Sheet 'Database' tidak ditemukan!" };
 
   var data = dbSheet.getDataRange().getValues();
   var dropdowns = { nama: [], perusahaan: [], sertifikat: [], jenjang: [] };
+
   for (var i = 1; i < data.length; i++) {
     if (data[i][1]) dropdowns.nama.push(data[i][1]); 
     if (data[i][11]) dropdowns.perusahaan.push(data[i][11]);
     if (data[i][5]) dropdowns.sertifikat.push(data[i][5]); 
     if (data[i][7]) dropdowns.jenjang.push(data[i][7]); 
   }
+  
   for (var key in dropdowns) {
     dropdowns[key] = [...new Set(dropdowns[key])].sort();
   }
   return dropdowns;
 }
 
-function processForm(data, userRole) {
+function processForm(data) {
+  // UBAH getActiveSpreadsheet() JADI openById(MAIN_SS_ID)
   var ss = SpreadsheetApp.openById(MAIN_SS_ID);
+  
   var sheetAdmin = ss.getSheetByName("Admin");
+  if (!sheetAdmin) return "Error Sistem: Sheet Admin tidak ditemukan.";
   
   var passwords = sheetAdmin.getRange("A2:A5").getValues().flat();
   var superAdminPass = passwords[0];
   var adminInputPass = passwords[3];
+  
   var inputPass = data.actionPassword.toString();
 
   if (inputPass !== superAdminPass.toString() && inputPass !== adminInputPass.toString()) {
@@ -159,20 +195,20 @@ function processForm(data, userRole) {
 
   var lock = LockService.getScriptLock();
   try {
-    lock.waitLock(10000);
-  } catch (e) { return "Server sibuk, coba lagi."; }
+    lock.waitLock(10000); 
+  } catch (e) {
+    return "Server sibuk, coba lagi.";
+  }
 
   try {
-    var sheet = ss.getSheetByName("Dashboard SKK");
-    var targetRow;
-    var actionType = "";
+    var sheet = ss.getSheetByName("Dashboard SKK"); 
+    if (!sheet) return "Error: Sheet 'Dashboard SKK' tidak ditemukan.";
 
+    var targetRow;
     if (data.rowNumber && data.rowNumber != "") {
       targetRow = parseInt(data.rowNumber);
-      actionType = "Edit Data Personil";
       if (isNaN(targetRow) || targetRow < 7) return "Error: Baris tidak valid.";
     } else {
-      actionType = "Tambah Data Personil";
       var lastRow = sheet.getLastRow();
       var rangeB = sheet.getRange("B1:B" + (lastRow + 10)).getValues();
       targetRow = -1;
@@ -186,64 +222,23 @@ function processForm(data, userRole) {
       if (targetRow < 7) targetRow = 7;
     }
 
-    sheet.getRange(targetRow, 2).setValue(data.nama);
-    var rowData = [[ data.perusahaan, data.sertifikat, data.jenjang, data.asosiasi, data.masaBerlaku ]];
+    sheet.getRange(targetRow, 2).setValue(data.nama); 
+    var rowData = [[
+      data.perusahaan, 
+      data.sertifikat, 
+      data.jenjang, 
+      data.asosiasi, 
+      data.masaBerlaku 
+    ]];
     sheet.getRange(targetRow, 5, 1, 5).setValues(rowData);
     sheet.getRange(targetRow, 12).setValue(data.keterangan);
     
-    SpreadsheetApp.flush();
-    
-    logAudit(userRole || "UNKNOWN", actionType, "Nama: " + data.nama + ", Sertifikat: " + data.sertifikat);
-    
+    SpreadsheetApp.flush(); 
     return "Sukses";
 
   } catch (e) {
     return "Gagal Sistem: " + e.toString();
   } finally {
     lock.releaseLock();
-  }
-}
-
-function logAudit(user, action, details) {
-  try {
-    var props = PropertiesService.getScriptProperties();
-    var logsJSON = props.getProperty('AUDIT_LOGS');
-    var logs = logsJSON ? JSON.parse(logsJSON) : [];
-    
-    var now = new Date();
-    
-    logs.push({
-      date: now.toISOString(),
-      user: user,
-      action: action,
-      details: details
-    });
-    
-    var oneYearAgo = new Date(now.getTime() - (365 * 24 * 60 * 60 * 1000));
-    logs = logs.filter(function(log) {
-      return new Date(log.date) > oneYearAgo;
-    });
-
-    if (logs.length > 500) {
-      logs = logs.slice(logs.length - 500);
-    }
-    
-    props.setProperty('AUDIT_LOGS', JSON.stringify(logs));
-  } catch (e) {
-    console.error("Gagal menulis audit log: " + e.toString());
-  }
-}
-
-function getAuditLogs(requestingRole) {
-  if (requestingRole !== 'SUPER_ADMIN') {
-    return { error: "Akses Ditolak. Hanya Super Admin." };
-  }
-  
-  try {
-    var props = PropertiesService.getScriptProperties();
-    var logsJSON = props.getProperty('AUDIT_LOGS');
-    return logsJSON ? JSON.parse(logsJSON) : [];
-  } catch (e) {
-    return [];
   }
 }
