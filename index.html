@@ -150,6 +150,7 @@
     .g-header-row .month-marker { border-left: 1px solid #d1d3e2; color: #555; }
     
     /* FIX: SweetAlert Input Focus */
+    /* Menjamin SweetAlert selalu di atas Bootstrap Modal */
     .swal2-container { z-index: 20000 !important; }
 
     .custom-tooltip { position: fixed; display: none; background: rgba(255, 255, 255, 0.98); border: 1px solid #eee; border-left: 5px solid var(--primary-color); padding: 12px 16px; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 9999; pointer-events: none; min-width: 200px; max-width: 300px; font-size: 0.85rem; animation: fadeIn 0.2s ease-in-out; }
@@ -865,7 +866,8 @@
     }
 
     // --- LOG HISTORY FUNCTIONS ---
-    const modalLogHistory = new bootstrap.Modal(document.getElementById('modalLogHistory'));
+    // PENTING: TAMBAHKAN { focus: false } AGAR SWEETALERT BISA DIKETIK
+    const modalLogHistory = new bootstrap.Modal(document.getElementById('modalLogHistory'), { focus: false });
     
     function showLogHistory() {
         // Close offcanvas if open (mobile)
@@ -918,9 +920,6 @@
 
     // --- FUNGSI HAPUS LOG (2 Langkah: Tanggal -> Password) ---
     function handleClearLogs() {
-        // FIX: Hapus tabindex agar fokus bisa pindah ke Swal
-        document.getElementById('modalLogHistory').removeAttribute('tabindex');
-        
         // Langkah 1: Pilih Tanggal
         Swal.fire({
             title: 'Hapus History Log',
@@ -1610,12 +1609,32 @@
       tooltip.style.display = 'block';
       moveTooltip(e);
     }
+    
     window.moveTooltip = function(e) {
-      const x = e.clientX; const y = e.clientY;
-      const tWidth = tooltip.offsetWidth; const winWidth = window.innerWidth;
-      let leftPos = x + 15; if (leftPos + tWidth > winWidth - 20) { leftPos = x - tWidth - 10; }
-      tooltip.style.top = (y + 15) + 'px'; tooltip.style.left = leftPos + 'px';
+      const winWidth = window.innerWidth;
+      const winHeight = window.innerHeight;
+      const tWidth = tooltip.offsetWidth;
+      const tHeight = tooltip.offsetHeight;
+      
+      let x = e.clientX;
+      let y = e.clientY;
+
+      let leftPos = x + 15;
+      if (leftPos + tWidth > winWidth) {
+          leftPos = x - tWidth - 15;
+      }
+      if (leftPos < 0) { leftPos = 10; }
+
+      let topPos = y + 15;
+      if (topPos + tHeight > winHeight) {
+          topPos = y - tHeight - 15;
+      }
+      if (topPos < 0) { topPos = 10; }
+
+      tooltip.style.left = leftPos + 'px';
+      tooltip.style.top = topPos + 'px';
     }
+    
     window.hideTooltip = function() { tooltip.style.display = 'none'; }
 
 
