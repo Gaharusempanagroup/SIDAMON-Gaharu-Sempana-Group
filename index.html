@@ -184,14 +184,15 @@
       .navbar .container-fluid { padding-left: 15px; padding-right: 15px; }
       .logo-wrapper img { height: 35px !important; }
       .navbar-brand span { font-size: 0.9rem !important; }
-      .navbar-brand span.text-uppercase { display: none; } /* Hide subtitle on mobile */
       
-      .greeting-wrapper { display: none !important; } /* Hide greeting in navbar on mobile */
+      .greeting-wrapper { display: none !important; } 
       
-      .nav-pills { overflow-x: auto; flex-wrap: nowrap; justify-content: flex-start; padding-bottom: 5px; }
-      .nav-pills .nav-item { flex: 0 0 auto; }
-      .nav-pills::-webkit-scrollbar { height: 0px; background: transparent; } /* Hide scrollbar */
-      
+      /* Vertical Menu on Mobile */
+      .nav-pills { flex-direction: column; overflow-x: visible; }
+      .nav-pills .nav-item { width: 100%; margin-bottom: 8px; }
+      .nav-pills .nav-link { width: 100%; text-align: left; padding: 12px 20px; border-radius: 12px; }
+      .nav-pills .nav-link i { margin-right: 10px; width: 20px; text-align: center; }
+
       .stat-card { margin-bottom: 10px; }
       .stat-value { font-size: 2rem; }
     }
@@ -243,10 +244,17 @@
           <div class="logo-wrapper">
               <img src="IMG_0992.PNG" alt="Logo" style="height: 45px; width: auto;">
           </div>
-          <div class="d-flex flex-column justify-content-center">
+          
+          <div class="d-none d-md-flex flex-column justify-content-center">
             <span class="text-white fw-bold navbar-brand m-0 p-0" style="letter-spacing: 0.5px;">SIDAMON</span>
             <span class="text-white text-uppercase" style="font-size: 0.65rem; letter-spacing: 1px; opacity: 0.85; margin-top: -2px;">Gaharu Sempana Group</span>
           </div>
+
+          <div class="d-flex d-md-none flex-column justify-content-center">
+            <span class="text-white fw-bold navbar-brand m-0 p-0" style="letter-spacing: 0.5px;">SIDAMON Mobile</span>
+            <span class="text-white text-uppercase" style="font-size: 0.65rem; letter-spacing: 1px; opacity: 0.85; margin-top: -2px;">Sistem Database & Monitoring</span>
+          </div>
+
         </div>
 
         <button class="navbar-toggler d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
@@ -268,7 +276,7 @@
           <div class="offcanvas-header bg-primary text-white">
             <div class="d-flex align-items-center">
                <img src="IMG_0992.PNG" alt="Logo" style="height: 35px; margin-right: 10px; background: rgba(255,255,255,0.2); padding: 4px; border-radius: 6px;">
-               <h5 class="offcanvas-title fw-bold" id="offcanvasNavbarLabel">Menu Utama</h5>
+               <h5 class="offcanvas-title fw-bold" id="offcanvasNavbarLabel">Log Sistem</h5>
             </div>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
           </div>
