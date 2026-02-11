@@ -306,6 +306,8 @@ function getDropdownData() {
   return dropdowns;
 }
 
+// --- Code.gs ---
+
 function processForm(data, passwordAuthHash) {
   var ss = SpreadsheetApp.openById(MAIN_SS_ID);
   
@@ -319,7 +321,6 @@ function processForm(data, passwordAuthHash) {
   var inputHash = passwordAuthHash.toString();
   var currentRole = "";
 
-  // Bandingkan Hash Client dengan Hash Server
   if (inputHash === hashString(superAdminPass)) currentRole = "SUPER_ADMIN";
   else if (inputHash === hashString(adminInputPass)) currentRole = "ADMIN_INPUT";
   else return "Password Salah! Akses Ditolak.";
@@ -338,17 +339,19 @@ function processForm(data, passwordAuthHash) {
     var targetRow;
     var actionType = "";
     
+    // 1. Tentukan Baris Target (Edit atau Tambah)
     if (data.rowNumber && data.rowNumber != "") {
       targetRow = parseInt(data.rowNumber);
       if (isNaN(targetRow) || targetRow < 7) return "Error: Baris tidak valid.";
       actionType = "EDIT DATA";
     } else {
       var lastRow = sheet.getLastRow();
-      var rangeB = sheet.getRange("B1:B" + (lastRow + 10)).getValues();
+      // Cari baris kosong pertama di kolom B mulai baris 7
+      var rangeB = sheet.getRange("B7:B" + (lastRow + 5)).getValues();
       targetRow = -1;
-      for (var i = 6; i < rangeB.length; i++) {
+      for (var i = 0; i < rangeB.length; i++) {
         if (rangeB[i][0] === "" || rangeB[i][0] === null) {
-          targetRow = i + 1;
+          targetRow = i + 7; // Karena index 0 adalah baris 7
           break;
         }
       }
@@ -357,6 +360,7 @@ function processForm(data, passwordAuthHash) {
       actionType = "TAMBAH DATA";
     }
 
+    // 2. Simpan Data Inputan Saat Ini
     sheet.getRange(targetRow, 2).setValue(data.nama); 
     var rowData = [[
       data.perusahaan, 
@@ -368,9 +372,42 @@ function processForm(data, passwordAuthHash) {
     sheet.getRange(targetRow, 5, 1, 5).setValues(rowData);
     sheet.getRange(targetRow, 12).setValue(data.keterangan);
     
+    // -----------------------------------------------------------
+    // 3. LOGIKA UPDATE OTOMATIS PERUSAHAAN (Batch Update)
+    // Jika nama personil ini ada di baris lain, update perusahaannya juga
+    // agar data konsisten.
+    // -----------------------------------------------------------
+    var lastRowData = sheet.getLastRow();
+    if (lastRowData >= 7) {
+      // Ambil Kolom Nama (B) dan Perusahaan (E)
+      var rangeNames = sheet.getRange(7, 2, lastRowData - 6, 1).getValues(); 
+      var rangeComps = sheet.getRange(7, 5, lastRowData - 6, 1); 
+      var currentComps = rangeComps.getValues();
+      
+      var inputNameClean = data.nama.toString().toLowerCase().trim();
+      var inputCompClean = data.perusahaan.toString().trim();
+      var isUpdated = false;
+
+      for (var i = 0; i < rangeNames.length; i++) {
+        var rowName = rangeNames[i][0] ? rangeNames[i][0].toString().toLowerCase().trim() : "";
+        
+        // Jika Nama sama TAPI Perusahaannya beda, update perusahaannya
+        if (rowName === inputNameClean) {
+           if (currentComps[i][0] !== inputCompClean) {
+             currentComps[i][0] = inputCompClean;
+             isUpdated = true;
+           }
+        }
+      }
+      
+      // Tulis ulang kolom Perusahaan sekaligus (jika ada perubahan)
+      if (isUpdated) {
+        rangeComps.setValues(currentComps);
+      }
+    }
+    // -----------------------------------------------------------
+
     SpreadsheetApp.flush(); 
-    
-    // CATAT KE LOG
     logUserActivity(currentRole, actionType, `${data.nama} - ${data.sertifikat}`);
 
     return "Sukses";
