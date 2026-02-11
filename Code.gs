@@ -1,4 +1,4 @@
-// --- Code.gs (Final - Manual Delete + Auto Limit) ---
+// --- Code.gs (Final - Secured & Mobile Optimized) ---
 
 // 1. MASUKKAN ID SPREADSHEET UTAMA
 const MAIN_SS_ID = "1NYw4b9mSXoa_tYxo38mWZizQahq0wBee-9cU9oUk23o"; 
@@ -48,6 +48,7 @@ function doPost(e) {
     var result = {};
 
     if (action === 'login') {
+      // Password yang diterima di sini sudah dalam bentuk HASH dari Client
       result = verifyPassword(data.password);
     } 
     else if (action === 'logout') {
@@ -58,7 +59,6 @@ function doPost(e) {
       result = processForm(data.payload, data.password);
     } 
     else if (action === 'clearLogs') {
-      // Fitur Hapus Manual
       result = clearLogData(data.startDate, data.endDate, data.password);
     }
     else {
@@ -76,22 +76,38 @@ function responseJSON(data) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+// --- HELPER: SERVER SIDE HASHING ---
+// Mengubah string password di Excel menjadi Hash agar bisa dibandingkan dengan Hash dari Client
+function hashString(str) {
+  if (!str) return "";
+  var rawHash = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, str.toString());
+  var txtHash = '';
+  for (var i = 0; i < rawHash.length; i++) {
+    var hashVal = rawHash[i];
+    if (hashVal < 0) hashVal += 256;
+    if (hashVal.toString(16).length == 1) txtHash += '0';
+    txtHash += hashVal.toString(16);
+  }
+  return txtHash;
+}
+
 // --- FUNGSI AUTH & LOGIC ---
 
-function verifyPassword(inputPassword) {
+function verifyPassword(inputHash) {
   try {
     var ss = SpreadsheetApp.openById(MAIN_SS_ID);
     var sheet = ss.getSheetByName("Admin");
     if (!sheet) return { valid: false, message: "Sheet Admin hilang" }; 
     
     var storedPasswords = sheet.getRange("A2:A5").getValues().flat();
-    var input = inputPassword.toString().trim();
+    var input = inputHash.toString().trim(); // Input adalah HASH
 
     var role = null;
-    if (storedPasswords[0] && input === storedPasswords[0].toString()) role = "SUPER_ADMIN";
-    else if (storedPasswords[1] && input === storedPasswords[1].toString()) role = "ADMIN";
-    else if (storedPasswords[2] && input === storedPasswords[2].toString()) role = "TEKNIS";
-    else if (storedPasswords[3] && input === storedPasswords[3].toString()) role = "ADMIN_INPUT";
+    // Bandingkan: Hash Client === Hash(Password di Excel)
+    if (storedPasswords[0] && input === hashString(storedPasswords[0])) role = "SUPER_ADMIN";
+    else if (storedPasswords[1] && input === hashString(storedPasswords[1])) role = "ADMIN";
+    else if (storedPasswords[2] && input === hashString(storedPasswords[2])) role = "TEKNIS";
+    else if (storedPasswords[3] && input === hashString(storedPasswords[3])) role = "ADMIN_INPUT";
 
     if (role) {
       logUserActivity(role, "LOGIN", "Login berhasil");
@@ -134,7 +150,6 @@ function logUserActivity(role, action, details) {
 
     logs.unshift(newLog); // Tambah di awal (terbaru)
 
-    // LOGIKA OTOMATIS: Hapus jika melebihi batas (FIFO)
     if (logs.length > MAX_LOG_ENTRIES) {
       logs = logs.slice(0, MAX_LOG_ENTRIES);
     }
@@ -160,12 +175,11 @@ function getSystemLogs() {
 }
 
 // --- FUNGSI HAPUS LOG MANUAL ---
-function clearLogData(startDateStr, endDateStr, passwordInput) {
+function clearLogData(startDateStr, endDateStr, passwordHashInput) {
   var lock = LockService.getScriptLock();
   try {
     lock.waitLock(5000);
     
-    // 1. Verifikasi Password (Hanya Super Admin)
     var ss = SpreadsheetApp.openById(MAIN_SS_ID);
     var sheetAdmin = ss.getSheetByName("Admin");
     if (!sheetAdmin) return { error: "Sheet Admin tidak ditemukan" };
@@ -173,11 +187,11 @@ function clearLogData(startDateStr, endDateStr, passwordInput) {
     var passwords = sheetAdmin.getRange("A2:A5").getValues().flat();
     var superAdminPass = passwords[0];
     
-    if (passwordInput.toString() !== superAdminPass.toString()) {
+    // Verifikasi Hash
+    if (passwordHashInput.toString() !== hashString(superAdminPass)) {
       return { error: "Password Salah! Akses Ditolak." };
     }
 
-    // 2. Ambil Log
     var props = PropertiesService.getScriptProperties();
     var currentLogsJSON = props.getProperty('SYSTEM_LOGS');
     if (!currentLogsJSON) return { status: "Sukses", count: 0 };
@@ -185,29 +199,21 @@ function clearLogData(startDateStr, endDateStr, passwordInput) {
     var logs = JSON.parse(currentLogsJSON);
     var initialCount = logs.length;
     
-    // 3. Filter Tanggal
-    // Input format yyyy-mm-dd
     var start = new Date(startDateStr); start.setHours(0,0,0,0);
     var end = new Date(endDateStr); end.setHours(23,59,59,999);
     
     var newLogs = logs.filter(function(log) {
-      // Log format "dd-MM-yyyy HH:mm:ss"
       var parts = log.time.split(' '); 
       var dParts = parts[0].split('-'); 
       var tParts = parts[1].split(':'); 
       var logDate = new Date(dParts[2], dParts[1] - 1, dParts[0], tParts[0], tParts[1], tParts[2]);
       
-      // Hapus jika logDate berada di dalam rentang start & end
-      // Return TRUE jika logDate < start ATAU logDate > end (Berarti di luar range, simpan)
       return (logDate < start || logDate > end);
     });
 
-    // 4. Simpan
     props.setProperty('SYSTEM_LOGS', JSON.stringify(newLogs));
     var deletedCount = initialCount - newLogs.length;
     
-    // Log aksi penghapusan ini (Agar ada jejak siapa yang menghapus)
-    // Ini juga akan memicu FIFO otomatis jika log penuh lagi
     logUserActivity("SUPER_ADMIN", "HAPUS LOG", "Menghapus " + deletedCount + " data (" + startDateStr + " s/d " + endDateStr + ")");
 
     return { status: "Sukses", count: deletedCount };
@@ -300,7 +306,7 @@ function getDropdownData() {
   return dropdowns;
 }
 
-function processForm(data, passwordAuth) {
+function processForm(data, passwordAuthHash) {
   var ss = SpreadsheetApp.openById(MAIN_SS_ID);
   
   var sheetAdmin = ss.getSheetByName("Admin");
@@ -310,11 +316,12 @@ function processForm(data, passwordAuth) {
   var superAdminPass = passwords[0];
   var adminInputPass = passwords[3];
   
-  var inputPass = passwordAuth.toString();
+  var inputHash = passwordAuthHash.toString();
   var currentRole = "";
 
-  if (inputPass === superAdminPass.toString()) currentRole = "SUPER_ADMIN";
-  else if (inputPass === adminInputPass.toString()) currentRole = "ADMIN_INPUT";
+  // Bandingkan Hash Client dengan Hash Server
+  if (inputHash === hashString(superAdminPass)) currentRole = "SUPER_ADMIN";
+  else if (inputHash === hashString(adminInputPass)) currentRole = "ADMIN_INPUT";
   else return "Password Salah! Akses Ditolak.";
 
   var lock = LockService.getScriptLock();
