@@ -257,7 +257,7 @@
           border-bottom: 1px solid #f0f0f0;
           padding-top: 15px;
           padding-bottom: 12px;
-          padding-right: 50px; /* Space for Edit Button */
+          padding-right: 10px; /* Reset padding to normal since we use pe-5 on name */
       }
       
       /* Mobile Elements Styling */
@@ -937,7 +937,7 @@
             <tr>
               <td>
                 ${mobileEditBtn}
-                <div class="fw-bold text-dark fs-6">${person.nama}</div>
+                <div class="fw-bold text-dark fs-6 pe-5">${person.nama}</div>
                 <div class="small text-muted" style="line-height: 1.2;"><i class="bi bi-building me-1"></i>${person.perusahaan || '-'}</div>
                 <div class="mt-2 d-md-none">${finalBadge}</div>
                 
@@ -1017,7 +1017,7 @@
          htmlContent.push(`
            <tr>
               <td>
-                 <div class="fw-bold text-dark fs-6 mb-1">${person.nama}</div>
+                 <div class="fw-bold text-dark fs-6 mb-1 pe-5">${person.nama}</div>
                  <div class="d-md-none mt-3">
                    <div class="mobile-card-label">Daftar Penugasan</div>
                    <div class="mobile-detail-group">
@@ -1057,7 +1057,7 @@
           htmlContent.push(`
             <tr>
               <td>
-                <div class="fw-bold fs-6 mb-1 text-dark">${pekerjaan}</div>
+                <div class="fw-bold fs-6 mb-1 text-dark pe-5">${pekerjaan}</div>
                 
                 <div class="d-flex align-items-center gap-2 mb-2 d-md-none">
                    <span class="badge ${badgeClass}">${statusText || 'Not Started'}</span>
