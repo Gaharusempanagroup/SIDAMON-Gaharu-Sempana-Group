@@ -64,11 +64,34 @@
 
     /* --- DASHBOARD STYLES --- */
     #dashboard-section { display: none; padding-bottom: 50px; }
-    .logo-wrapper { background: rgba(255, 255, 255, 0.15); padding: 6px; border-radius: 10px; backdrop-filter: blur(4px); margin-right: 15px; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; }
+    
+    /* FIX: Logo Wrapper Background Removed */
+    .logo-wrapper { 
+        /* background: rgba(255, 255, 255, 0.15); <-- REMOVED */
+        /* padding: 6px; <-- REMOVED */
+        /* border-radius: 10px; <-- REMOVED */
+        /* backdrop-filter: blur(4px); <-- REMOVED */
+        margin-right: 15px; 
+        /* border: 1px solid rgba(255,255,255,0.2); <-- REMOVED */
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+    }
+
     @keyframes slideInSmooth { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     .greeting-wrapper { animation: slideInSmooth 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); padding: 6px 0; margin-left: 15px; border: none !important; border-left: none !important; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); cursor: default; }
     .greeting-wrapper:hover { background: transparent !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; transform: translateY(-2px); }
     .greeting-wrapper:hover #greeting-role { text-shadow: 0 0 12px rgba(255, 255, 255, 0.8); }
+
+    /* FIX: NEW Animation for Sun/Moon Icon on Hover */
+    #greeting-time i {
+         transition: transform 0.4s ease-in-out, filter 0.4s ease-in-out;
+         display: inline-block; /* Ensures transform works correctly */
+    }
+    .greeting-wrapper:hover #greeting-time i {
+        transform: rotate(25deg) scale(1.15);
+        filter: drop-shadow(0 0 8px rgba(255, 233, 120, 0.8)); /* Yellowish glow */
+    }
     
     .mobile-menu-item { background: white; border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: #333; font-weight: 500; transition: all 0.2s; }
     .mobile-menu-item:active { transform: scale(0.98); background: #f0f0f0; }
