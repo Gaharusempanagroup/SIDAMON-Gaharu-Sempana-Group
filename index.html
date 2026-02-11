@@ -65,33 +65,15 @@
     /* --- DASHBOARD STYLES --- */
     #dashboard-section { display: none; padding-bottom: 50px; }
     
-    /* FIX: Logo Wrapper Background Removed */
-    .logo-wrapper { 
-        /* background: rgba(255, 255, 255, 0.15); <-- REMOVED */
-        /* padding: 6px; <-- REMOVED */
-        /* border-radius: 10px; <-- REMOVED */
-        /* backdrop-filter: blur(4px); <-- REMOVED */
-        margin-right: 15px; 
-        /* border: 1px solid rgba(255,255,255,0.2); <-- REMOVED */
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-    }
+    .logo-wrapper { margin-right: 15px; display: flex; align-items: center; justify-content: center; }
 
     @keyframes slideInSmooth { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     .greeting-wrapper { animation: slideInSmooth 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); padding: 6px 0; margin-left: 15px; border: none !important; border-left: none !important; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); cursor: default; }
     .greeting-wrapper:hover { background: transparent !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; transform: translateY(-2px); }
     .greeting-wrapper:hover #greeting-role { text-shadow: 0 0 12px rgba(255, 255, 255, 0.8); }
 
-    /* FIX: NEW Animation for Sun/Moon Icon on Hover */
-    #greeting-time i {
-         transition: transform 0.4s ease-in-out, filter 0.4s ease-in-out;
-         display: inline-block; /* Ensures transform works correctly */
-    }
-    .greeting-wrapper:hover #greeting-time i {
-        transform: rotate(25deg) scale(1.15);
-        filter: drop-shadow(0 0 8px rgba(255, 233, 120, 0.8)); /* Yellowish glow */
-    }
+    #greeting-time i { transition: transform 0.4s ease-in-out, filter 0.4s ease-in-out; display: inline-block; }
+    .greeting-wrapper:hover #greeting-time i { transform: rotate(25deg) scale(1.15); filter: drop-shadow(0 0 8px rgba(255, 233, 120, 0.8)); }
     
     .mobile-menu-item { background: white; border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: #333; font-weight: 500; transition: all 0.2s; }
     .mobile-menu-item:active { transform: scale(0.98); background: #f0f0f0; }
@@ -196,7 +178,6 @@
     /* --- MODERN FORM STYLES --- */
     .modal-content { border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); overflow: hidden; }
     
-    /* FIX: Scope style ini hanya ke modal Tambah Data agar History tetap Kuning */
     #modalTambahData .modal-header { background: linear-gradient(135deg, var(--primary-color), #000050); padding: 20px 30px; }
     
     .modern-input-group { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 5px 5px 5px 15px; transition: all 0.3s ease; display: flex; align-items: center; margin-bottom: 15px; }
@@ -208,6 +189,18 @@
     .modern-input-group label { padding-left: 0; color: #888; font-size: 0.9rem; }
     input[list]::-webkit-calendar-picker-indicator { opacity: 0.6; cursor: pointer; transition: 0.2s; }
     input[list]:hover::-webkit-calendar-picker-indicator { opacity: 1; transform: scale(1.1); }
+    
+    .form-select-custom {
+        border: none;
+        background: transparent;
+        font-weight: 500;
+        color: #333;
+        padding-top: 1.625rem;
+        padding-bottom: 0.625rem;
+        width: 100%;
+    }
+    .form-select-custom:focus { outline: none; }
+
 
     /* --- FLOATING ACTION BUTTON (FAB) --- */
     .fab-container { position: fixed; bottom: 30px; right: 30px; z-index: 999; display: none; }
@@ -474,6 +467,15 @@
         <div class="modal-body p-4 bg-light">
           <form id="formInputData">
             <input type="hidden" id="editRowNumber" value="">
+            
+            <div class="modern-input-group bg-warning-subtle border-warning mb-3" id="containerSelectSertifikat" style="display:none;">
+                <i class="bi bi-caret-down-square-fill input-icon text-warning-emphasis"></i>
+                <div class="form-floating">
+                    <select class="form-select-custom" id="editSertifikatSelect" onchange="loadSelectedCertificateData()">
+                        </select>
+                    <label style="position:absolute; top:5px; left:0; font-size:0.75rem; color:#666;">Pilih Sertifikat untuk Diedit</label>
+                </div>
+            </div>
             <div class="modern-input-group">
               <i class="bi bi-person-circle input-icon"></i>
               <div class="form-floating">
@@ -513,24 +515,24 @@
               </div>
             </div>
             <div class="row g-2">
-               <div class="col-6">
-                  <div class="modern-input-group">
-                    <i class="bi bi-people input-icon"></i>
-                    <div class="form-floating">
-                      <input type="text" class="form-control" id="inputAsosiasi" placeholder="Asosiasi">
-                      <label for="inputAsosiasi">Asosiasi</label>
-                    </div>
-                  </div>
-               </div>
-               <div class="col-6">
-                  <div class="modern-input-group">
-                    <i class="bi bi-calendar-date input-icon"></i>
-                    <div class="form-floating">
-                      <input type="date" class="form-control" id="inputMasaBerlaku" required>
-                      <label for="inputMasaBerlaku">Berlaku Sampai</label>
-                    </div>
-                  </div>
-               </div>
+                <div class="col-6">
+                   <div class="modern-input-group">
+                     <i class="bi bi-people input-icon"></i>
+                     <div class="form-floating">
+                       <input type="text" class="form-control" id="inputAsosiasi" placeholder="Asosiasi">
+                       <label for="inputAsosiasi">Asosiasi</label>
+                     </div>
+                   </div>
+                </div>
+                <div class="col-6">
+                   <div class="modern-input-group">
+                     <i class="bi bi-calendar-date input-icon"></i>
+                     <div class="form-floating">
+                       <input type="date" class="form-control" id="inputMasaBerlaku" required>
+                       <label for="inputMasaBerlaku">Berlaku Sampai</label>
+                     </div>
+                   </div>
+                </div>
             </div>
             <div class="modern-input-group align-items-start pt-2">
               <i class="bi bi-chat-text input-icon mt-3"></i>
@@ -621,7 +623,6 @@
                 const company = found[4]; 
                 if (company) {
                     document.getElementById('inputPerusahaan').value = company;
-                    Toast.fire({ icon: 'info', title: 'Data perusahaan diisi otomatis' });
                 }
             }
         });
@@ -681,16 +682,16 @@
         if(searchContainer) { searchContainer.classList.remove('col-12'); searchContainer.classList.add('col-md'); }
         if (btnHistoryDesktop) btnHistoryDesktop.style.display = 'none'; if (btnHistoryMobile) btnHistoryMobile.style.display = 'none';
 
-        canEdit = false; // Reset
+        canEdit = false;
 
         if (role === "SUPER_ADMIN") { 
-            canEdit = true; // FIX: Set permission BEFORE calling switchView
+            canEdit = true;
             switchView('skk'); 
             if (btnHistoryDesktop) btnHistoryDesktop.style.display = 'inline-block';
             if (btnHistoryMobile) btnHistoryMobile.style.display = 'flex';
         } 
         else if (role === "ADMIN_INPUT") { 
-            canEdit = true; // FIX: Set permission BEFORE calling switchView
+            canEdit = true;
             navProject.style.display = 'none'; 
             switchView('skk'); 
         }
@@ -778,28 +779,52 @@
         const btnNext = document.createElement('button'); btnNext.className = 'btn-page'; btnNext.innerHTML = '<i class="bi bi-chevron-right"></i>'; btnNext.disabled = currentPage === totalPages; btnNext.onclick = () => renderCallback(currentPage + 1); container.appendChild(btnNext);
     }
 
+    // --- MODIFIED RENDER SKK TO GROUP EDIT ACTION ---
     function renderSKK(data, page = 1) {
       currentPageSkk = page; const tbody = document.getElementById('bodySkk'); let htmlContent = []; let statTotal = 0, statUsed = 0, statExpired = 0;
       if(!data || data.length === 0) { document.getElementById('msgSkk').classList.remove('d-none'); document.getElementById('pagination-skk').innerHTML = ''; animateValue("skk-total", 0, 0, 800); animateValue("skk-expired", 0, 0, 800); animateValue("skk-used", 0, 0, 800); tbody.innerHTML = ''; return; } else { document.getElementById('msgSkk').classList.add('d-none'); }
+      
       const activeAssignmentsMap = new Map();
       if(dataTugas && dataTugas.length > 0) { for(let i=0; i<dataTugas.length; i++){ const row = dataTugas[i]; const pName = (row[1] || "").trim(); const pStatus = (row[12] || "").toLowerCase(); if (pName && pStatus.includes('active')) { activeAssignmentsMap.set(pName, row[5] || ""); } } }
+      
       const groupedData = {}; for(let i=0; i<data.length; i++) { const row = data[i]; const nama = row[1]; if (!nama) continue; if (!groupedData[nama]) { groupedData[nama] = { nama: row[1], hp: row[2], perusahaan: row[4], bidang: row[3], items: [] }; } groupedData[nama].items.push({ sertifikat: row[5], jenjang: row[6], sisaWaktu: row[9], statusRaw: row[10], ketRaw: row[11], originalIndex: i }); }
+      
       const allKeys = Object.keys(groupedData); statTotal = allKeys.length;
       const startIndex = (page - 1) * ITEMS_PER_PAGE; const endIndex = startIndex + ITEMS_PER_PAGE; const pagedKeys = allKeys.slice(startIndex, endIndex);
+      
       allKeys.forEach(key => { const person = groupedData[key]; let isUsed = false; person.items.forEach(item => { if ((item.statusRaw||"").toLowerCase().includes('expired')) statExpired++; if ((item.statusRaw||"").toLowerCase().includes('used') || (item.ketRaw||"").toLowerCase().includes('used')) isUsed = true; }); if (activeAssignmentsMap.has(person.nama.trim())) isUsed = true; if (isUsed) statUsed++; });
+      
       const canEditRow = (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT");
+      
       for(let i=0; i<pagedKeys.length; i++) {
           const person = groupedData[pagedKeys[i]]; let isUsed = false, hasActive = false; let usedProjectName = "", spreadsheetUsedText = "";
           for(let j=0; j<person.items.length; j++){ const item = person.items[j]; const s = (item.statusRaw || "").toLowerCase(); const k = (item.ketRaw || "").toLowerCase(); if (s.includes('used') || k.includes('used')) { isUsed = true; if(s.includes('used')) spreadsheetUsedText = item.statusRaw; else if (k.includes('used')) spreadsheetUsedText = item.ketRaw; } if (s.includes('active') || s.includes('available')) hasActive = true; }
           const activeJobFromTugas = activeAssignmentsMap.get(person.nama.trim());
           if (activeJobFromTugas) { isUsed = true; usedProjectName = `Used in ${activeJobFromTugas}`; } else if (isUsed) { usedProjectName = spreadsheetUsedText ? spreadsheetUsedText : "Used"; }
           let finalBadge = isUsed ? `<span class="badge-status status-used" style="white-space: normal;">${usedProjectName}</span>` : (hasActive ? `<span class="badge-status status-active">Available</span>` : `<span class="badge-status status-expired">Expired</span>`);
+          
           let btnWA = "-"; if(person.hp && /\d/.test(person.hp)) { let cleanNum = person.hp.toString().replace(/\D/g, ''); if(cleanNum.startsWith('0')) cleanNum = '62' + cleanNum.substring(1); if(cleanNum.length > 9) { btnWA = `<a href="https://wa.me/${cleanNum}" target="_blank" class="btn btn-success btn-sm text-white fw-bold d-inline-flex align-items-center justify-content-center" style="font-size: 0.7rem; padding: 2px 8px; height: 24px; min-width: 60px;"><i class="bi bi-whatsapp" style="font-size: 0.8rem; margin-right: 4px;"></i> Chat</a>`; } else { btnWA = `<span class="small text-muted">${person.hp}</span>`; } }
-          let htmlSertifikat = '', htmlJenjang = '', htmlSisa = '', htmlKet = '', htmlAksi = '';
+          
+          let htmlSertifikat = '', htmlJenjang = '', htmlSisa = '', htmlKet = '';
           const itemLen = person.items.length;
-          for(let k=0; k<itemLen; k++){ const item = person.items[k]; let sisaStyle = (item.statusRaw||"").toLowerCase().includes('expired') ? "color: #dc3545; font-weight: 700;" : ""; htmlSertifikat += `<div class="nested-cell fw-bold" title="${item.sertifikat}" style="white-space: normal; line-height: 1.3;">${item.sertifikat}</div>`; htmlJenjang += `<div class="nested-cell text-center justify-content-center">${item.jenjang || '-'}</div>`; htmlSisa += `<div class="nested-cell text-center justify-content-center small" style="${sisaStyle}">${item.sisaWaktu || '-'}</div>`; htmlKet += `<div class="nested-cell small text-muted" title="${item.ketRaw || ''}" style="white-space: normal; line-height: 1.2;">${item.ketRaw || ''}</div>`; if (canEditRow) { htmlAksi += `<div class="nested-cell nested-cell-action"><button class="btn btn-sm btn-outline-primary rounded-circle" onclick="openModalEdit(${item.originalIndex})" style="width: 24px; height: 24px; padding: 0;" title="Edit"><i class="bi bi-pencil-fill" style="font-size: 0.7rem;"></i></button></div>`; } }
+          
+          for(let k=0; k<itemLen; k++){ 
+            const item = person.items[k]; 
+            let sisaStyle = (item.statusRaw||"").toLowerCase().includes('expired') ? "color: #dc3545; font-weight: 700;" : ""; 
+            htmlSertifikat += `<div class="nested-cell fw-bold" title="${item.sertifikat}" style="white-space: normal; line-height: 1.3;">${item.sertifikat}</div>`; 
+            htmlJenjang += `<div class="nested-cell text-center justify-content-center">${item.jenjang || '-'}</div>`; 
+            htmlSisa += `<div class="nested-cell text-center justify-content-center small" style="${sisaStyle}">${item.sisaWaktu || '-'}</div>`; 
+            htmlKet += `<div class="nested-cell small text-muted" title="${item.ketRaw || ''}" style="white-space: normal; line-height: 1.2;">${item.ketRaw || ''}</div>`;
+          }
+          
+          // --- SINGLE ACTION BUTTON LOGIC ---
+          let htmlAksi = '';
+          if (canEditRow) {
+             htmlAksi = `<button class="btn btn-sm btn-outline-primary rounded-circle" onclick="openModalEditGroup('${person.nama}')" style="width: 32px; height: 32px;" title="Edit Data ${person.nama}"><i class="bi bi-pencil-fill"></i></button>`;
+          }
           const styleAksi = canEditRow ? '' : 'display:none;';
-          htmlContent.push(`<tr><td class="align-middle-person" style="white-space: normal !important; word-wrap: break-word;"><div class="fw-bold text-dark">${person.nama}</div><div class="small text-muted" style="line-height: 1.2;"><i class="bi bi-building me-1"></i>${person.perusahaan || '-'}</div></td><td class="text-center align-middle-person">${btnWA}</td><td class="align-middle-person small" style="white-space: normal !important; word-wrap: break-word; line-height: 1.3;">${person.bidang || '-'}</td><td style="padding-top:0; padding-bottom:0; white-space: normal !important;">${htmlSertifikat}</td><td style="padding-top:0; padding-bottom:0;">${htmlJenjang}</td><td style="padding-top:0; padding-bottom:0;">${htmlSisa}</td><td class="text-center align-middle-person" style="white-space: normal !important;">${finalBadge}</td><td style="padding-top:0; padding-bottom:0; white-space: normal !important;">${htmlKet}</td><td class="text-center" style="padding-top:0; padding-bottom:0; ${styleAksi}">${htmlAksi}</td></tr>`);
+          
+          htmlContent.push(`<tr><td class="align-middle-person" style="white-space: normal !important; word-wrap: break-word;"><div class="fw-bold text-dark">${person.nama}</div><div class="small text-muted" style="line-height: 1.2;"><i class="bi bi-building me-1"></i>${person.perusahaan || '-'}</div></td><td class="text-center align-middle-person">${btnWA}</td><td class="align-middle-person small" style="white-space: normal !important; word-wrap: break-word; line-height: 1.3;">${person.bidang || '-'}</td><td style="padding-top:0; padding-bottom:0; white-space: normal !important;">${htmlSertifikat}</td><td style="padding-top:0; padding-bottom:0;">${htmlJenjang}</td><td style="padding-top:0; padding-bottom:0;">${htmlSisa}</td><td class="text-center align-middle-person" style="white-space: normal !important;">${finalBadge}</td><td style="padding-top:0; padding-bottom:0; white-space: normal !important;">${htmlKet}</td><td class="text-center align-middle-person" style="${styleAksi}">${htmlAksi}</td></tr>`);
       }
       tbody.innerHTML = htmlContent.join(''); setupPagination(allKeys.length, currentPageSkk, 'pagination-skk', (p) => renderSKK(data, p));
       animateValue("skk-total", 0, statTotal, 800); animateValue("skk-expired", 0, statExpired, 800); animateValue("skk-used", 0, statUsed, 800);
@@ -857,7 +882,6 @@
       const navEl = document.getElementById(navId); if(navEl) navEl.querySelector('button').classList.add('active');
       document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none'); document.getElementById('view-'+viewName).style.display = 'block';
       
-      // FAB VISIBILITY LOGIC
       const fab = document.getElementById('fabAddData');
       if (fab) {
           if (viewName === 'skk' && canEdit) { fab.classList.add('show-fab'); } 
@@ -894,12 +918,89 @@
     function populateDatalist(id, items) { const list = document.getElementById(id); list.innerHTML = ''; items.forEach(item => { const op = document.createElement('option'); op.value = item; list.appendChild(op); }); }
 
     const myModal = new bootstrap.Modal(document.getElementById('modalTambahData'));
-    function openModalAdd() { document.getElementById('modalLabel').innerHTML = '<i class="bi bi-file-earmark-plus me-2"></i>Input Data Personil'; document.getElementById('formInputData').reset(); document.getElementById('editRowNumber').value = ""; myModal.show(); }
-    function openModalEdit(index) {
-      const item = dataSKK[index]; document.getElementById('modalLabel').innerHTML = '<i class="bi bi-pencil-square me-2"></i>Edit Data Personil'; document.getElementById('editRowNumber').value = item[item.length - 1]; 
-      document.getElementById('inputNama').value = item[1]; document.getElementById('inputPerusahaan').value = item[4]; document.getElementById('inputSertifikat').value = item[5]; document.getElementById('inputJenjang').value = item[6]; document.getElementById('inputAsosiasi').value = item[7]; document.getElementById('inputKeterangan').value = item[11] || "";
-      const rawDate = item[8]; try { const dateObj = parseDate(rawDate); if(dateObj) { const yyyy = dateObj.getFullYear(); const mm = String(dateObj.getMonth() + 1).padStart(2, '0'); const dd = String(dateObj.getDate()).padStart(2, '0'); document.getElementById('inputMasaBerlaku').value = `${yyyy}-${mm}-${dd}`; } else { document.getElementById('inputMasaBerlaku').value = ""; } } catch(e) { document.getElementById('inputMasaBerlaku').value = ""; }
-      myModal.show();
+    
+    function openModalAdd() { 
+        document.getElementById('modalLabel').innerHTML = '<i class="bi bi-file-earmark-plus me-2"></i>Input Data Personil'; 
+        document.getElementById('formInputData').reset(); 
+        document.getElementById('editRowNumber').value = ""; 
+        
+        // Hide Select for Add
+        document.getElementById('containerSelectSertifikat').style.display = "none";
+        document.getElementById('inputNama').readOnly = false;
+        document.getElementById('inputPerusahaan').readOnly = false;
+        
+        myModal.show(); 
+    }
+
+    // --- NEW EDIT LOGIC: GROUP EDIT ---
+    function openModalEditGroup(personName) {
+       document.getElementById('modalLabel').innerHTML = '<i class="bi bi-pencil-square me-2"></i>Edit Data Personil';
+       document.getElementById('formInputData').reset();
+       document.getElementById('editRowNumber').value = ""; 
+
+       // 1. Filter rows for this person
+       const personRows = dataSKK.filter(row => row[1] === personName);
+       if(personRows.length === 0) return;
+
+       // 2. Pre-fill common data from first row
+       const firstRow = personRows[0];
+       document.getElementById('inputNama').value = firstRow[1];
+       document.getElementById('inputPerusahaan').value = firstRow[4];
+       
+       // Lock Name/Company for consistency when editing group (Optional, but safer)
+       // document.getElementById('inputNama').readOnly = true; 
+       
+       // 3. Populate Select Dropdown
+       const selectEl = document.getElementById('editSertifikatSelect');
+       selectEl.innerHTML = "";
+       
+       personRows.forEach((row, idx) => {
+           const certName = row[5] || "No Cert Name";
+           const rowID = row[row.length - 1]; // Last index is row ID
+           const option = document.createElement('option');
+           option.value = rowID;
+           option.text = certName;
+           // Store data index to retrieve full row later
+           option.setAttribute('data-idx', dataSKK.indexOf(row)); 
+           selectEl.appendChild(option);
+       });
+
+       // 4. Show Select Container & Trigger Change
+       document.getElementById('containerSelectSertifikat').style.display = "flex";
+       loadSelectedCertificateData(); // Load first item
+
+       myModal.show();
+    }
+
+    function loadSelectedCertificateData() {
+        const selectEl = document.getElementById('editSertifikatSelect');
+        const selectedOption = selectEl.options[selectEl.selectedIndex];
+        const dataIdx = selectedOption.getAttribute('data-idx');
+        const item = dataSKK[dataIdx];
+
+        if(!item) return;
+
+        // Set Row Number for Backend
+        document.getElementById('editRowNumber').value = item[item.length - 1];
+
+        // Fill specific fields
+        document.getElementById('inputSertifikat').value = item[5]; 
+        document.getElementById('inputJenjang').value = item[6]; 
+        document.getElementById('inputAsosiasi').value = item[7]; 
+        document.getElementById('inputKeterangan').value = item[11] || "";
+
+        const rawDate = item[8]; 
+        try { 
+            const dateObj = parseDate(rawDate); 
+            if(dateObj) { 
+                const yyyy = dateObj.getFullYear(); 
+                const mm = String(dateObj.getMonth() + 1).padStart(2, '0'); 
+                const dd = String(dateObj.getDate()).padStart(2, '0'); 
+                document.getElementById('inputMasaBerlaku').value = `${yyyy}-${mm}-${dd}`; 
+            } else { 
+                document.getElementById('inputMasaBerlaku').value = ""; 
+            } 
+        } catch(e) { document.getElementById('inputMasaBerlaku').value = ""; }
     }
     
     async function submitForm() {
@@ -933,4 +1034,3 @@
   </script>
 </body>
 </html>
-
