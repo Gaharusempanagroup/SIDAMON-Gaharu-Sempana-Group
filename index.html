@@ -786,43 +786,54 @@
         }
     }
 
+    // --- PERBAIKAN FUNGSI LAZY LOADING ---
     async function loadViewData(viewName) {
-        // Cek apakah data sudah diload
-        if (viewName === 'skk' && isSkkLoaded) return;
-        if (viewName === 'penugasan' && isTugasLoaded) return;
-        if (viewName === 'project' && isProjectLoaded) return;
-
-        // Show Skeleton
-        if(viewName === 'skk') showSkeleton('bodySkk');
-        if(viewName === 'penugasan') showSkeleton('bodyTugas');
-        if(viewName === 'project') showSkeleton('bodyProject');
+        // Hapus "Early Return" (baris if ... return) yang lama di sini
+        // agar fungsi tetap lanjut ke proses Rendering di bawah.
 
         try {
             if (viewName === 'skk') {
-                // Load SKK + Penugasan (jika belum ada) agar status 'Used' valid
-                const promises = [fetchAPI('getDataSKK')];
-                if (!isTugasLoaded) promises.push(fetchAPI('getDataPenugasan'));
-                
-                const results = await Promise.all(promises);
-                dataSKK = results[0];
-                if (!isTugasLoaded) {
-                    dataTugas = results[1];
-                    isTugasLoaded = true;
+                // FETCH JIKA BELUM ADA DATA
+                if (!isSkkLoaded) {
+                    showSkeleton('bodySkk'); // Tampilkan Skeleton
+                    const promises = [fetchAPI('getDataSKK')];
+                    
+                    // Cek juga penugasan untuk status 'Used'
+                    if (!isTugasLoaded) promises.push(fetchAPI('getDataPenugasan'));
+                    
+                    const results = await Promise.all(promises);
+                    dataSKK = results[0];
+                    
+                    if (!isTugasLoaded) {
+                        dataTugas = results[1];
+                        isTugasLoaded = true;
+                    }
+                    isSkkLoaded = true;
                 }
-                isSkkLoaded = true;
-                renderSKK(dataSKK, 1);
+                
+                // SELALU RENDER (Agar tabel tampil)
+                // Gunakan currentPageSkk agar halaman tidak reset ke 1 saat pindah tab
+                renderSKK(dataSKK, currentPageSkk); 
 
             } else if (viewName === 'penugasan') {
+                // FETCH JIKA BELUM ADA DATA
                 if (!isTugasLoaded) {
+                    showSkeleton('bodyTugas');
                     dataTugas = await fetchAPI('getDataPenugasan');
                     isTugasLoaded = true;
                 }
-                renderTugas(dataTugas, 1);
+                
+                // SELALU RENDER (Inilah solusi bugnya)
+                // Meskipun data sudah diload via SKK, kita tetap harus merender tabelnya di sini
+                renderTugas(dataTugas, currentPageTugas);
 
             } else if (viewName === 'project') {
-                dataProject = await fetchAPI('getDataProject');
-                isProjectLoaded = true;
-                renderProject(dataProject, 1);
+                if (!isProjectLoaded) {
+                    showSkeleton('bodyProject');
+                    dataProject = await fetchAPI('getDataProject');
+                    isProjectLoaded = true;
+                }
+                renderProject(dataProject, currentPageProject);
             }
 
         } catch (e) {
@@ -1669,3 +1680,4 @@
   </script>
 </body>
 </html>
+
