@@ -3,10 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#000080">
   
   <title>SIDAMON Gaharu Sempana Group</title>
   <link rel="icon" type="image/png" href="Light Transparant.PNG">
@@ -197,6 +193,11 @@
     input[list]::-webkit-calendar-picker-indicator { opacity: 0.6; cursor: pointer; transition: 0.2s; }
     input[list]:hover::-webkit-calendar-picker-indicator { opacity: 1; transform: scale(1.1); }
 
+    /* --- FLOATING ACTION BUTTON (FAB) --- */
+    .fab-container { position: fixed; bottom: 30px; right: 30px; z-index: 999; display: none; }
+    .btn-fab { width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 24px; display: flex; align-items: center; justify-content: center; background-color: var(--primary-color); color: white; border: none; transition: transform 0.2s; }
+    .btn-fab:active { transform: scale(0.95); }
+
     /* --- RESPONSIVE / MOBILE STYLE UPDATES (Scroll View) --- */
     @media (max-width: 768px) {
       .navbar .container-fluid { padding-left: 15px; padding-right: 15px; }
@@ -211,6 +212,13 @@
       .stat-card { margin-bottom: 10px; }
       .stat-value { font-size: 2rem; }
 
+      /* Hide Top Add Button on Mobile */
+      #btnAddDataContainer { display: none !important; }
+      
+      /* Show FAB Container if it has permission class */
+      .fab-container.role-allowed { display: block; animation: scaleIn 0.3s ease-out; }
+      @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
+
       /* FIX TIMELINE MOBILE (GANTT) */
       .g-sticky-col, .g-col-personil, .g-col-pekerjaan { position: static !important; box-shadow: none !important; border-right: 1px solid #eee !important; flex-shrink: 0; white-space: normal !important; word-wrap: break-word; font-size: 0.75rem; height: auto !important; display: flex; align-items: center; }
       .g-col-personil { width: 130px !important; min-width: 130px !important; }
@@ -224,6 +232,12 @@
 <body class="login-mode">
 
   <div id="gantt-tooltip" class="custom-tooltip"></div>
+
+  <div class="fab-container" id="fabAddData">
+    <button class="btn-fab" onclick="openModalAdd()">
+      <i class="bi bi-plus-lg"></i>
+    </button>
+  </div>
 
   <div id="loading-overlay">
     <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
@@ -759,6 +773,19 @@
         return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
+    // --- TOAST NOTIFICATION CONFIG ---
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+      }
+    });
+
     // --- LOGIC APLIKASI UTAMA ---
     try { google.charts.load('current', {'packages':['gantt']}); } catch(e){}
 
@@ -801,6 +828,8 @@
           
           if (response && response.valid) {
              loginSuccess(response.role, true);
+             // TOAST: Login Berhasil
+             Toast.fire({ icon: 'success', title: 'Login Berhasil' });
           } else {
              throw new Error("Invalid");
           }
@@ -899,6 +928,9 @@
         const searchContainer = document.getElementById('searchSkkContainer');
         const btnHistoryDesktop = document.querySelector('.btn-log-history-desktop');
         const btnHistoryMobile = document.querySelector('.btn-log-history-mobile');
+        
+        // FAB (Mobile)
+        const fab = document.getElementById('fabAddData');
 
         navSkk.style.display = 'block'; navTugas.style.display = 'block'; navProject.style.display = 'block';
         btnAdd.style.display = 'block'; thAksi.style.display = 'table-cell';
@@ -907,12 +939,20 @@
         if (btnHistoryDesktop) btnHistoryDesktop.style.display = 'none'; 
         if (btnHistoryMobile) btnHistoryMobile.style.display = 'none';
 
+        // Reset FAB
+        if(fab) fab.classList.remove('role-allowed');
+
         if (role === "SUPER_ADMIN") { 
             switchView('skk'); 
             if (btnHistoryDesktop) btnHistoryDesktop.style.display = 'inline-block';
             if (btnHistoryMobile) btnHistoryMobile.style.display = 'flex';
+            if(fab) fab.classList.add('role-allowed');
         } 
-        else if (role === "ADMIN_INPUT") { navProject.style.display = 'none'; switchView('skk'); }
+        else if (role === "ADMIN_INPUT") { 
+            navProject.style.display = 'none'; 
+            switchView('skk'); 
+            if(fab) fab.classList.add('role-allowed');
+        }
         else if (role === "ADMIN") {
             navProject.style.display = 'none'; btnAdd.style.display = 'none'; thAksi.style.display = 'none'; 
             if(searchContainer) { searchContainer.classList.remove('col-md'); searchContainer.classList.add('col-12'); }
@@ -1029,7 +1069,8 @@
                             try {
                                 const response = await fetchAPI('clearLogs', 'POST', payload);
                                 if (response.status === "Sukses") {
-                                    await Swal.fire('Terhapus!', `Berhasil menghapus ${response.count} data log.`, 'success');
+                                    // TOAST: Hapus Log Sukses
+                                    Toast.fire({ icon: 'success', title: `Berhasil menghapus ${response.count} data log.` });
                                     loadSystemLogs(); 
                                 } else {
                                     Swal.fire('Gagal!', response.error || 'Terjadi kesalahan.', 'error');
@@ -1837,7 +1878,12 @@
             try {
                 const response = await fetchAPI('saveData', 'POST', { password: passwordHash, payload: payload });
                 document.getElementById('loading-overlay').style.display = 'none'; document.getElementById('loading-text').innerText = "Memuat Data...";
-                if(response === "Sukses") { Swal.fire('Berhasil!', 'Data berhasil disimpan.', 'success'); document.getElementById('formInputData').reset(); loadAllData(); } 
+                if(response === "Sukses") { 
+                    // TOAST: Simpan Sukses
+                    Toast.fire({ icon: 'success', title: 'Data berhasil disimpan.' });
+                    document.getElementById('formInputData').reset(); 
+                    loadAllData(); 
+                } 
                 else { Swal.fire('Gagal!', response, 'error').then(() => { if(response.includes("Password")) myModal.show(); }); }
             } catch (err) {
                  document.getElementById('loading-overlay').style.display = 'none'; Swal.fire('Error', err.message, 'error');
@@ -1873,4 +1919,3 @@
   </script>
 </body>
 </html>
-
