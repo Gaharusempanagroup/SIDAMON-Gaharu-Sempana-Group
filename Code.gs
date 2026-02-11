@@ -1,4 +1,4 @@
-// --- Code.gs (Final - Manual Delete + Auto Limit) ---
+// --- Code.gs (Final - Secure Hash + Lazy Load Support) ---
 
 // 1. MASUKKAN ID SPREADSHEET UTAMA
 const MAIN_SS_ID = "1NYw4b9mSXoa_tYxo38mWZizQahq0wBee-9cU9oUk23o"; 
@@ -48,6 +48,7 @@ function doPost(e) {
     var result = {};
 
     if (action === 'login') {
+      // Menerima HASH dari client
       result = verifyPassword(data.password);
     } 
     else if (action === 'logout') {
@@ -55,10 +56,11 @@ function doPost(e) {
       result = { status: "Success" };
     }
     else if (action === 'saveData') {
+      // Menerima HASH dari client
       result = processForm(data.payload, data.password);
     } 
     else if (action === 'clearLogs') {
-      // Fitur Hapus Manual
+      // Menerima HASH dari client
       result = clearLogData(data.startDate, data.endDate, data.password);
     }
     else {
@@ -76,22 +78,24 @@ function responseJSON(data) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// --- FUNGSI AUTH & LOGIC ---
+// --- FUNGSI AUTH & LOGIC (SECURE HASH) ---
 
-function verifyPassword(inputPassword) {
+function verifyPassword(inputHash) {
   try {
     var ss = SpreadsheetApp.openById(MAIN_SS_ID);
     var sheet = ss.getSheetByName("Admin");
     if (!sheet) return { valid: false, message: "Sheet Admin hilang" }; 
     
+    // Ambil password plain text dari sheet
     var storedPasswords = sheet.getRange("A2:A5").getValues().flat();
-    var input = inputPassword.toString().trim();
-
+    
     var role = null;
-    if (storedPasswords[0] && input === storedPasswords[0].toString()) role = "SUPER_ADMIN";
-    else if (storedPasswords[1] && input === storedPasswords[1].toString()) role = "ADMIN";
-    else if (storedPasswords[2] && input === storedPasswords[2].toString()) role = "TEKNIS";
-    else if (storedPasswords[3] && input === storedPasswords[3].toString()) role = "ADMIN_INPUT";
+    
+    // Bandingkan HASH Input dengan HASH Password Spreadsheet
+    if (storedPasswords[0] && inputHash === createHash(storedPasswords[0].toString())) role = "SUPER_ADMIN";
+    else if (storedPasswords[1] && inputHash === createHash(storedPasswords[1].toString())) role = "ADMIN";
+    else if (storedPasswords[2] && inputHash === createHash(storedPasswords[2].toString())) role = "TEKNIS";
+    else if (storedPasswords[3] && inputHash === createHash(storedPasswords[3].toString())) role = "ADMIN_INPUT";
 
     if (role) {
       logUserActivity(role, "LOGIN", "Login berhasil");
@@ -100,6 +104,82 @@ function verifyPassword(inputPassword) {
     
     return { valid: false };
   } catch (e) { return { valid: false, error: e.toString() }; }
+}
+
+function processForm(data, passwordAuthHash) {
+  var ss = SpreadsheetApp.openById(MAIN_SS_ID);
+  
+  var sheetAdmin = ss.getSheetByName("Admin");
+  if (!sheetAdmin) return "Error Sistem: Sheet Admin tidak ditemukan.";
+  
+  var passwords = sheetAdmin.getRange("A2:A5").getValues().flat();
+  
+  // Buat Hash dari password di database untuk verifikasi
+  var superAdminHash = createHash(passwords[0].toString());
+  var adminInputHash = createHash(passwords[3].toString());
+  
+  var currentRole = "";
+
+  if (passwordAuthHash === superAdminHash) currentRole = "SUPER_ADMIN";
+  else if (passwordAuthHash === adminInputHash) currentRole = "ADMIN_INPUT";
+  else return "Password Salah! Akses Ditolak.";
+
+  var lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(10000); 
+  } catch (e) {
+    return "Server sibuk, coba lagi.";
+  }
+
+  try {
+    var sheet = ss.getSheetByName("Dashboard SKK"); 
+    if (!sheet) return "Error: Sheet 'Dashboard SKK' tidak ditemukan.";
+
+    var targetRow;
+    var actionType = "";
+    
+    if (data.rowNumber && data.rowNumber != "") {
+      targetRow = parseInt(data.rowNumber);
+      if (isNaN(targetRow) || targetRow < 7) return "Error: Baris tidak valid.";
+      actionType = "EDIT DATA";
+    } else {
+      var lastRow = sheet.getLastRow();
+      var rangeB = sheet.getRange("B1:B" + (lastRow + 10)).getValues();
+      targetRow = -1;
+      for (var i = 6; i < rangeB.length; i++) {
+        if (rangeB[i][0] === "" || rangeB[i][0] === null) {
+          targetRow = i + 1;
+          break;
+        }
+      }
+      if (targetRow === -1) targetRow = lastRow + 1;
+      if (targetRow < 7) targetRow = 7;
+      actionType = "TAMBAH DATA";
+    }
+
+    sheet.getRange(targetRow, 2).setValue(data.nama); 
+    var rowData = [[
+      data.perusahaan, 
+      data.sertifikat, 
+      data.jenjang, 
+      data.asosiasi, 
+      data.masaBerlaku 
+    ]];
+    sheet.getRange(targetRow, 5, 1, 5).setValues(rowData);
+    sheet.getRange(targetRow, 12).setValue(data.keterangan);
+    
+    SpreadsheetApp.flush(); 
+    
+    // CATAT KE LOG
+    logUserActivity(currentRole, actionType, `${data.nama} - ${data.sertifikat}`);
+
+    return "Sukses";
+
+  } catch (e) {
+    return "Gagal Sistem: " + e.toString();
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 // --- LOG SYSTEM (INTERNAL MEMORY) ---
@@ -159,8 +239,8 @@ function getSystemLogs() {
   }
 }
 
-// --- FUNGSI HAPUS LOG MANUAL ---
-function clearLogData(startDateStr, endDateStr, passwordInput) {
+// --- FUNGSI HAPUS LOG MANUAL (SECURE HASH) ---
+function clearLogData(startDateStr, endDateStr, passwordInputHash) {
   var lock = LockService.getScriptLock();
   try {
     lock.waitLock(5000);
@@ -171,9 +251,9 @@ function clearLogData(startDateStr, endDateStr, passwordInput) {
     if (!sheetAdmin) return { error: "Sheet Admin tidak ditemukan" };
     
     var passwords = sheetAdmin.getRange("A2:A5").getValues().flat();
-    var superAdminPass = passwords[0];
+    var superAdminHash = createHash(passwords[0].toString());
     
-    if (passwordInput.toString() !== superAdminPass.toString()) {
+    if (passwordInputHash !== superAdminHash) {
       return { error: "Password Salah! Akses Ditolak." };
     }
 
@@ -186,19 +266,15 @@ function clearLogData(startDateStr, endDateStr, passwordInput) {
     var initialCount = logs.length;
     
     // 3. Filter Tanggal
-    // Input format yyyy-mm-dd
     var start = new Date(startDateStr); start.setHours(0,0,0,0);
     var end = new Date(endDateStr); end.setHours(23,59,59,999);
     
     var newLogs = logs.filter(function(log) {
-      // Log format "dd-MM-yyyy HH:mm:ss"
       var parts = log.time.split(' '); 
       var dParts = parts[0].split('-'); 
       var tParts = parts[1].split(':'); 
       var logDate = new Date(dParts[2], dParts[1] - 1, dParts[0], tParts[0], tParts[1], tParts[2]);
       
-      // Hapus jika logDate berada di dalam rentang start & end
-      // Return TRUE jika logDate < start ATAU logDate > end (Berarti di luar range, simpan)
       return (logDate < start || logDate > end);
     });
 
@@ -206,8 +282,6 @@ function clearLogData(startDateStr, endDateStr, passwordInput) {
     props.setProperty('SYSTEM_LOGS', JSON.stringify(newLogs));
     var deletedCount = initialCount - newLogs.length;
     
-    // Log aksi penghapusan ini (Agar ada jejak siapa yang menghapus)
-    // Ini juga akan memicu FIFO otomatis jika log penuh lagi
     logUserActivity("SUPER_ADMIN", "HAPUS LOG", "Menghapus " + deletedCount + " data (" + startDateStr + " s/d " + endDateStr + ")");
 
     return { status: "Sukses", count: deletedCount };
@@ -300,77 +374,19 @@ function getDropdownData() {
   return dropdowns;
 }
 
-function processForm(data, passwordAuth) {
-  var ss = SpreadsheetApp.openById(MAIN_SS_ID);
-  
-  var sheetAdmin = ss.getSheetByName("Admin");
-  if (!sheetAdmin) return "Error Sistem: Sheet Admin tidak ditemukan.";
-  
-  var passwords = sheetAdmin.getRange("A2:A5").getValues().flat();
-  var superAdminPass = passwords[0];
-  var adminInputPass = passwords[3];
-  
-  var inputPass = passwordAuth.toString();
-  var currentRole = "";
-
-  if (inputPass === superAdminPass.toString()) currentRole = "SUPER_ADMIN";
-  else if (inputPass === adminInputPass.toString()) currentRole = "ADMIN_INPUT";
-  else return "Password Salah! Akses Ditolak.";
-
-  var lock = LockService.getScriptLock();
-  try {
-    lock.waitLock(10000); 
-  } catch (e) {
-    return "Server sibuk, coba lagi.";
-  }
-
-  try {
-    var sheet = ss.getSheetByName("Dashboard SKK"); 
-    if (!sheet) return "Error: Sheet 'Dashboard SKK' tidak ditemukan.";
-
-    var targetRow;
-    var actionType = "";
-    
-    if (data.rowNumber && data.rowNumber != "") {
-      targetRow = parseInt(data.rowNumber);
-      if (isNaN(targetRow) || targetRow < 7) return "Error: Baris tidak valid.";
-      actionType = "EDIT DATA";
-    } else {
-      var lastRow = sheet.getLastRow();
-      var rangeB = sheet.getRange("B1:B" + (lastRow + 10)).getValues();
-      targetRow = -1;
-      for (var i = 6; i < rangeB.length; i++) {
-        if (rangeB[i][0] === "" || rangeB[i][0] === null) {
-          targetRow = i + 1;
-          break;
-        }
-      }
-      if (targetRow === -1) targetRow = lastRow + 1;
-      if (targetRow < 7) targetRow = 7;
-      actionType = "TAMBAH DATA";
+// --- UTILS: HASHING HELPER (SERVER SIDE) ---
+function createHash(input) {
+  var rawHash = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, input);
+  var txtHash = '';
+  for (var i = 0; i < rawHash.length; i++) {
+    var hashVal = rawHash[i];
+    if (hashVal < 0) {
+      hashVal += 256;
     }
-
-    sheet.getRange(targetRow, 2).setValue(data.nama); 
-    var rowData = [[
-      data.perusahaan, 
-      data.sertifikat, 
-      data.jenjang, 
-      data.asosiasi, 
-      data.masaBerlaku 
-    ]];
-    sheet.getRange(targetRow, 5, 1, 5).setValues(rowData);
-    sheet.getRange(targetRow, 12).setValue(data.keterangan);
-    
-    SpreadsheetApp.flush(); 
-    
-    // CATAT KE LOG
-    logUserActivity(currentRole, actionType, `${data.nama} - ${data.sertifikat}`);
-
-    return "Sukses";
-
-  } catch (e) {
-    return "Gagal Sistem: " + e.toString();
-  } finally {
-    lock.releaseLock();
+    if (hashVal.toString(16).length == 1) {
+      txtHash += '0';
+    }
+    txtHash += hashVal.toString(16);
   }
+  return txtHash;
 }
