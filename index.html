@@ -64,7 +64,7 @@
     /* --- DASHBOARD STYLES --- */
     #dashboard-section { display: none; padding-bottom: 50px; }
     
-    /* Logo Wrapper: Center aligned with padding */
+    /* Logo Wrapper */
     .logo-wrapper { background: transparent !important; padding: 0 !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; border-radius: 0 !important; margin-right: 15px; display: flex; align-items: center; justify-content: center; }
     
     @keyframes slideInSmooth { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -122,7 +122,7 @@
     .nested-cell-action { justify-content: center; }
     .align-middle-person { vertical-align: middle !important; }
 
-    /* GANTT BASE STYLES (Desktop) */
+    /* GANTT BASE STYLES */
     .custom-gantt-wrapper { display: flex; flex-direction: column; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow-x: auto; position: relative; max-width: 100%; font-family: 'Segoe UI', sans-serif; }
     .custom-gantt-wrapper::-webkit-scrollbar { height: 8px; width: 8px; }
     .custom-gantt-wrapper::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 0 0 10px 10px; }
@@ -149,10 +149,7 @@
     .month-marker { position: absolute; top: 0; height: 100%; border-left: 1px dashed #e0e0e0; font-size: 11px; padding-left: 8px; padding-top: 18px; color: #888; font-weight: 600; pointer-events: none; text-transform: uppercase; }
     .g-header-row .month-marker { border-left: 1px solid #d1d3e2; color: #555; }
     
-    /* FIX: SweetAlert Input Focus */
-    /* Menjamin SweetAlert selalu di atas Bootstrap Modal */
     .swal2-container { z-index: 20000 !important; }
-
     .custom-tooltip { position: fixed; display: none; background: rgba(255, 255, 255, 0.98); border: 1px solid #eee; border-left: 5px solid var(--primary-color); padding: 12px 16px; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 9999; pointer-events: none; min-width: 200px; max-width: 300px; font-size: 0.85rem; animation: fadeIn 0.2s ease-in-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     .ct-header { font-weight: bold; color: #333; margin-bottom: 5px; line-height: 1.2; font-size: 0.95rem; border-bottom: 1px solid #f0f0f0; padding-bottom: 5px; }
@@ -165,29 +162,28 @@
     
     input[list] { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23333" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 12px; padding-right: 2rem; cursor: pointer; }
 
-    /* --- SKELETON LOADING --- */
+    /* SKELETON LOADING */
     .skeleton { background: #e0e0e0; background: linear-gradient(to right, #e0e0e0 0%, #f0f0f0 50%, #e0e0e0 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite linear; border-radius: 4px; display: inline-block; }
     .skeleton-text { height: 16px; width: 80%; margin-bottom: 5px; }
     .skeleton-cell { height: 40px; width: 100%; }
     @keyframes shimmer { 0% {background-position: -1000px 0;} 100% {background-position: 1000px 0;} }
 
-    /* --- PAGINATION --- */
+    /* PAGINATION */
     .pagination-wrapper { display: flex; justify-content: center; align-items: center; gap: 5px; margin-top: 15px; }
     .btn-page { border: 1px solid #ddd; background: white; color: var(--primary-color); border-radius: 8px; padding: 5px 12px; font-size: 0.85rem; transition: all 0.2s; }
     .btn-page:hover { background: #f0f7ff; border-color: var(--primary-color); }
     .btn-page.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
     .btn-page:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* --- LOG MODAL --- */
+    /* LOG MODAL */
     .log-table-container { max-height: 400px; overflow-y: auto; }
     .log-entry-row { transition: background 0.2s; font-size: 0.85rem; }
     .log-entry-row:hover { background: #f8f9fa; }
 
-    /* --- MEDIA QUERIES UNTUK TAMPILAN MOBILE --- */
+    /* --- RESPONSIVE / MOBILE STYLE UPDATES --- */
     @media (max-width: 768px) {
       .navbar .container-fluid { padding-left: 15px; padding-right: 15px; }
       .logo-wrapper img { height: 35px !important; }
-      
       .greeting-wrapper { display: none !important; } 
       
       /* Vertical Menu on Mobile */
@@ -199,15 +195,63 @@
       .stat-card { margin-bottom: 10px; }
       .stat-value { font-size: 2rem; }
 
-      /* --- FIX TIMELINE MOBILE (GANTT) --- */
-      /* FIX: Matikan sticky, set FIXED WIDTH, dan izinkan TEXT WRAP */
+      /* --- MOBILE CARD VIEW FOR TABLES --- */
+      /* 1. Sembunyikan Header Tabel Asli */
+      .table thead { display: none; }
+
+      /* 2. Ubah Baris Tabel menjadi Blok Kartu */
+      .table tbody tr {
+        display: block;
+        margin-bottom: 1rem;
+        background-color: #fff;
+        border: 1px solid #e3e6f0;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        padding: 10px;
+      }
+
+      /* 3. Ubah Sel Tabel menjadi Flexbox (Baris dalam Kartu) */
+      .table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 0.75rem;
+        border-bottom: 1px solid #f0f0f0;
+        text-align: right;
+        font-size: 0.9rem;
+      }
+      .table tbody td:last-child { border-bottom: none; }
+
+      /* 4. Tampilkan Label Kolom (data-label) */
+      .table tbody td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: var(--primary-color);
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        margin-right: 1rem;
+        text-align: left;
+        flex-shrink: 0;
+        width: 40%;
+        letter-spacing: 0.5px;
+      }
+      
+      /* Nested cell adjustment in card view */
+      .nested-cell {
+        justify-content: flex-end; /* Align right */
+        text-align: right;
+        border-bottom: 1px dashed #eee;
+        width: 100%;
+      }
+      .nested-cell:last-child { border-bottom: none; }
+      .nested-cell-action { justify-content: flex-end; }
+
+      /* FIX TIMELINE MOBILE (GANTT) */
       .g-sticky-col, .g-col-personil, .g-col-pekerjaan {
         position: static !important;  
         box-shadow: none !important;
         border-right: 1px solid #eee !important;
         flex-shrink: 0;
-        
-        /* Text Handling */
         white-space: normal !important; 
         word-wrap: break-word;
         font-size: 0.75rem; 
@@ -216,25 +260,12 @@
         align-items: center;
       }
 
-      /* Lebar Kolom Tetap untuk Mobile agar sejajar */
       .g-col-personil { width: 130px !important; min-width: 130px !important; }
       .g-col-pekerjaan { width: 180px !important; min-width: 180px !important; left: auto !important; }
-      .g-sticky-col { width: 220px !important; min-width: 220px !important; } /* Untuk Chart Project */
+      .g-sticky-col { width: 220px !important; min-width: 220px !important; } 
 
-      /* Container agar tinggi baris menyesuaikan */
-      .g-row-container {
-        align-items: stretch;
-        width: max-content; 
-        min-width: 100%;
-        display: flex;
-      }
-      
-      /* Wrapper utama scrollable */
-      .custom-gantt-wrapper {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        width: 100%;
-      }
+      .g-row-container { align-items: stretch; width: max-content; min-width: 100%; display: flex; }
+      .custom-gantt-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
     }
   </style>
 </head>
@@ -477,7 +508,7 @@
           <div id="subview-tugas-table">
             <div class="table-responsive">
               <table class="table table-hover align-middle">
-                <thead>
+                <thead class="table-light">
                   <tr>
                     <th style="min-width: 180px;">Nama Personil</th>
                     <th style="min-width: 200px;">Nama Paket Pekerjaan</th>
@@ -653,7 +684,7 @@
                    </tr>
                 </thead>
                 <tbody id="bodyLogHistory">
-                    </tbody>
+                   </tbody>
              </table>
              <div id="loadingLog" class="text-center py-4">
                 <div class="spinner-border text-secondary spinner-border-sm" role="status"></div>
@@ -700,6 +731,14 @@
         }
     }
 
+    // --- SECURITY HELPER: HASHING (CLIENT SIDE) ---
+    async function hashPassword(message) {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
     // --- LOGIC APLIKASI UTAMA ---
     try { google.charts.load('current', {'packages':['gantt']}); } catch(e){}
 
@@ -712,7 +751,6 @@
     const activeTimers = {};
 
     // --- INIT ---
-    // Cek Session saat Load
     window.addEventListener('DOMContentLoaded', () => {
         const storedRole = sessionStorage.getItem('userRole');
         if (storedRole) {
@@ -737,20 +775,22 @@
       btn.disabled = true;
       
       try {
-          const response = await fetchAPI('login', 'POST', { password: pass });
+          // HASH PASSWORD SEBELUM DIKIRIM
+          const hashedPassword = await hashPassword(pass);
+          const response = await fetchAPI('login', 'POST', { password: hashedPassword });
+          
           if (response && response.valid) {
              loginSuccess(response.role, true);
           } else {
+             throw new Error("Invalid");
+          }
+      } catch (err) {
             btn.innerHTML = originalBtnText; btn.disabled = false;
             passInput.value = ''; passInput.focus();
             alertBox.style.display = 'flex';
             const loginCard = document.querySelector('.login-card');
             loginCard.style.animation = 'none'; loginCard.offsetHeight;
             loginCard.style.animation = 'shake 0.4s cubic-bezier(.36,.07,.19,.97) both';
-          }
-      } catch (err) {
-            alertBox.style.display = 'flex'; alertBox.innerHTML = '<i class="bi bi-wifi-off"></i> Koneksi Error.';
-            btn.innerHTML = originalBtnText; btn.disabled = false; 
       }
     }
 
@@ -770,7 +810,6 @@
         loadAllData(); 
     }
 
-    // --- LOGOUT TANPA DELAY ---
     async function handleLogout() {
         const currentRole = sessionStorage.getItem('userRole');
         
@@ -822,11 +861,9 @@
         else if (role === 'ADMIN_INPUT') roleText = "Tim Admin Database Gaharu Sempana Group";
         else roleText = "Gaharu Sempana Group";
 
-        // Update Desktop
         document.getElementById('greeting-time').innerHTML = `${icon} ${timeText}`;
         document.getElementById('greeting-role').innerText = roleText;
 
-        // Update Mobile
         const mobileTime = document.getElementById('mobile-greeting-time');
         const mobileRole = document.getElementById('mobile-greeting-role');
         if(mobileTime) mobileTime.innerHTML = `${icon} ${timeText}`;
@@ -867,11 +904,9 @@
     }
 
     // --- LOG HISTORY FUNCTIONS ---
-    // PENTING: TAMBAHKAN { focus: false } AGAR SWEETALERT BISA DIKETIK
     const modalLogHistory = new bootstrap.Modal(document.getElementById('modalLogHistory'), { focus: false });
     
     function showLogHistory() {
-        // Close offcanvas if open (mobile)
         const offcanvasEl = document.getElementById('offcanvasNavbar');
         const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl);
         if (offcanvas) offcanvas.hide();
@@ -919,12 +954,9 @@
         }
     }
 
-    // --- FUNGSI HAPUS LOG (2 Langkah: Tanggal -> Password) ---
     function handleClearLogs() {
-        // FIX: Hapus tabindex agar fokus bisa pindah ke Swal
         document.getElementById('modalLogHistory').removeAttribute('tabindex');
         
-        // Langkah 1: Pilih Tanggal
         Swal.fire({
             title: 'Hapus History Log',
             html: `
@@ -955,7 +987,6 @@
             if (result.isConfirmed) {
                 const dateData = result.value;
 
-                // Langkah 2: Konfirmasi Password (Native Input Swal)
                 setTimeout(() => {
                     Swal.fire({
                         title: 'Konfirmasi Password', 
@@ -965,16 +996,15 @@
                         showCancelButton: true, 
                         confirmButtonText: 'Hapus Sekarang', 
                         confirmButtonColor: '#dc3545',
-                        preConfirm: (password) => { 
+                        showLoaderOnConfirm: true,
+                        preConfirm: async (password) => { 
                             if (!password) { Swal.showValidationMessage('Password wajib diisi!'); } 
-                            return password; 
+                            return await hashPassword(password); // Hash disini
                         }
                     }).then(async (passResult) => {
                         if (passResult.isConfirmed) {
-                            const passwordInput = passResult.value;
-                            const payload = { startDate: dateData.startDate, endDate: dateData.endDate, password: passwordInput };
-
-                            Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                            const passwordHash = passResult.value; 
+                            const payload = { startDate: dateData.startDate, endDate: dateData.endDate, password: passwordHash };
 
                             try {
                                 const response = await fetchAPI('clearLogs', 'POST', payload);
@@ -1015,7 +1045,6 @@
     }
 
     async function loadAllData() {
-      // SKELETON LOADING
       if(currentUserRole !== "TEKNIS") { showSkeleton('bodySkk'); showSkeleton('bodyTugas'); }
       if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "TEKNIS") { showSkeleton('bodyProject'); }
       
@@ -1072,7 +1101,6 @@
 
         if (totalPages <= 1) return;
 
-        // Prev Button
         const btnPrev = document.createElement('button');
         btnPrev.className = 'btn-page';
         btnPrev.innerHTML = '<i class="bi bi-chevron-left"></i>';
@@ -1080,7 +1108,6 @@
         btnPrev.onclick = () => renderCallback(currentPage - 1);
         container.appendChild(btnPrev);
 
-        // Page Numbers (Simple logic: Show all if < 7, else show range)
         let startPage = Math.max(1, currentPage - 2);
         let endPage = Math.min(totalPages, currentPage + 2);
 
@@ -1108,7 +1135,6 @@
              container.appendChild(btnLast);
         }
 
-        // Next Button
         const btnNext = document.createElement('button');
         btnNext.className = 'btn-page';
         btnNext.innerHTML = '<i class="bi bi-chevron-right"></i>';
@@ -1126,7 +1152,7 @@
       
       if(!data || data.length === 0) {
           document.getElementById('msgSkk').classList.remove('d-none');
-          document.getElementById('pagination-skk').innerHTML = ''; // Clear pagination
+          document.getElementById('pagination-skk').innerHTML = '';
           animateValue("skk-total", 0, 0, 800); animateValue("skk-expired", 0, 0, 800); animateValue("skk-used", 0, 0, 800);
           tbody.innerHTML = '';
           return;
@@ -1134,7 +1160,6 @@
           document.getElementById('msgSkk').classList.add('d-none');
       }
 
-      // 1. PREPARE MAP (Optimasi Lookup)
       const activeAssignmentsMap = new Map();
       if(dataTugas && dataTugas.length > 0) {
           for(let i=0; i<dataTugas.length; i++){
@@ -1147,7 +1172,6 @@
           }
       }
 
-      // 2. GROUPING DATA
       const groupedData = {};
       for(let i=0; i<data.length; i++) {
           const row = data[i];
@@ -1168,12 +1192,10 @@
       const allKeys = Object.keys(groupedData);
       statTotal = allKeys.length;
 
-      // 3. PAGINATION SLICE (Slice Keys, not Rows, to keep grouping intact)
       const startIndex = (page - 1) * ITEMS_PER_PAGE;
       const endIndex = startIndex + ITEMS_PER_PAGE;
       const pagedKeys = allKeys.slice(startIndex, endIndex);
 
-      // 4. STAT CALCULATION
       allKeys.forEach(key => {
           const person = groupedData[key];
           let isUsed = false;
@@ -1187,7 +1209,6 @@
       
       const canEdit = (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT");
       
-      // 5. RENDER ONLY PAGED KEYS
       for(let i=0; i<pagedKeys.length; i++) {
           const person = groupedData[pagedKeys[i]];
           let isUsed = false, hasActive = false;
@@ -1250,20 +1271,21 @@
               }
           }
           const styleAksi = canEdit ? '' : 'display:none;';
+          
           htmlContent.push(`
             <tr>
-              <td class="align-middle-person" style="white-space: normal !important; word-wrap: break-word;">
+              <td class="align-middle-person" data-label="Nama Personil" style="white-space: normal !important; word-wrap: break-word;">
                   <div class="fw-bold text-dark">${person.nama}</div>
                   <div class="small text-muted" style="line-height: 1.2;"><i class="bi bi-building me-1"></i>${person.perusahaan || '-'}</div>
               </td>
-              <td class="text-center align-middle-person">${btnWA}</td>
-              <td class="align-middle-person small" style="white-space: normal !important; word-wrap: break-word; line-height: 1.3;">${person.bidang || '-'}</td>
-              <td style="padding-top:0; padding-bottom:0; white-space: normal !important;">${htmlSertifikat}</td>
-              <td style="padding-top:0; padding-bottom:0;">${htmlJenjang}</td>
-              <td style="padding-top:0; padding-bottom:0;">${htmlSisa}</td>
-              <td class="text-center align-middle-person" style="white-space: normal !important;">${finalBadge}</td>
-              <td style="padding-top:0; padding-bottom:0; white-space: normal !important;">${htmlKet}</td>
-              <td class="text-center" style="padding-top:0; padding-bottom:0; ${styleAksi}">${htmlAksi}</td>
+              <td class="text-center align-middle-person" data-label="Kontak (WA)">${btnWA}</td>
+              <td class="align-middle-person small" data-label="Jenjang & Bidang" style="white-space: normal !important; word-wrap: break-word; line-height: 1.3;">${person.bidang || '-'}</td>
+              <td style="padding-top:0; padding-bottom:0; white-space: normal !important;" data-label="Sertifikat">${htmlSertifikat}</td>
+              <td style="padding-top:0; padding-bottom:0;" data-label="Jenjang">${htmlJenjang}</td>
+              <td style="padding-top:0; padding-bottom:0;" data-label="Sisa Waktu">${htmlSisa}</td>
+              <td class="text-center align-middle-person" data-label="Status" style="white-space: normal !important;">${finalBadge}</td>
+              <td style="padding-top:0; padding-bottom:0; white-space: normal !important;" data-label="Keterangan">${htmlKet}</td>
+              <td class="text-center" data-label="Aksi" style="padding-top:0; padding-bottom:0; ${styleAksi}">${htmlAksi}</td>
             </tr>
           `);
       }
@@ -1300,7 +1322,6 @@
        animateValue("tugas-total", 0, new Set(data.map(r=>r[2])).size, 800); 
        animateValue("tugas-active", 0, active, 800);
 
-       // Grouping
        const groupedData = {};
        for(let i=0; i<filtered.length; i++){
            const row = filtered[i];
@@ -1320,7 +1341,6 @@
 
        const persons = Object.values(groupedData);
        
-       // PAGINATION
        const startIndex = (page - 1) * ITEMS_PER_PAGE;
        const pagedPersons = persons.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
@@ -1342,15 +1362,15 @@
 
            htmlContent.push(`
              <tr>
-               <td class="align-middle-person fw-bold text-dark">${person.nama}</td>
-               <td style="padding-top:0; padding-bottom:0;">${hPekerjaan}</td>
-               <td style="padding-top:0; padding-bottom:0;">${hLpse}</td>
-               <td style="padding-top:0; padding-bottom:0;">${hMetode}</td>
-               <td style="padding-top:0; padding-bottom:0;">${hKontrak}</td>
-               <td style="padding-top:0; padding-bottom:0;">${hSertifikat}</td>
-               <td style="padding-top:0; padding-bottom:0;">${hStart}</td>
-               <td style="padding-top:0; padding-bottom:0;">${hEnd}</td>
-               <td style="padding-top:0; padding-bottom:0;">${hStatus}</td>
+               <td class="align-middle-person fw-bold text-dark" data-label="Nama Personil">${person.nama}</td>
+               <td style="padding-top:0; padding-bottom:0;" data-label="Paket Pekerjaan">${hPekerjaan}</td>
+               <td style="padding-top:0; padding-bottom:0;" data-label="LPSE">${hLpse}</td>
+               <td style="padding-top:0; padding-bottom:0;" data-label="PL/Tender">${hMetode}</td>
+               <td style="padding-top:0; padding-bottom:0;" data-label="Jenis Kontrak">${hKontrak}</td>
+               <td style="padding-top:0; padding-bottom:0;" data-label="Sertifikat Digunakan">${hSertifikat}</td>
+               <td style="padding-top:0; padding-bottom:0;" data-label="Start Date">${hStart}</td>
+               <td style="padding-top:0; padding-bottom:0;" data-label="End Date">${hEnd}</td>
+               <td style="padding-top:0; padding-bottom:0;" data-label="Status">${hStatus}</td>
              </tr>
            `);
        }
@@ -1365,7 +1385,6 @@
       let counts = { total: 0, expired: 0, done: 0 }; 
       const today = new Date(); today.setHours(0, 0, 0, 0);
 
-      // Stat Calculation (All Data)
       for(let i=0; i<data.length; i++) {
         const row = data[i];
         if (!row[1]) continue;
@@ -1383,7 +1402,6 @@
         if (isDone) counts.done++;
       }
 
-      // Pagination
       const validRows = data.filter(r => r[1]);
       const startIndex = (page - 1) * ITEMS_PER_PAGE;
       const pagedRows = validRows.slice(startIndex, startIndex + ITEMS_PER_PAGE);
@@ -1425,14 +1443,14 @@
         let priorityClass = "bg-info"; if (priority === "High") priorityClass = "bg-danger"; else if (priority === "Medium") priorityClass = "bg-warning text-dark";
 
         htmlContent.push(`<tr>
-            <td class="fw-bold" style="min-width: 250px;">${pekerjaan}</td>
-            <td>${kordinator}</td>
-            <td class="text-center">${btnUrl}</td>
-            <td class="text-center"><span class="badge ${priorityClass}">${priority || 'Low'}</span></td>
-            <td class="text-center text-muted small">${deadKontrakView}</td>
-            <td class="text-center text-muted small">${deadScheduleView}</td>
-            <td class="text-center"><span class="badge ${badgeClass}">${statusText || 'Not Started'}</span></td>
-            <td class="small text-muted">${notes}</td> </tr>`);
+            <td class="fw-bold" data-label="Pekerjaan" style="min-width: 250px;">${pekerjaan}</td>
+            <td data-label="Kordinator">${kordinator}</td>
+            <td class="text-center" data-label="Detail Schedule">${btnUrl}</td>
+            <td class="text-center" data-label="Priority"><span class="badge ${priorityClass}">${priority || 'Low'}</span></td>
+            <td class="text-center text-muted small" data-label="Deadline Kontrak">${deadKontrakView}</td>
+            <td class="text-center text-muted small" data-label="Deadline Schedule">${deadScheduleView}</td>
+            <td class="text-center" data-label="Status"><span class="badge ${badgeClass}">${statusText || 'Not Started'}</span></td>
+            <td class="small text-muted" data-label="Keterangan">${notes}</td> </tr>`);
       }
       
       tbody.innerHTML = htmlContent.join('');
@@ -1780,12 +1798,16 @@
         Swal.fire({
           title: 'Konfirmasi Password', text: 'Masukkan password Anda untuk menyimpan:', input: 'password',
           inputAttributes: { autocapitalize: 'off', placeholder: 'Password' }, showCancelButton: true, confirmButtonText: 'Simpan', confirmButtonColor: '#000080',
-          preConfirm: (password) => { if (!password) { Swal.showValidationMessage('Password wajib diisi!'); } return password; }
+          showLoaderOnConfirm: true,
+          preConfirm: async (password) => { 
+              if (!password) { Swal.showValidationMessage('Password wajib diisi!'); } 
+              return await hashPassword(password);
+          }
         }).then(async (result) => {
           if (result.isConfirmed) {
-            const passwordInput = result.value;
+            const passwordHash = result.value;
             const payload = {
-              actionPassword: passwordInput, rowNumber: editRowNumber, 
+              rowNumber: editRowNumber, 
               nama: document.getElementById('inputNama').value, perusahaan: document.getElementById('inputPerusahaan').value,
               sertifikat: document.getElementById('inputSertifikat').value, jenjang: document.getElementById('inputJenjang').value,
               asosiasi: document.getElementById('inputAsosiasi').value, masaBerlaku: document.getElementById('inputMasaBerlaku').value,
@@ -1794,7 +1816,7 @@
             document.getElementById('loading-overlay').style.display = 'flex'; document.getElementById('loading-text').innerText = "Menyimpan Data...";
             
             try {
-                const response = await fetchAPI('saveData', 'POST', { password: passwordInput, payload: payload });
+                const response = await fetchAPI('saveData', 'POST', { password: passwordHash, payload: payload });
                 document.getElementById('loading-overlay').style.display = 'none'; document.getElementById('loading-text').innerText = "Memuat Data...";
                 if(response === "Sukses") { Swal.fire('Berhasil!', 'Data berhasil disimpan.', 'success'); document.getElementById('formInputData').reset(); loadAllData(); } 
                 else { Swal.fire('Gagal!', response, 'error').then(() => { if(response.includes("Password")) myModal.show(); }); }
@@ -1806,7 +1828,7 @@
       }, 300);
     }
 
-    // --- SEARCH LISTENERS (Updated for Pagination) ---
+    // --- SEARCH LISTENERS ---
     document.getElementById('searchSkk').addEventListener('keyup', (e) => { 
         const k = e.target.value.toLowerCase(); 
         const filtered = dataSKK.filter(r => (r[1]||"").toLowerCase().includes(k) || (r[5]||"").toLowerCase().includes(k));
