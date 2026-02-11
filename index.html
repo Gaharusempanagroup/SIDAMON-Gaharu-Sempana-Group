@@ -190,17 +190,14 @@
     input[list]::-webkit-calendar-picker-indicator { opacity: 0.6; cursor: pointer; transition: 0.2s; }
     input[list]:hover::-webkit-calendar-picker-indicator { opacity: 1; transform: scale(1.1); }
     
-    .form-select-custom {
-        border: none;
-        background: transparent;
+    .form-select {
+        border: none !important;
+        box-shadow: none !important;
+        background-color: transparent;
         font-weight: 500;
         color: #333;
-        padding-top: 1.625rem;
-        padding-bottom: 0.625rem;
-        width: 100%;
     }
-    .form-select-custom:focus { outline: none; }
-
+    .form-select:focus { outline: none; box-shadow: none; }
 
     /* --- FLOATING ACTION BUTTON (FAB) --- */
     .fab-container { position: fixed; bottom: 30px; right: 30px; z-index: 999; display: none; }
@@ -468,14 +465,6 @@
           <form id="formInputData">
             <input type="hidden" id="editRowNumber" value="">
             
-            <div class="modern-input-group bg-warning-subtle border-warning mb-3" id="containerSelectSertifikat" style="display:none;">
-                <i class="bi bi-caret-down-square-fill input-icon text-warning-emphasis"></i>
-                <div class="form-floating">
-                    <select class="form-select-custom" id="editSertifikatSelect" onchange="loadSelectedCertificateData()">
-                        </select>
-                    <label style="position:absolute; top:5px; left:0; font-size:0.75rem; color:#666;">Pilih Sertifikat untuk Diedit</label>
-                </div>
-            </div>
             <div class="modern-input-group">
               <i class="bi bi-person-circle input-icon"></i>
               <div class="form-floating">
@@ -497,7 +486,9 @@
                 <div class="modern-input-group">
                   <i class="bi bi-award input-icon"></i>
                   <div class="form-floating">
-                    <input class="form-control" list="listSertifikat" id="inputSertifikat" placeholder="SKA..." required autocomplete="off">
+                    <input class="form-control" list="listSertifikat" id="inputSertifikat" placeholder="SKA..." autocomplete="off">
+                    <select class="form-select" id="selectSertifikatEdit" style="display:none; padding-top: 1.625rem; padding-bottom: 0.625rem;" onchange="loadSelectedCertificateData()">
+                    </select>
                     <label for="inputSertifikat">Sertifikat Keahlian</label>
                     <datalist id="listSertifikat"></datalist>
                   </div>
@@ -919,72 +910,79 @@
 
     const myModal = new bootstrap.Modal(document.getElementById('modalTambahData'));
     
+    // --- MODE TAMBAH: HYBRID FIELD (INPUT AKTIF, SELECT MATI) ---
     function openModalAdd() { 
         document.getElementById('modalLabel').innerHTML = '<i class="bi bi-file-earmark-plus me-2"></i>Input Data Personil'; 
         document.getElementById('formInputData').reset(); 
         document.getElementById('editRowNumber').value = ""; 
         
-        // Hide Select for Add
-        document.getElementById('containerSelectSertifikat').style.display = "none";
+        // Atur Tampilan: Mode Input
         document.getElementById('inputNama').readOnly = false;
         document.getElementById('inputPerusahaan').readOnly = false;
         
+        document.getElementById('inputSertifikat').style.display = 'block';     // Show Input
+        document.getElementById('inputSertifikat').required = true;
+        document.getElementById('selectSertifikatEdit').style.display = 'none'; // Hide Select
+        document.getElementById('selectSertifikatEdit').required = false;
+
         myModal.show(); 
     }
 
-    // --- NEW EDIT LOGIC: GROUP EDIT ---
+    // --- MODE EDIT: HYBRID FIELD (INPUT MATI, SELECT AKTIF) ---
     function openModalEditGroup(personName) {
        document.getElementById('modalLabel').innerHTML = '<i class="bi bi-pencil-square me-2"></i>Edit Data Personil';
        document.getElementById('formInputData').reset();
        document.getElementById('editRowNumber').value = ""; 
 
-       // 1. Filter rows for this person
+       // 1. Ambil semua baris milik personil ini
        const personRows = dataSKK.filter(row => row[1] === personName);
        if(personRows.length === 0) return;
 
-       // 2. Pre-fill common data from first row
+       // 2. Isi data umum (Nama & Perusahaan) dari baris pertama
        const firstRow = personRows[0];
        document.getElementById('inputNama').value = firstRow[1];
        document.getElementById('inputPerusahaan').value = firstRow[4];
        
-       // Lock Name/Company for consistency when editing group (Optional, but safer)
-       // document.getElementById('inputNama').readOnly = true; 
-       
-       // 3. Populate Select Dropdown
-       const selectEl = document.getElementById('editSertifikatSelect');
+       // 3. Populate Dropdown Select (Gantikan Input Text)
+       const selectEl = document.getElementById('selectSertifikatEdit');
        selectEl.innerHTML = "";
        
        personRows.forEach((row, idx) => {
-           const certName = row[5] || "No Cert Name";
-           const rowID = row[row.length - 1]; // Last index is row ID
+           const certName = row[5] || "Tanpa Nama Sertifikat";
+           const rowID = row[row.length - 1]; 
            const option = document.createElement('option');
            option.value = rowID;
            option.text = certName;
-           // Store data index to retrieve full row later
-           option.setAttribute('data-idx', dataSKK.indexOf(row)); 
+           option.setAttribute('data-idx', dataSKK.indexOf(row)); // Simpan index asli array
            selectEl.appendChild(option);
        });
 
-       // 4. Show Select Container & Trigger Change
-       document.getElementById('containerSelectSertifikat').style.display = "flex";
-       loadSelectedCertificateData(); // Load first item
+       // 4. Ubah Tampilan ke Mode Select
+       document.getElementById('inputSertifikat').style.display = 'none';      // Hide Input
+       document.getElementById('inputSertifikat').required = false;
+       document.getElementById('selectSertifikatEdit').style.display = 'block'; // Show Select
+       document.getElementById('selectSertifikatEdit').required = true;
+
+       // 5. Trigger load data untuk opsi pertama
+       loadSelectedCertificateData(); 
 
        myModal.show();
     }
 
     function loadSelectedCertificateData() {
-        const selectEl = document.getElementById('editSertifikatSelect');
+        const selectEl = document.getElementById('selectSertifikatEdit');
+        if(selectEl.options.length === 0) return;
+
         const selectedOption = selectEl.options[selectEl.selectedIndex];
         const dataIdx = selectedOption.getAttribute('data-idx');
         const item = dataSKK[dataIdx];
 
         if(!item) return;
 
-        // Set Row Number for Backend
+        // Set ID Baris untuk Backend
         document.getElementById('editRowNumber').value = item[item.length - 1];
 
-        // Fill specific fields
-        document.getElementById('inputSertifikat').value = item[5]; 
+        // Isi form lainnya sesuai sertifikat yang dipilih
         document.getElementById('inputJenjang').value = item[6]; 
         document.getElementById('inputAsosiasi').value = item[7]; 
         document.getElementById('inputKeterangan').value = item[11] || "";
@@ -1004,16 +1002,74 @@
     }
     
     async function submitForm() {
-      const form = document.getElementById('formInputData'); if (!form.checkValidity()) { form.reportValidity(); return; }
-      const namaInput = document.getElementById('inputNama').value.trim().toLowerCase(); const sertifikatInput = document.getElementById('inputSertifikat').value.trim().toLowerCase(); let editRowNumber = document.getElementById('editRowNumber').value; if (!editRowNumber) editRowNumber = "";
-      const isDuplicate = dataSKK.some(row => { const rowNama = (row[1] || "").toString().toLowerCase().trim(); const rowSertifikat = (row[5] || "").toString().toLowerCase().trim(); const rowID = row[row.length - 1]; if (rowNama === namaInput && rowSertifikat === sertifikatInput) { if (editRowNumber && String(rowID) === String(editRowNumber)) { return false; } return true; } return false; });
-      if (isDuplicate) { myModal.hide(); Swal.fire({ title: 'Data Sudah Ada!', text: `Personil "${document.getElementById('inputNama').value}" dengan sertifikat "${document.getElementById('inputSertifikat').value}" sudah terdaftar.`, icon: 'warning', confirmButtonColor: '#000080', confirmButtonText: 'Cek Kembali' }).then(() => { myModal.show(); }); return; }
+      const form = document.getElementById('formInputData'); 
+      
+      // Manual check karena hidden required field bisa bikin bug browser validation
+      if (!document.getElementById('inputNama').value || !document.getElementById('inputPerusahaan').value) {
+          form.reportValidity(); return;
+      }
+
+      const isEditMode = document.getElementById('selectSertifikatEdit').style.display === 'block';
+      let sertifikatVal = "";
+
+      // Ambil nilai Sertifikat tergantung mode
+      if (isEditMode) {
+          const sel = document.getElementById('selectSertifikatEdit');
+          if(sel.selectedIndex === -1) { Swal.fire('Error', 'Pilih sertifikat', 'error'); return; }
+          sertifikatVal = sel.options[sel.selectedIndex].text.trim().toLowerCase();
+      } else {
+          sertifikatVal = document.getElementById('inputSertifikat').value.trim().toLowerCase();
+          if(!sertifikatVal) { document.getElementById('inputSertifikat').reportValidity(); return; }
+      }
+
+      const namaInput = document.getElementById('inputNama').value.trim().toLowerCase(); 
+      let editRowNumber = document.getElementById('editRowNumber').value; 
+      if (!editRowNumber) editRowNumber = "";
+
+      // Validasi Duplikat
+      const isDuplicate = dataSKK.some(row => { 
+          const rowNama = (row[1] || "").toString().toLowerCase().trim(); 
+          const rowSertifikat = (row[5] || "").toString().toLowerCase().trim(); 
+          const rowID = row[row.length - 1]; 
+          
+          if (rowNama === namaInput && rowSertifikat === sertifikatVal) { 
+              if (editRowNumber && String(rowID) === String(editRowNumber)) { 
+                  return false; // Ini baris yang sedang diedit, bukan duplikat
+              } 
+              return true; // Ketemu baris lain dengan nama & sertifikat sama
+          } 
+          return false; 
+      });
+
+      if (isDuplicate) { 
+          myModal.hide(); 
+          Swal.fire({ 
+              title: 'Data Sudah Ada!', 
+              text: `Personil "${document.getElementById('inputNama').value}" dengan sertifikat ini sudah terdaftar.`, 
+              icon: 'warning', 
+              confirmButtonColor: '#000080', 
+              confirmButtonText: 'Cek Kembali' 
+          }).then(() => { myModal.show(); }); 
+          return; 
+      }
+      
       myModal.hide(); 
       setTimeout(() => {
         Swal.fire({ title: 'Konfirmasi Password', text: 'Masukkan password Anda untuk menyimpan:', input: 'password', inputAttributes: { autocapitalize: 'off', placeholder: 'Password' }, showCancelButton: true, confirmButtonText: 'Simpan', confirmButtonColor: '#000080', showLoaderOnConfirm: true, preConfirm: async (password) => { if (!password) { Swal.showValidationMessage('Password wajib diisi!'); } return await hashPassword(password); } }).then(async (result) => {
           if (result.isConfirmed) {
             const passwordHash = result.value;
-            const payload = { rowNumber: editRowNumber, nama: document.getElementById('inputNama').value, perusahaan: document.getElementById('inputPerusahaan').value, sertifikat: document.getElementById('inputSertifikat').value, jenjang: document.getElementById('inputJenjang').value, asosiasi: document.getElementById('inputAsosiasi').value, masaBerlaku: document.getElementById('inputMasaBerlaku').value, keterangan: document.getElementById('inputKeterangan').value };
+            // Gunakan sertifikatVal yang sudah ditentukan logic-nya di atas
+            const payload = { 
+                rowNumber: editRowNumber, 
+                nama: document.getElementById('inputNama').value, 
+                perusahaan: document.getElementById('inputPerusahaan').value, 
+                sertifikat: isEditMode ? document.getElementById('selectSertifikatEdit').options[document.getElementById('selectSertifikatEdit').selectedIndex].text : document.getElementById('inputSertifikat').value, // Pastikan kirim format Text asli
+                jenjang: document.getElementById('inputJenjang').value, 
+                asosiasi: document.getElementById('inputAsosiasi').value, 
+                masaBerlaku: document.getElementById('inputMasaBerlaku').value, 
+                keterangan: document.getElementById('inputKeterangan').value 
+            };
+            
             document.getElementById('loading-overlay').style.display = 'flex'; document.getElementById('loading-text').innerText = "Menyimpan Data...";
             try {
                 const response = await fetchAPI('saveData', 'POST', { password: passwordHash, payload: payload });
