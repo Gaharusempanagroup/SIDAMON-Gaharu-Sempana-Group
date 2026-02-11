@@ -185,7 +185,28 @@
     .modern-input-group:focus-within { border-color: var(--primary-color); box-shadow: 0 4px 12px rgba(0, 0, 128, 0.1); transform: translateY(-2px); }
     .input-icon { font-size: 1.2rem; color: var(--primary-color); opacity: 0.7; margin-right: 10px; }
     .modern-input-group .form-floating { flex-grow: 1; }
-    .modern-input-group .form-control { border: none !important; box-shadow: none !important; background: transparent; padding-top: 1.625rem; padding-bottom: 0.625rem; font-weight: 500; color: #333; }
+    
+    /* FIX: TANGGAL TENGGELAM */
+    .modern-input-group .form-control { 
+        border: none !important; 
+        box-shadow: none !important; 
+        background: transparent; 
+        padding-top: 1.625rem; 
+        padding-bottom: 0.625rem; 
+        font-weight: 500; 
+        color: #333; 
+        min-height: 58px; /* Pastikan tinggi minimal sesuai Bootstrap standard */
+    }
+    
+    /* FIX: Input date di mobile sering punya line-height/padding aneh */
+    .modern-input-group input[type="date"].form-control {
+        -webkit-appearance: none; /* Reset style native iOS/Android */
+        min-height: 58px;
+        line-height: 1.5;
+        display: flex; 
+        align-items: center;
+    }
+
     .modern-input-group .form-control:focus { outline: none; }
     .modern-input-group label { padding-left: 0; color: #888; font-size: 0.9rem; }
     input[list]::-webkit-calendar-picker-indicator { opacity: 0.6; cursor: pointer; transition: 0.2s; }
@@ -1017,7 +1038,7 @@
          htmlContent.push(`
            <tr>
               <td>
-                 <div class="fw-bold text-dark fs-6 mb-1 pe-5">${person.nama}</div>
+                 <div class="fw-bold text-dark fs-6 mb-1">${person.nama}</div>
                  <div class="d-md-none mt-3">
                    <div class="mobile-card-label">Daftar Penugasan</div>
                    <div class="mobile-detail-group">
@@ -1057,7 +1078,7 @@
           htmlContent.push(`
             <tr>
               <td>
-                <div class="fw-bold fs-6 mb-1 text-dark pe-5">${pekerjaan}</div>
+                <div class="fw-bold fs-6 mb-1 text-dark">${pekerjaan}</div>
                 
                 <div class="d-flex align-items-center gap-2 mb-2 d-md-none">
                    <span class="badge ${badgeClass}">${statusText || 'Not Started'}</span>
