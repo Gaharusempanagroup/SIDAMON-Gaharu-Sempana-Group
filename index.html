@@ -743,9 +743,19 @@
         let timeText = hour < 11 ? "Selamat Pagi" : (hour < 15 ? "Selamat Siang" : (hour < 18 ? "Selamat Sore" : "Selamat Malam"));
         let icon = hour < 11 ? "<i class='bi bi-brightness-alt-high-fill text-warning me-1'></i>" : (hour < 18 ? "<i class='bi bi-sun-fill text-warning me-1'></i>" : "<i class='bi bi-moon-stars-fill text-white me-1'></i>");
         let roleText = role === 'SUPER_ADMIN' ? "Manajemen Gaharu Sempana Group" : (role === 'ADMIN' ? "Tim Admin Gaharu Sempana Group" : (role === 'TEKNIS' ? "Tim Teknis Gaharu Sempana Group" : (role === 'ADMIN_INPUT' ? "Tim Admin Database Gaharu Sempana Group" : "Gaharu Sempana Group")));
-        document.getElementById('greeting-time').innerHTML = `${icon} ${timeText}`; document.getElementById('greeting-role').innerText = roleText;
-        const mobileTime = document.getElementById('mobile-greeting-time'); const mobileRole = document.getElementById('mobile-greeting-role');
-        if(mobileTime) mobileTime.innerHTML = `${icon} ${timeText}`; if(mobileRole) mobileRole.innerText = roleText;
+        const desktopTime = document.getElementById('greeting-time');
+        const desktopRole = document.getElementById('greeting-role');
+        if (desktopTime) desktopTime.innerHTML = `${icon} ${timeText}`; 
+        if (desktopRole) desktopRole.innerText = roleText;
+        const mobileTime = document.getElementById('mobile-greeting-time'); 
+        const mobileRole = document.getElementById('mobile-greeting-role');
+        if(mobileTime) {
+            // Trik: Replace 'text-white' menjadi 'text-primary' (biru) atau 'text-dark' hanya untuk mobile
+            // Agar icon bulan terlihat di background putih
+            let mobileIcon = icon.replace('text-white', 'text-primary'); 
+            mobileTime.innerHTML = `${mobileIcon} ${timeText}`;
+        }
+        if(mobileRole) mobileRole.innerText = roleText;
     }
 
     function applyRoleAccess(role) {
@@ -1327,3 +1337,4 @@
   </script>
 </body>
 </html>
+
