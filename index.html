@@ -3,10 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#000080">
   
   <title>SIDAMON Gaharu Sempana Group</title>
   <link rel="icon" type="image/png" href="Light Transparant.PNG">
@@ -108,7 +104,7 @@
     .nested-cell-action { justify-content: center; }
     .align-middle-person { vertical-align: middle !important; }
 
-    /* GANTT STYLES */
+    /* GANTT BASE STYLES */
     .custom-gantt-wrapper { display: flex; flex-direction: column; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow-x: auto; position: relative; max-width: 100%; font-family: 'Segoe UI', sans-serif; }
     .custom-gantt-wrapper::-webkit-scrollbar { height: 8px; width: 8px; }
     .custom-gantt-wrapper::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 0 0 10px 10px; }
@@ -547,7 +543,7 @@
     let currentPageSkk = 1; let currentPageTugas = 1; let currentPageProject = 1;
     let dataSKK = [], dataTugas = [], dataProject = [], currentChartView = '', currentUserRole = ''; 
     const tooltip = document.getElementById('gantt-tooltip'); const activeTimers = {};
-    let canEdit = false; // Flag untuk hak akses FAB
+    let canEdit = false; 
 
     const Toast = Swal.mixin({
       toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true,
@@ -579,18 +575,19 @@
         document.getElementById('inputNama').addEventListener('change', function() {
             const val = this.value.trim().toLowerCase();
             if(!val) return;
+            // Cari data di dataSKK client side (index 1 = nama, index 4 = perusahaan)
+            // dataSKK di client berasal dari server (getDataSKK):
+            // row[1] = nama, row[4] = perusahaan.
+            // Saat di-render, index 4 adalah perusahaan.
             const found = dataSKK.find(r => (r[1]||"").toString().toLowerCase().trim() === val);
             if(found) {
-                // found[4] adalah kolom perusahaan (index 4 di array dataSKK yg sudah diproses renderSKK)
+                // Gunakan index 4 untuk perusahaan (sesuai struktur getDataSKK server)
                 // Cek renderSKK: groupedData... items.
-                // Tapi dataSKK raw dari server: row[1]=Nama, row[4]=Perusahaan.
-                // Fungsi getDataSKK di server mengembalikan array dimana index 4 adalah perusahaan.
-                // Cek ulang struktur dataSKK di client.
-                // Di client dataSKK adalah hasil fetchAPI('getDataSKK').
-                // Server return result.push(rowData). rowData index 4 adalah perusahaan.
-                // YA, index 4.
-                document.getElementById('inputPerusahaan').value = found[4];
-                Toast.fire({ icon: 'info', title: 'Data perusahaan diisi otomatis' });
+                const company = found[4]; 
+                if (company) {
+                    document.getElementById('inputPerusahaan').value = company;
+                    Toast.fire({ icon: 'info', title: 'Data perusahaan diisi otomatis' });
+                }
             }
         });
     });
@@ -649,15 +646,19 @@
         if(searchContainer) { searchContainer.classList.remove('col-12'); searchContainer.classList.add('col-md'); }
         if (btnHistoryDesktop) btnHistoryDesktop.style.display = 'none'; if (btnHistoryMobile) btnHistoryMobile.style.display = 'none';
 
-        canEdit = false; // Default
+        canEdit = false; // Reset
 
         if (role === "SUPER_ADMIN") { 
+            canEdit = true; // FIX: Set permission BEFORE calling switchView
             switchView('skk'); 
             if (btnHistoryDesktop) btnHistoryDesktop.style.display = 'inline-block';
             if (btnHistoryMobile) btnHistoryMobile.style.display = 'flex';
-            canEdit = true;
         } 
-        else if (role === "ADMIN_INPUT") { navProject.style.display = 'none'; switchView('skk'); canEdit = true; }
+        else if (role === "ADMIN_INPUT") { 
+            canEdit = true; // FIX: Set permission BEFORE calling switchView
+            navProject.style.display = 'none'; 
+            switchView('skk'); 
+        }
         else if (role === "ADMIN") {
             navProject.style.display = 'none'; btnAdd.style.display = 'none'; thAksi.style.display = 'none'; 
             if(searchContainer) { searchContainer.classList.remove('col-md'); searchContainer.classList.add('col-12'); }
@@ -897,4 +898,3 @@
   </script>
 </body>
 </html>
-
