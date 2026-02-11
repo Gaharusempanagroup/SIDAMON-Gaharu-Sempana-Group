@@ -3,10 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#000080">
   
   <title>SIDAMON Gaharu Sempana Group</title>
   <link rel="icon" type="image/png" href="Light Transparant.PNG">
@@ -896,6 +892,7 @@
             htmlKet += `<div class="nested-cell small text-muted" title="${item.ketRaw || ''}" style="white-space: normal; line-height: 1.2;">${item.ketRaw || ''}</div>`;
             
             // Mobile HTML Construction (Grouped)
+            // UPDATED: Added word-wrap and break-word to force wrapping
             mobileDetailListHTML += `
               <div class="mobile-detail-item">
                   <div style="font-size: 0.85rem; font-weight: 700; color: #444; margin-bottom: 2px; line-height: 1.3;">${item.sertifikat}</div>
@@ -903,7 +900,7 @@
                       <span class="badge bg-light text-dark border">${item.jenjang || '-'}</span>
                       <span style="font-size: 0.75rem; ${sisaStyle}">${item.sisaWaktu || '-'}</span>
                   </div>
-                  ${item.ketRaw ? `<div class="small text-muted fst-italic" style="font-size: 0.75rem;">${item.ketRaw}</div>` : ''}
+                  ${item.ketRaw ? `<div class="small text-muted fst-italic mt-1" style="font-size: 0.75rem; word-wrap: break-word; overflow-wrap: break-word; word-break: break-word;">${item.ketRaw}</div>` : ''}
               </div>
             `;
           }
@@ -980,6 +977,7 @@
             hStatus += `<div class="nested-cell text-center justify-content-center">${item.statusBadge}</div>`; 
             
             // Mobile Grouping
+            // UPDATED: Removed text-truncate and max-width on LPSE badge to allow full text reading
             mobileDetailListHTML += `
               <div class="mobile-detail-item">
                   <div class="d-flex justify-content-between align-items-start mb-2">
@@ -988,9 +986,9 @@
                   </div>
                   <div class="small text-muted mb-1"><i class="bi bi-calendar-event me-1"></i>${item.start} - ${item.end}</div>
                   <div class="small text-muted mb-1"><i class="bi bi-file-text me-1"></i>Kontrak: ${item.kontrak}</div>
-                  <div class="d-flex gap-2 mt-2">
+                  <div class="d-flex gap-2 mt-2 align-items-center flex-wrap">
                      <span class="badge bg-light text-dark border">${item.metode}</span>
-                     <span class="badge bg-light text-dark border text-truncate" style="max-width: 150px;">${item.lpse}</span>
+                     <span class="badge bg-light text-dark border" style="white-space: normal; text-align: left; line-height: 1.4;">${item.lpse}</span>
                   </div>
               </div>
             `;
@@ -1023,7 +1021,7 @@
     // --- MODIFIED RENDER PROJECT FOR MOBILE CARD VIEW ---
     function renderProject(data, page = 1) {
       currentPageProject = page; const tbody = document.getElementById('bodyProject'); let htmlContent = []; let counts = { total: 0, expired: 0, done: 0 }; const today = new Date(); today.setHours(0, 0, 0, 0);
-      for(let i=0; i<data.length; i++) { const row = data[i]; if (!row[1]) continue; counts.total++; let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13]; const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim(); const isDone = rawStatus.includes('done') || rawStatus.includes('selesai'); const isExpired = (dateStr) => { if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false; const targetDate = parseDate(dateStr); return targetDate && targetDate < today; }; const kontrakExpired = !isDone && isExpired(deadKontrakRaw); const scheduleExpired = !isDone && isExpired(deadScheduleRaw); if (kontrakExpired || scheduleExpired) counts.expired++; if (isDone) counts.done++; }
+      for(let i=0; i<data.length; i++) { const row = data[i]; if (!row[1]) continue; counts.total++; let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13]; const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim(); const notes = row[18] || ""; const isDone = rawStatus.includes('done') || rawStatus.includes('selesai'); const isExpired = (dateStr) => { if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false; const targetDate = parseDate(dateStr); return targetDate && targetDate < today; }; const kontrakExpired = !isDone && isExpired(deadKontrakRaw); const scheduleExpired = !isDone && isExpired(deadScheduleRaw); if (kontrakExpired || scheduleExpired) counts.expired++; if (isDone) counts.done++; }
       const validRows = data.filter(r => r[1]); const startIndex = (page - 1) * ITEMS_PER_PAGE; const pagedRows = validRows.slice(startIndex, startIndex + ITEMS_PER_PAGE);
       for(let i=0; i<pagedRows.length; i++) { 
           const row = pagedRows[i]; const pekerjaan = row[2]; const kordinator = row[4]; const urlSchedule = row[5]; const priority = (row[7] || "").trim(); let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13]; const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim(); const notes = row[18] || ""; const isDone = rawStatus.includes('done') || rawStatus.includes('selesai'); const isExpired = (dateStr) => { if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false; const targetDate = parseDate(dateStr); return targetDate && targetDate < today; }; const kontrakExpired = !isDone && isExpired(deadKontrakRaw); const scheduleExpired = !isDone && isExpired(deadScheduleRaw); let deadKontrakView = deadKontrakRaw || '-'; let deadScheduleView = deadScheduleRaw || '-'; if (isDone) { const iconCheck = '<i class="bi bi-check-circle-fill text-success" style="font-size: 1.2rem;"></i>'; deadKontrakView = iconCheck; deadScheduleView = iconCheck; } else { if (kontrakExpired) deadKontrakView = `<span class="text-danger fw-bold">EXPIRED</span>`; if (scheduleExpired) deadScheduleView = `<span class="text-danger fw-bold">EXPIRED</span>`; } let badgeClass = "bg-secondary"; if (rawStatus.includes('ongoing')) badgeClass = "bg-info text-white"; else if (rawStatus.includes('dummy')) badgeClass = "bg-warning text-dark"; else if (isDone) badgeClass = "bg-success"; else if (rawStatus.includes('past')) badgeClass = "bg-danger"; 
