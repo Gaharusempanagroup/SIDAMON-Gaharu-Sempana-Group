@@ -204,23 +204,92 @@
     .btn-fab { width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 24px; display: flex; align-items: center; justify-content: center; background-color: var(--primary-color); color: white; border: none; transition: transform 0.2s; }
     .btn-fab:active { transform: scale(0.95); }
 
-    /* --- RESPONSIVE STYLE --- */
+    /* --- RESPONSIVE STYLE (MOBILE CARD VIEW) --- */
     @media (max-width: 768px) {
       .navbar .container-fluid { padding-left: 15px; padding-right: 15px; }
       .logo-wrapper img { height: 35px !important; }
       .greeting-wrapper { display: none !important; } 
-      .nav-pills { flex-direction: column; overflow-x: visible; }
-      .nav-pills .nav-item { width: 100%; margin-bottom: 8px; }
-      .nav-pills .nav-link { width: 100%; text-align: left; padding: 12px 20px; border-radius: 12px; }
-      .nav-pills .nav-link i { margin-right: 10px; width: 20px; text-align: center; }
+      
+      /* FAB & Navigasi */
+      .fab-container.show-fab { display: block !important; animation: scaleIn 0.3s ease-out; }
+      #btnAddDataContainer { display: none !important; }
+      .nav-pills { flex-direction: column; gap: 5px; }
+      .nav-pills .nav-link { text-align: left; padding: 10px 15px; border-radius: 10px; }
+
       .stat-card { margin-bottom: 10px; }
       .stat-value { font-size: 2rem; }
-      #btnAddDataContainer { display: none !important; } /* Hide Top Btn */
+
+      /* TRANSFORMASI TABEL KE CARD */
+      .table-responsive { border: none; overflow: visible !important; }
+      .table thead { display: none; } /* Sembunyikan Header */
       
-      /* IMPORTANT Force Display if class is present */
-      .fab-container.show-fab { display: block !important; animation: scaleIn 0.3s ease-out; }
-      @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
+      .table tbody tr {
+        display: block;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+        position: relative;
+        padding: 20px;
+        border: 1px solid #f0f0f0;
+        transition: transform 0.2s;
+      }
       
+      .table tbody tr:active { transform: scale(0.98); background-color: #fafafa; }
+
+      .table tbody td {
+        display: block;
+        width: 100%;
+        padding: 5px 0;
+        border: none !important;
+        text-align: left !important;
+        position: relative;
+      }
+
+      /* --- CARD DESIGN UNTUK SKK --- */
+      #bodySkk td:nth-child(1) { 
+        padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px dashed #eee !important;
+        padding-right: 80px;
+      }
+      #bodySkk td:nth-child(1) .fw-bold { font-size: 1.1rem; color: var(--primary-color); }
+      #bodySkk td:nth-child(2) { display: inline-block; width: auto; margin-bottom: 10px; }
+      
+      /* Status Badge di Pojok Kanan Atas */
+      #bodySkk td:nth-child(7) {
+        position: absolute; top: 20px; right: 20px; width: auto; text-align: right !important; padding: 0;
+      }
+      #bodySkk td:nth-child(7) .badge-status { font-size: 0.7rem; padding: 4px 8px; }
+
+      /* Tombol Edit Full Width */
+      #bodySkk td:nth-child(9) {
+        margin-top: 15px; padding-top: 15px; border-top: 1px solid #f0f0f0 !important;
+        display: flex !important; justify-content: flex-end;
+      }
+      #bodySkk td:nth-child(9) button {
+        width: 100%; border-radius: 10px; height: 40px;
+        background-color: #f0f7ff; color: var(--primary-color);
+        border: 1px solid var(--primary-color); width: auto; padding: 0 20px;
+        font-weight: 600; display: flex; align-items: center; gap: 8px;
+      }
+      #bodySkk td:nth-child(9) button::after { content: "Edit Data"; font-size: 0.85rem; }
+      
+      /* Label Kolom */
+      .table tbody td[data-label]::before {
+        content: attr(data-label); display: block; font-size: 0.7rem; color: #999;
+        font-weight: 600; text-transform: uppercase; margin-bottom: 2px;
+      }
+      
+      /* Layout Isi Kartu */
+      #bodySkk td:nth-child(4) .nested-cell { border-bottom: none; padding: 0; font-weight: 500; color: #333; }
+      #bodySkk td:nth-child(5), #bodySkk td:nth-child(6) { display: inline-block; width: 48%; vertical-align: top; background: #f9f9f9; border-radius: 8px; padding: 8px; margin-bottom: 5px; }
+      #bodySkk td:nth-child(3) { display: none; }
+      #bodySkk td:nth-child(8) { font-style: italic; color: #777; font-size: 0.85rem; }
+
+      /* --- STYLING UNTUK PROJECT & PENUGASAN (GENERIC CARD) --- */
+      #bodyTugas td, #bodyProject td { padding-left: 0; }
+      #bodyTugas td[data-label], #bodyProject td[data-label] { margin-bottom: 8px; }
+
+      /* Gantt Responsive */
       .g-sticky-col, .g-col-personil, .g-col-pekerjaan { position: static !important; box-shadow: none !important; border-right: 1px solid #eee !important; flex-shrink: 0; white-space: normal !important; word-wrap: break-word; font-size: 0.75rem; height: auto !important; display: flex; align-items: center; }
       .g-col-personil { width: 130px !important; min-width: 130px !important; }
       .g-col-pekerjaan { width: 180px !important; min-width: 180px !important; left: auto !important; }
@@ -794,7 +863,7 @@
           if (activeJobFromTugas) { isUsed = true; usedProjectName = `Used in ${activeJobFromTugas}`; } else if (isUsed) { usedProjectName = spreadsheetUsedText ? spreadsheetUsedText : "Used"; }
           let finalBadge = isUsed ? `<span class="badge-status status-used" style="white-space: normal;">${usedProjectName}</span>` : (hasActive ? `<span class="badge-status status-active">Available</span>` : `<span class="badge-status status-expired">Expired</span>`);
           
-          let btnWA = "-"; if(person.hp && /\d/.test(person.hp)) { let cleanNum = person.hp.toString().replace(/\D/g, ''); if(cleanNum.startsWith('0')) cleanNum = '62' + cleanNum.substring(1); if(cleanNum.length > 9) { btnWA = `<a href="https://wa.me/${cleanNum}" target="_blank" class="btn btn-success btn-sm text-white fw-bold d-inline-flex align-items-center justify-content-center" style="font-size: 0.7rem; padding: 2px 8px; height: 24px; min-width: 60px;"><i class="bi bi-whatsapp" style="font-size: 0.8rem; margin-right: 4px;"></i> Chat</a>`; } else { btnWA = `<span class="small text-muted">${person.hp}</span>`; } }
+          let btnWA = "-"; if(person.hp && /\d/.test(person.hp)) { let cleanNum = person.hp.toString().replace(/\D/g, ''); if(cleanNum.startsWith('0')) cleanNum = '62' + cleanNum.substring(1); if(cleanNum.length > 9) { btnWA = `<a href="https://wa.me/${cleanNum}" target="_blank" class="btn btn-success btn-sm text-white fw-bold d-inline-flex align-items-center justify-content-center" style="font-size: 0.7rem; padding: 2px 8px; height: 24px; min-width: 60px; box-shadow:none;"><i class="bi bi-whatsapp" style="font-size: 0.8rem; margin-right: 4px;"></i> Chat WA</a>`; } else { btnWA = `<span class="small text-muted">${person.hp}</span>`; } }
           
           let htmlSertifikat = '', htmlJenjang = '', htmlSisa = '', htmlKet = '';
           const itemLen = person.items.length;
@@ -811,11 +880,24 @@
           // --- SINGLE ACTION BUTTON LOGIC ---
           let htmlAksi = '';
           if (canEditRow) {
-             htmlAksi = `<button class="btn btn-sm btn-outline-primary rounded-circle" onclick="openModalEditGroup('${person.nama}')" style="width: 32px; height: 32px;" title="Edit Data ${person.nama}"><i class="bi bi-pencil-fill"></i></button>`;
+             htmlAksi = `<button class="btn btn-sm btn-outline-primary rounded-circle" onclick="openModalEditGroup('${person.nama}')" title="Edit Data ${person.nama}"><i class="bi bi-pencil-fill"></i></button>`;
           }
           const styleAksi = canEditRow ? '' : 'display:none;';
           
-          htmlContent.push(`<tr><td class="align-middle-person" style="white-space: normal !important; word-wrap: break-word;"><div class="fw-bold text-dark">${person.nama}</div><div class="small text-muted" style="line-height: 1.2;"><i class="bi bi-building me-1"></i>${person.perusahaan || '-'}</div></td><td class="text-center align-middle-person">${btnWA}</td><td class="align-middle-person small" style="white-space: normal !important; word-wrap: break-word; line-height: 1.3;">${person.bidang || '-'}</td><td style="padding-top:0; padding-bottom:0; white-space: normal !important;">${htmlSertifikat}</td><td style="padding-top:0; padding-bottom:0;">${htmlJenjang}</td><td style="padding-top:0; padding-bottom:0;">${htmlSisa}</td><td class="text-center align-middle-person" style="white-space: normal !important;">${finalBadge}</td><td style="padding-top:0; padding-bottom:0; white-space: normal !important;">${htmlKet}</td><td class="text-center align-middle-person" style="${styleAksi}">${htmlAksi}</td></tr>`);
+          htmlContent.push(`<tr>
+            <td class="align-middle-person" style="white-space: normal !important; word-wrap: break-word;">
+                <div class="fw-bold text-dark">${person.nama}</div>
+                <div class="small text-muted" style="line-height: 1.2;"><i class="bi bi-building me-1"></i>${person.perusahaan || '-'}</div>
+            </td>
+            <td class="text-center align-middle-person">${btnWA}</td>
+            <td class="align-middle-person small" data-label="Bidang Ilmu" style="white-space: normal !important; word-wrap: break-word; line-height: 1.3;">${person.bidang || '-'}</td>
+            <td data-label="Sertifikat Keahlian" style="padding-top:0; padding-bottom:0; white-space: normal !important;">${htmlSertifikat}</td>
+            <td data-label="Jenjang" style="padding-top:0; padding-bottom:0;">${htmlJenjang}</td>
+            <td data-label="Sisa Waktu" style="padding-top:0; padding-bottom:0;">${htmlSisa}</td>
+            <td class="text-center align-middle-person" style="white-space: normal !important;">${finalBadge}</td>
+            <td data-label="Keterangan" style="padding-top:0; padding-bottom:0; white-space: normal !important;">${htmlKet}</td>
+            <td class="text-center align-middle-person" style="${styleAksi}">${htmlAksi}</td>
+          </tr>`);
       }
       tbody.innerHTML = htmlContent.join(''); setupPagination(allKeys.length, currentPageSkk, 'pagination-skk', (p) => renderSKK(data, p));
       animateValue("skk-total", 0, statTotal, 800); animateValue("skk-expired", 0, statExpired, 800); animateValue("skk-used", 0, statUsed, 800);
@@ -828,7 +910,7 @@
        animateValue("tugas-total", 0, new Set(data.map(r=>r[2])).size, 800); animateValue("tugas-active", 0, active, 800);
        const groupedData = {}; for(let i=0; i<filtered.length; i++){ const row = filtered[i]; const nama = row[1]; if(!nama) continue; if (!groupedData[nama]) { groupedData[nama] = { nama: nama, items: [] }; } let status = (row[12]||"").toLowerCase(); let bClass = status.includes('active') ? 'status-active' : (status.includes('not started') ? 'status-not-started' : 'status-expired'); let badgeHTML = `<span class="badge-status ${bClass}">${row[12]}</span>`; groupedData[nama].items.push({ pekerjaan: row[2], lpse: row[5] || '-', metode: row[3], kontrak: row[4], sertifikat: row[6], start: row[9], end: row[10], statusBadge: badgeHTML }); }
        const persons = Object.values(groupedData); const startIndex = (page - 1) * ITEMS_PER_PAGE; const pagedPersons = persons.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-       for(let i=0; i<pagedPersons.length; i++) { const person = pagedPersons[i]; let hPekerjaan = '', hLpse = '', hMetode = '', hKontrak = '', hSertifikat = '', hStart = '', hEnd = '', hStatus = ''; for(let j=0; j<person.items.length; j++){ const item = person.items[j]; hPekerjaan += `<div class="nested-cell fw-bold" title="${item.pekerjaan}">${item.pekerjaan}</div>`; hLpse += `<div class="nested-cell text-center justify-content-center">${item.lpse}</div>`; hMetode += `<div class="nested-cell text-center justify-content-center"><span class="badge bg-secondary rounded-pill" style="font-size:0.7rem;">${item.metode}</span></div>`; hKontrak += `<div class="nested-cell text-center justify-content-center small">${item.kontrak}</div>`; hSertifikat += `<div class="nested-cell small" title="${item.sertifikat}">${item.sertifikat}</div>`; hStart += `<div class="nested-cell text-center justify-content-center small text-muted">${item.start}</div>`; hEnd += `<div class="nested-cell text-center justify-content-center small text-muted">${item.end}</div>`; hStatus += `<div class="nested-cell text-center justify-content-center">${item.statusBadge}</div>`; } htmlContent.push(`<tr><td class="align-middle-person fw-bold text-dark">${person.nama}</td><td style="padding-top:0; padding-bottom:0;">${hPekerjaan}</td><td style="padding-top:0; padding-bottom:0;">${hLpse}</td><td style="padding-top:0; padding-bottom:0;">${hMetode}</td><td style="padding-top:0; padding-bottom:0;">${hKontrak}</td><td style="padding-top:0; padding-bottom:0;">${hSertifikat}</td><td style="padding-top:0; padding-bottom:0;">${hStart}</td><td style="padding-top:0; padding-bottom:0;">${hEnd}</td><td style="padding-top:0; padding-bottom:0;">${hStatus}</td></tr>`); }
+       for(let i=0; i<pagedPersons.length; i++) { const person = pagedPersons[i]; let hPekerjaan = '', hLpse = '', hMetode = '', hKontrak = '', hSertifikat = '', hStart = '', hEnd = '', hStatus = ''; for(let j=0; j<person.items.length; j++){ const item = person.items[j]; hPekerjaan += `<div class="nested-cell fw-bold" title="${item.pekerjaan}">${item.pekerjaan}</div>`; hLpse += `<div class="nested-cell text-center justify-content-center">${item.lpse}</div>`; hMetode += `<div class="nested-cell text-center justify-content-center"><span class="badge bg-secondary rounded-pill" style="font-size:0.7rem;">${item.metode}</span></div>`; hKontrak += `<div class="nested-cell text-center justify-content-center small">${item.kontrak}</div>`; hSertifikat += `<div class="nested-cell small" title="${item.sertifikat}">${item.sertifikat}</div>`; hStart += `<div class="nested-cell text-center justify-content-center small text-muted">${item.start}</div>`; hEnd += `<div class="nested-cell text-center justify-content-center small text-muted">${item.end}</div>`; hStatus += `<div class="nested-cell text-center justify-content-center">${item.statusBadge}</div>`; } htmlContent.push(`<tr><td class="align-middle-person fw-bold text-dark">${person.nama}</td><td data-label="Pekerjaan" style="padding-top:0; padding-bottom:0;">${hPekerjaan}</td><td data-label="LPSE" style="padding-top:0; padding-bottom:0;">${hLpse}</td><td data-label="Metode" style="padding-top:0; padding-bottom:0;">${hMetode}</td><td data-label="Kontrak" style="padding-top:0; padding-bottom:0;">${hKontrak}</td><td data-label="Sertifikat" style="padding-top:0; padding-bottom:0;">${hSertifikat}</td><td data-label="Mulai" style="padding-top:0; padding-bottom:0;">${hStart}</td><td data-label="Selesai" style="padding-top:0; padding-bottom:0;">${hEnd}</td><td data-label="Status" style="padding-top:0; padding-bottom:0;">${hStatus}</td></tr>`); }
        tbody.innerHTML = htmlContent.join(''); setupPagination(persons.length, currentPageTugas, 'pagination-tugas', (p) => renderTugas(data, p));
     }
 
@@ -836,7 +918,7 @@
       currentPageProject = page; const tbody = document.getElementById('bodyProject'); let htmlContent = []; let counts = { total: 0, expired: 0, done: 0 }; const today = new Date(); today.setHours(0, 0, 0, 0);
       for(let i=0; i<data.length; i++) { const row = data[i]; if (!row[1]) continue; counts.total++; let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13]; const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim(); const isDone = rawStatus.includes('done') || rawStatus.includes('selesai'); const isExpired = (dateStr) => { if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false; const targetDate = parseDate(dateStr); return targetDate && targetDate < today; }; const kontrakExpired = !isDone && isExpired(deadKontrakRaw); const scheduleExpired = !isDone && isExpired(deadScheduleRaw); if (kontrakExpired || scheduleExpired) counts.expired++; if (isDone) counts.done++; }
       const validRows = data.filter(r => r[1]); const startIndex = (page - 1) * ITEMS_PER_PAGE; const pagedRows = validRows.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-      for(let i=0; i<pagedRows.length; i++) { const row = pagedRows[i]; const pekerjaan = row[2]; const kordinator = row[4]; const urlSchedule = row[5]; const priority = (row[7] || "").trim(); let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13]; const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim(); const notes = row[18] || ""; const isDone = rawStatus.includes('done') || rawStatus.includes('selesai'); const isExpired = (dateStr) => { if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false; const targetDate = parseDate(dateStr); return targetDate && targetDate < today; }; const kontrakExpired = !isDone && isExpired(deadKontrakRaw); const scheduleExpired = !isDone && isExpired(deadScheduleRaw); let deadKontrakView = deadKontrakRaw || '-'; let deadScheduleView = deadScheduleRaw || '-'; if (isDone) { const iconCheck = '<i class="bi bi-check-circle-fill text-success" style="font-size: 1.2rem;"></i>'; deadKontrakView = iconCheck; deadScheduleView = iconCheck; } else { if (kontrakExpired) deadKontrakView = `<span class="text-danger fw-bold">EXPIRED</span>`; if (scheduleExpired) deadScheduleView = `<span class="text-danger fw-bold">EXPIRED</span>`; } let badgeClass = "bg-secondary"; if (rawStatus.includes('ongoing')) badgeClass = "bg-info text-white"; else if (rawStatus.includes('dummy')) badgeClass = "bg-warning text-dark"; else if (isDone) badgeClass = "bg-success"; else if (rawStatus.includes('past')) badgeClass = "bg-danger"; let btnUrl = "-"; if (urlSchedule && urlSchedule.includes("http")) { btnUrl = `<a href="${urlSchedule}" target="_blank" class="btn btn-primary btn-sm d-inline-flex align-items-center justify-content-center" style="font-size: 0.7rem; padding: 2px 8px; height: 24px; min-width: 50px;"><i class="bi bi-link-45deg me-1" style="font-size: 0.9rem;"></i> Link</a>`; } let priorityClass = "bg-info"; if (priority === "High") priorityClass = "bg-danger"; else if (priority === "Medium") priorityClass = "bg-warning text-dark"; htmlContent.push(`<tr><td class="fw-bold" style="min-width: 250px;">${pekerjaan}</td><td>${kordinator}</td><td class="text-center">${btnUrl}</td><td class="text-center"><span class="badge ${priorityClass}">${priority || 'Low'}</span></td><td class="text-center text-muted small">${deadKontrakView}</td><td class="text-center text-muted small">${deadScheduleView}</td><td class="text-center"><span class="badge ${badgeClass}">${statusText || 'Not Started'}</span></td><td class="small text-muted">${notes}</td> </tr>`); }
+      for(let i=0; i<pagedRows.length; i++) { const row = pagedRows[i]; const pekerjaan = row[2]; const kordinator = row[4]; const urlSchedule = row[5]; const priority = (row[7] || "").trim(); let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13]; const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim(); const notes = row[18] || ""; const isDone = rawStatus.includes('done') || rawStatus.includes('selesai'); const isExpired = (dateStr) => { if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false; const targetDate = parseDate(dateStr); return targetDate && targetDate < today; }; const kontrakExpired = !isDone && isExpired(deadKontrakRaw); const scheduleExpired = !isDone && isExpired(deadScheduleRaw); let deadKontrakView = deadKontrakRaw || '-'; let deadScheduleView = deadScheduleRaw || '-'; if (isDone) { const iconCheck = '<i class="bi bi-check-circle-fill text-success" style="font-size: 1.2rem;"></i>'; deadKontrakView = iconCheck; deadScheduleView = iconCheck; } else { if (kontrakExpired) deadKontrakView = `<span class="text-danger fw-bold">EXPIRED</span>`; if (scheduleExpired) deadScheduleView = `<span class="text-danger fw-bold">EXPIRED</span>`; } let badgeClass = "bg-secondary"; if (rawStatus.includes('ongoing')) badgeClass = "bg-info text-white"; else if (rawStatus.includes('dummy')) badgeClass = "bg-warning text-dark"; else if (isDone) badgeClass = "bg-success"; else if (rawStatus.includes('past')) badgeClass = "bg-danger"; let btnUrl = "-"; if (urlSchedule && urlSchedule.includes("http")) { btnUrl = `<a href="${urlSchedule}" target="_blank" class="btn btn-primary btn-sm d-inline-flex align-items-center justify-content-center" style="font-size: 0.7rem; padding: 2px 8px; height: 24px; min-width: 50px;"><i class="bi bi-link-45deg me-1" style="font-size: 0.9rem;"></i> Link</a>`; } let priorityClass = "bg-info"; if (priority === "High") priorityClass = "bg-danger"; else if (priority === "Medium") priorityClass = "bg-warning text-dark"; htmlContent.push(`<tr><td class="fw-bold" style="min-width: 250px;">${pekerjaan}</td><td data-label="Kordinator">${kordinator}</td><td class="text-center" data-label="Schedule">${btnUrl}</td><td class="text-center" data-label="Priority"><span class="badge ${priorityClass}">${priority || 'Low'}</span></td><td class="text-center text-muted small" data-label="D.L Kontrak">${deadKontrakView}</td><td class="text-center text-muted small" data-label="D.L Schedule">${deadScheduleView}</td><td class="text-center" data-label="Status"><span class="badge ${badgeClass}">${statusText || 'Not Started'}</span></td><td class="small text-muted" data-label="Ket">${notes}</td> </tr>`); }
       tbody.innerHTML = htmlContent.join(''); setupPagination(validRows.length, currentPageProject, 'pagination-project', (p) => renderProject(data, p)); document.getElementById('proj-total').innerText = counts.total; document.getElementById('proj-expired').innerText = counts.expired; document.getElementById('proj-done').innerText = counts.done;
     }
 
