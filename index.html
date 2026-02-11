@@ -180,13 +180,25 @@
     .log-entry-row { transition: background 0.2s; font-size: 0.85rem; }
     .log-entry-row:hover { background: #f8f9fa; }
 
-    /* --- RESPONSIVE / MOBILE STYLE UPDATES (Without Card View) --- */
+    /* --- MODERN FORM STYLES (Floating Label + Icons) --- */
+    .modal-content { border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); overflow: hidden; }
+    .modal-header { background: linear-gradient(135deg, var(--primary-color), #000050); padding: 20px 30px; }
+    .modern-input-group { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 5px 5px 5px 15px; transition: all 0.3s ease; display: flex; align-items: center; margin-bottom: 15px; }
+    .modern-input-group:focus-within { border-color: var(--primary-color); box-shadow: 0 4px 12px rgba(0, 0, 128, 0.1); transform: translateY(-2px); }
+    .input-icon { font-size: 1.2rem; color: var(--primary-color); opacity: 0.7; margin-right: 10px; }
+    .modern-input-group .form-floating { flex-grow: 1; }
+    .modern-input-group .form-control { border: none !important; box-shadow: none !important; background: transparent; padding-top: 1.625rem; padding-bottom: 0.625rem; font-weight: 500; color: #333; }
+    .modern-input-group .form-control:focus { outline: none; }
+    .modern-input-group label { padding-left: 0; color: #888; font-size: 0.9rem; }
+    input[list]::-webkit-calendar-picker-indicator { opacity: 0.6; cursor: pointer; transition: 0.2s; }
+    input[list]:hover::-webkit-calendar-picker-indicator { opacity: 1; transform: scale(1.1); }
+
+    /* --- RESPONSIVE / MOBILE STYLE UPDATES (Scroll View) --- */
     @media (max-width: 768px) {
       .navbar .container-fluid { padding-left: 15px; padding-right: 15px; }
       .logo-wrapper img { height: 35px !important; }
       .greeting-wrapper { display: none !important; } 
       
-      /* Vertical Menu on Mobile */
       .nav-pills { flex-direction: column; overflow-x: visible; }
       .nav-pills .nav-item { width: 100%; margin-bottom: 8px; }
       .nav-pills .nav-link { width: 100%; text-align: left; padding: 12px 20px; border-radius: 12px; }
@@ -196,23 +208,10 @@
       .stat-value { font-size: 2rem; }
 
       /* FIX TIMELINE MOBILE (GANTT) */
-      .g-sticky-col, .g-col-personil, .g-col-pekerjaan {
-        position: static !important;  
-        box-shadow: none !important;
-        border-right: 1px solid #eee !important;
-        flex-shrink: 0;
-        white-space: normal !important; 
-        word-wrap: break-word;
-        font-size: 0.75rem; 
-        height: auto !important; 
-        display: flex;
-        align-items: center;
-      }
-
+      .g-sticky-col, .g-col-personil, .g-col-pekerjaan { position: static !important; box-shadow: none !important; border-right: 1px solid #eee !important; flex-shrink: 0; white-space: normal !important; word-wrap: break-word; font-size: 0.75rem; height: auto !important; display: flex; align-items: center; }
       .g-col-personil { width: 130px !important; min-width: 130px !important; }
       .g-col-pekerjaan { width: 180px !important; min-width: 180px !important; left: auto !important; }
       .g-sticky-col { width: 220px !important; min-width: 220px !important; } 
-
       .g-row-container { align-items: stretch; width: max-content; min-width: 100%; display: flex; }
       .custom-gantt-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
     }
@@ -583,27 +582,95 @@
   <div class="modal fade" id="modalTambahData" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title" id="modalLabel">Input Data Personil</h5>
+        <div class="modal-header text-white border-0">
+          <h5 class="modal-title fw-bold" id="modalLabel">
+            <i class="bi bi-file-earmark-plus me-2"></i>Input Data Personil
+          </h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
-        <div class="modal-body">
+        
+        <div class="modal-body p-4 bg-light">
           <form id="formInputData">
             <input type="hidden" id="editRowNumber" value="">
-            <div class="mb-3"><label class="form-label small fw-bold">Nama Personil</label><input class="form-control" list="listNama" id="inputNama" required autocomplete="off"><datalist id="listNama"></datalist></div>
-            <div class="mb-3"><label class="form-label small fw-bold">Perusahaan</label><input class="form-control" list="listPerusahaan" id="inputPerusahaan" required autocomplete="off"><datalist id="listPerusahaan"></datalist></div>
-            <div class="row">
-              <div class="col-md-6 mb-3"><label class="form-label small fw-bold">Sertifikat Keahlian</label><input class="form-control" list="listSertifikat" id="inputSertifikat" required autocomplete="off"><datalist id="listSertifikat"></datalist></div>
-              <div class="col-md-6 mb-3"><label class="form-label small fw-bold">Jenjang</label><input class="form-control" list="listJenjang" id="inputJenjang" required autocomplete="off"><datalist id="listJenjang"></datalist></div>
+            
+            <div class="modern-input-group">
+              <i class="bi bi-person-circle input-icon"></i>
+              <div class="form-floating">
+                <input class="form-control" list="listNama" id="inputNama" placeholder="Nama" required autocomplete="off">
+                <label for="inputNama">Nama Personil</label>
+                <datalist id="listNama"></datalist>
+              </div>
             </div>
-            <div class="mb-3"><label class="form-label small fw-bold">Asosiasi</label><input type="text" class="form-control" id="inputAsosiasi" placeholder="Contoh: IAI, PII"></div>
-            <div class="mb-3"><label class="form-label small fw-bold">Masa Berlaku</label><input type="date" class="form-control" id="inputMasaBerlaku" required></div>
-            <div class="mb-3"><label class="form-label small fw-bold">Keterangan</label><textarea class="form-control" id="inputKeterangan" rows="2" placeholder="Catatan tambahan..."></textarea></div>
+
+            <div class="modern-input-group">
+              <i class="bi bi-building input-icon"></i>
+              <div class="form-floating">
+                <input class="form-control" list="listPerusahaan" id="inputPerusahaan" placeholder="PT..." required autocomplete="off">
+                <label for="inputPerusahaan">Perusahaan</label>
+                <datalist id="listPerusahaan"></datalist>
+              </div>
+            </div>
+
+            <div class="row g-2">
+              <div class="col-md-7">
+                <div class="modern-input-group">
+                  <i class="bi bi-award input-icon"></i>
+                  <div class="form-floating">
+                    <input class="form-control" list="listSertifikat" id="inputSertifikat" placeholder="SKA..." required autocomplete="off">
+                    <label for="inputSertifikat">Sertifikat Keahlian</label>
+                    <datalist id="listSertifikat"></datalist>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-5">
+                <div class="modern-input-group">
+                  <i class="bi bi-bar-chart-steps input-icon"></i>
+                  <div class="form-floating">
+                    <input class="form-control" list="listJenjang" id="inputJenjang" placeholder="Muda/Madya" required autocomplete="off">
+                    <label for="inputJenjang">Jenjang</label>
+                    <datalist id="listJenjang"></datalist>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-2">
+               <div class="col-6">
+                  <div class="modern-input-group">
+                    <i class="bi bi-people input-icon"></i>
+                    <div class="form-floating">
+                      <input type="text" class="form-control" id="inputAsosiasi" placeholder="Asosiasi">
+                      <label for="inputAsosiasi">Asosiasi</label>
+                    </div>
+                  </div>
+               </div>
+               <div class="col-6">
+                  <div class="modern-input-group">
+                    <i class="bi bi-calendar-date input-icon"></i>
+                    <div class="form-floating">
+                      <input type="date" class="form-control" id="inputMasaBerlaku" required>
+                      <label for="inputMasaBerlaku">Berlaku Sampai</label>
+                    </div>
+                  </div>
+               </div>
+            </div>
+
+            <div class="modern-input-group align-items-start pt-2">
+              <i class="bi bi-chat-text input-icon mt-3"></i>
+              <div class="form-floating w-100">
+                <textarea class="form-control" id="inputKeterangan" placeholder="Ket" style="height: 80px"></textarea>
+                <label for="inputKeterangan">Keterangan / Catatan</label>
+              </div>
+            </div>
+
           </form>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
-          <button type="button" class="btn btn-primary rounded-pill" onclick="submitForm()">Simpan Data</button>
+        
+        <div class="modal-footer bg-light border-0 pt-0 pb-4 pe-4">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+          <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" onclick="submitForm()">
+            <i class="bi bi-save me-2"></i>Simpan Data
+          </button>
         </div>
       </div>
     </div>
