@@ -336,7 +336,7 @@
       /* FIX: Kecilkan font tanggal khusus mobile agar tidak tenggelam */
       .modern-input-group input[type="date"].form-control {
           font-size: 13px !important; /* Force smaller font specifically for mobile date */
-          padding-top: 1.25rem !important; /* Adjust top padding to center visible text below label */
+          padding-top: 1.6rem !important; /* Adjust top padding to center visible text below label */
           padding-bottom: 0 !important;   /* Remove bottom padding to prevent cutoff */
           min-height: 55px !important;    /* Maintain height */
           display: flex;
@@ -1148,7 +1148,23 @@
       for(let i=0; i<data.length; i++) { const row = data[i]; if (!row[1]) continue; counts.total++; let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13]; const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim(); const notes = row[18] || ""; const isDone = rawStatus.includes('done') || rawStatus.includes('selesai'); const isExpired = (dateStr) => { if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false; const targetDate = parseDate(dateStr); return targetDate && targetDate < today; }; const kontrakExpired = !isDone && isExpired(deadKontrakRaw); const scheduleExpired = !isDone && isExpired(deadScheduleRaw); if (kontrakExpired || scheduleExpired) counts.expired++; if (isDone) counts.done++; }
       const validRows = data.filter(r => r[1]); const startIndex = (page - 1) * ITEMS_PER_PAGE; const pagedRows = validRows.slice(startIndex, startIndex + ITEMS_PER_PAGE);
       for(let i=0; i<pagedRows.length; i++) { 
-          const row = pagedRows[i]; const pekerjaan = row[2]; const kordinator = row[4]; const urlSchedule = row[5]; const priority = (row[7] || "").trim(); let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13]; const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim(); const notes = row[18] || ""; const isDone = rawStatus.includes('done') || rawStatus.includes('selesai'); const isExpired = (dateStr) => { if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false; const targetDate = parseDate(dateStr); return targetDate && targetDate < today; }; const kontrakExpired = !isDone && isExpired(deadKontrakRaw); const scheduleExpired = !isDone && isExpired(deadScheduleRaw); let deadKontrakView = deadKontrakRaw || '-'; let deadScheduleView = deadScheduleRaw || '-'; if (isDone) { const iconCheck = '<i class="bi bi-check-circle-fill text-success" style="font-size: 1.2rem;"></i>'; deadKontrakView = iconCheck; deadScheduleView = iconCheck; } else { if (kontrakExpired) deadKontrakView = `<span class="text-danger fw-bold">EXPIRED</span>`; if (scheduleExpired) deadScheduleView = `<span class="text-danger fw-bold">EXPIRED</span>`; } let badgeClass = "bg-secondary"; if (rawStatus.includes('ongoing')) badgeClass = "bg-info text-white"; else if (rawStatus.includes('dummy')) badgeClass = "bg-warning text-dark"; else if (isDone) badgeClass = "bg-success"; else if (rawStatus.includes('past')) badgeClass = "bg-danger"; 
+          const row = pagedRows[i]; const pekerjaan = row[2]; const kordinator = row[4]; const urlSchedule = row[5]; const priority = (row[7] || "").trim(); let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13]; const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim(); const notes = row[18] || ""; const isDone = rawStatus.includes('done') || rawStatus.includes('selesai') || rawStatus.includes('completed') || rawStatus.includes('finish') || rawStatus === '100%'; 
+          
+          const isExpired = (dateStr) => { if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false; const targetDate = parseDate(dateStr); return targetDate && targetDate < today; }; 
+          
+          let deadKontrakView = deadKontrakRaw || '-'; 
+          let deadScheduleView = deadScheduleRaw || '-'; 
+          const iconCheck = '<i class="bi bi-check-circle-fill text-success" style="font-size: 1.2rem;"></i>';
+
+          if (isDone) { 
+              deadKontrakView = iconCheck; 
+              deadScheduleView = iconCheck; 
+          } else { 
+              if (isExpired(deadKontrakRaw)) deadKontrakView = `<span class="text-danger fw-bold">EXPIRED</span>`; 
+              if (isExpired(deadScheduleRaw)) deadScheduleView = `<span class="text-danger fw-bold">EXPIRED</span>`; 
+          } 
+          
+          let badgeClass = "bg-secondary"; if (rawStatus.includes('ongoing')) badgeClass = "bg-info text-white"; else if (rawStatus.includes('dummy')) badgeClass = "bg-warning text-dark"; else if (isDone) badgeClass = "bg-success"; else if (rawStatus.includes('past')) badgeClass = "bg-danger"; 
           
           let btnUrl = "-"; 
           let mobileBtnUrl = "";
@@ -1174,11 +1190,11 @@
                    <div class="mobile-detail-group">
                        <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-light">
                           <span class="small text-muted">Deadline Kontrak</span>
-                          <span class="small fw-bold">${deadKontrakRaw || '-'}</span>
+                          <span class="small fw-bold">${deadKontrakView}</span>
                        </div>
                        <div class="d-flex justify-content-between">
                           <span class="small text-muted">Deadline Schedule</span>
-                          <span class="small fw-bold">${deadScheduleRaw || '-'}</span>
+                          <span class="small fw-bold">${deadScheduleView}</span>
                        </div>
                    </div>
                    ${notes ? `<div class="mt-2 small text-muted fst-italic bg-light p-2 rounded">"${notes}"</div>` : ''}
