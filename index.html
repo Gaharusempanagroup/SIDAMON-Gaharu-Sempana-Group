@@ -907,30 +907,40 @@
         const btnNext = document.createElement('button'); btnNext.className = 'btn-page'; btnNext.innerHTML = '<i class="bi bi-chevron-right"></i>'; btnNext.disabled = currentPage === totalPages; btnNext.onclick = () => renderCallback(currentPage + 1); container.appendChild(btnNext);
     }
 
-    // --- MODIFIED RENDER SKK: FIX DUPLICATE LPSE & DISPLAY LOGIC ---
+    // --- MODIFIED RENDER SKK: FIX DUPLICATE LPSE (AGGRESSIVE NORMALIZATION) ---
     function renderSKK(data, page = 1) {
       currentPageSkk = page; const tbody = document.getElementById('bodySkk'); let htmlContent = []; let statTotal = 0, statUsed = 0, statExpired = 0;
       if(!data || data.length === 0) { document.getElementById('msgSkk').classList.remove('d-none'); document.getElementById('pagination-skk').innerHTML = ''; animateValue("skk-total", 0, 0, 800); animateValue("skk-expired", 0, 0, 800); animateValue("skk-used", 0, 0, 800); tbody.innerHTML = ''; return; } else { document.getElementById('msgSkk').classList.add('d-none'); }
       
       // LOGIC: Aggregate LPSE (Collect unique LPSE per person)
       const activeAssignmentsMap = new Map();
+      
+      // Helper function to create a "fingerprint" for deduplication
+      // Removes all non-alphanumeric chars and lowercases
+      const getFingerprint = (str) => {
+          return str.toLowerCase().replace(/[^a-z0-9]/g, '');
+      };
+
       if(dataTugas && dataTugas.length > 0) { 
           for(let i=0; i<dataTugas.length; i++){ 
               const row = dataTugas[i]; 
               const pName = (row[1] || "").trim(); 
               const pStatus = (row[12] || "").toLowerCase(); 
               if (pName && pStatus.includes('active')) { 
-                  // CLEAN UP: Trim spaces & remove duplicate spaces to ensure uniqueness
-                  let lpse = (row[5] || "").trim().replace(/\s+/g, ' ');
+                  const lpse = (row[5] || "").trim();
+                  
                   if(lpse) {
                       if (!activeAssignmentsMap.has(pName)) {
-                          // Use a Map to store Lowercase Key -> Original Value mapping
-                          // This prevents "Kabupaten Badung" and "kabupaten badung" from appearing twice
+                          // Map: Fingerprint -> Original Display String
                           activeAssignmentsMap.set(pName, new Map());
                       }
-                      const lpseKey = lpse.toLowerCase();
-                      if(!activeAssignmentsMap.get(pName).has(lpseKey)){
-                          activeAssignmentsMap.get(pName).set(lpseKey, lpse);
+                      
+                      const fingerprint = getFingerprint(lpse);
+                      
+                      // Only add if fingerprint doesn't exist yet
+                      if(!activeAssignmentsMap.get(pName).has(fingerprint)){
+                          // Store original string but replace multi-spaces with single space for clean display
+                          activeAssignmentsMap.get(pName).set(fingerprint, lpse.replace(/\s+/g, ' '));
                       }
                   }
               } 
