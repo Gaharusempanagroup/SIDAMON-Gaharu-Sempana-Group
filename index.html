@@ -924,23 +924,26 @@
       if(dataTugas && dataTugas.length > 0) { 
           for(let i=0; i<dataTugas.length; i++){ 
               const row = dataTugas[i]; 
-              const pName = (row[1] || "").trim(); 
+              // NORMALIZATION: Clean Person Name for better matching
+              const pNameOriginal = (row[1] || "").trim();
+              const pNameKey = getFingerprint(pNameOriginal);
+
               const pStatus = (row[12] || "").toLowerCase(); 
-              if (pName && pStatus.includes('active')) { 
+              if (pNameKey && pStatus.includes('active')) { 
                   const lpse = (row[5] || "").trim();
                   
                   if(lpse) {
-                      if (!activeAssignmentsMap.has(pName)) {
+                      if (!activeAssignmentsMap.has(pNameKey)) {
                           // Map: Fingerprint -> Original Display String
-                          activeAssignmentsMap.set(pName, new Map());
+                          activeAssignmentsMap.set(pNameKey, new Map());
                       }
                       
                       const fingerprint = getFingerprint(lpse);
                       
                       // Only add if fingerprint doesn't exist yet
-                      if(!activeAssignmentsMap.get(pName).has(fingerprint)){
+                      if(!activeAssignmentsMap.get(pNameKey).has(fingerprint)){
                           // Store original string but replace multi-spaces with single space for clean display
-                          activeAssignmentsMap.get(pName).set(fingerprint, lpse.replace(/\s+/g, ' '));
+                          activeAssignmentsMap.get(pNameKey).set(fingerprint, lpse.replace(/\s+/g, ' '));
                       }
                   }
               } 
@@ -952,7 +955,18 @@
       const allKeys = Object.keys(groupedData); statTotal = allKeys.length;
       const startIndex = (page - 1) * ITEMS_PER_PAGE; const endIndex = startIndex + ITEMS_PER_PAGE; const pagedKeys = allKeys.slice(startIndex, endIndex);
       
-      allKeys.forEach(key => { const person = groupedData[key]; let isUsed = false; person.items.forEach(item => { if ((item.statusRaw||"").toLowerCase().includes('expired')) statExpired++; if ((item.statusRaw||"").toLowerCase().includes('used') || (item.ketRaw||"").toLowerCase().includes('used')) isUsed = true; }); if (activeAssignmentsMap.has(person.nama.trim())) isUsed = true; if (isUsed) statUsed++; });
+      // Update Stats Logic with Normalization
+      allKeys.forEach(key => { 
+          const person = groupedData[key]; 
+          let isUsed = false; 
+          person.items.forEach(item => { 
+             if ((item.statusRaw||"").toLowerCase().includes('expired')) statExpired++; 
+             if ((item.statusRaw||"").toLowerCase().includes('used') || (item.ketRaw||"").toLowerCase().includes('used')) isUsed = true; 
+          }); 
+          const keyNormalized = getFingerprint(person.nama);
+          if (activeAssignmentsMap.has(keyNormalized)) isUsed = true; 
+          if (isUsed) statUsed++; 
+      });
       
       const canEditRow = (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT");
       
@@ -960,8 +974,10 @@
           const person = groupedData[pagedKeys[i]]; let isUsed = false, hasActive = false; let usedProjectName = "", spreadsheetUsedText = "";
           for(let j=0; j<person.items.length; j++){ const item = person.items[j]; const s = (item.statusRaw || "").toLowerCase(); const k = (item.ketRaw || "").toLowerCase(); if (s.includes('used') || k.includes('used')) { isUsed = true; if(s.includes('used')) spreadsheetUsedText = item.statusRaw; else if (k.includes('used')) spreadsheetUsedText = item.ketRaw; } if (s.includes('active') || s.includes('available')) hasActive = true; }
           
-          // LOGIC: Retrieve and Format Aggregated LPSE String
-          const activeLpseMap = activeAssignmentsMap.get(person.nama.trim());
+          // LOGIC: Retrieve and Format Aggregated LPSE String with Normalization Key
+          const keyNormalized = getFingerprint(person.nama);
+          const activeLpseMap = activeAssignmentsMap.get(keyNormalized);
+          
           if (activeLpseMap && activeLpseMap.size > 0) { 
               isUsed = true; 
               // Convert Map Values to Array
