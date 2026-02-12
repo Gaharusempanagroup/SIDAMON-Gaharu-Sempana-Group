@@ -907,13 +907,30 @@
         const btnNext = document.createElement('button'); btnNext.className = 'btn-page'; btnNext.innerHTML = '<i class="bi bi-chevron-right"></i>'; btnNext.disabled = currentPage === totalPages; btnNext.onclick = () => renderCallback(currentPage + 1); container.appendChild(btnNext);
     }
 
-    // --- MODIFIED RENDER SKK FOR MOBILE CARD VIEW ---
+    // --- MODIFIED RENDER SKK FOR MOBILE CARD VIEW & LPSE AGGREGATION ---
     function renderSKK(data, page = 1) {
       currentPageSkk = page; const tbody = document.getElementById('bodySkk'); let htmlContent = []; let statTotal = 0, statUsed = 0, statExpired = 0;
       if(!data || data.length === 0) { document.getElementById('msgSkk').classList.remove('d-none'); document.getElementById('pagination-skk').innerHTML = ''; animateValue("skk-total", 0, 0, 800); animateValue("skk-expired", 0, 0, 800); animateValue("skk-used", 0, 0, 800); tbody.innerHTML = ''; return; } else { document.getElementById('msgSkk').classList.add('d-none'); }
       
+      // LOGIC: Aggregate LPSE (Collect unique LPSE per person)
       const activeAssignmentsMap = new Map();
-      if(dataTugas && dataTugas.length > 0) { for(let i=0; i<dataTugas.length; i++){ const row = dataTugas[i]; const pName = (row[1] || "").trim(); const pStatus = (row[12] || "").toLowerCase(); if (pName && pStatus.includes('active')) { activeAssignmentsMap.set(pName, row[5] || ""); } } }
+      if(dataTugas && dataTugas.length > 0) { 
+          for(let i=0; i<dataTugas.length; i++){ 
+              const row = dataTugas[i]; 
+              const pName = (row[1] || "").trim(); 
+              const pStatus = (row[12] || "").toLowerCase(); 
+              if (pName && pStatus.includes('active')) { 
+                  // Use Set to store unique LPSEs
+                  const lpse = (row[5] || "").trim();
+                  if(lpse) {
+                      if (!activeAssignmentsMap.has(pName)) {
+                          activeAssignmentsMap.set(pName, new Set());
+                      }
+                      activeAssignmentsMap.get(pName).add(lpse);
+                  }
+              } 
+          } 
+      }
       
       const groupedData = {}; for(let i=0; i<data.length; i++) { const row = data[i]; const nama = row[1]; if (!nama) continue; if (!groupedData[nama]) { groupedData[nama] = { nama: row[1], hp: row[2], perusahaan: row[4], bidang: row[3], items: [] }; } groupedData[nama].items.push({ sertifikat: row[5], jenjang: row[6], sisaWaktu: row[9], statusRaw: row[10], ketRaw: row[11], originalIndex: i }); }
       
@@ -927,8 +944,28 @@
       for(let i=0; i<pagedKeys.length; i++) {
           const person = groupedData[pagedKeys[i]]; let isUsed = false, hasActive = false; let usedProjectName = "", spreadsheetUsedText = "";
           for(let j=0; j<person.items.length; j++){ const item = person.items[j]; const s = (item.statusRaw || "").toLowerCase(); const k = (item.ketRaw || "").toLowerCase(); if (s.includes('used') || k.includes('used')) { isUsed = true; if(s.includes('used')) spreadsheetUsedText = item.statusRaw; else if (k.includes('used')) spreadsheetUsedText = item.ketRaw; } if (s.includes('active') || s.includes('available')) hasActive = true; }
-          const activeJobFromTugas = activeAssignmentsMap.get(person.nama.trim());
-          if (activeJobFromTugas) { isUsed = true; usedProjectName = `Used in ${activeJobFromTugas}`; } else if (isUsed) { usedProjectName = spreadsheetUsedText ? spreadsheetUsedText : "Used"; }
+          
+          // LOGIC: Retrieve and Format Aggregated LPSE String
+          const activeLpseSet = activeAssignmentsMap.get(person.nama.trim());
+          if (activeLpseSet && activeLpseSet.size > 0) { 
+              isUsed = true; 
+              // Convert Set to Array and Join smartly
+              const lpseArray = Array.from(activeLpseSet);
+              let lpseString = "";
+              if (lpseArray.length === 1) {
+                  lpseString = lpseArray[0];
+              } else if (lpseArray.length === 2) {
+                  lpseString = `${lpseArray[0]} dan ${lpseArray[1]}`;
+              } else {
+                  // For 3 or more: "A, B, dan C"
+                  const last = lpseArray.pop();
+                  lpseString = `${lpseArray.join(", ")}, dan ${last}`;
+              }
+              usedProjectName = `Used in ${lpseString}`; 
+          } else if (isUsed) { 
+              usedProjectName = spreadsheetUsedText ? spreadsheetUsedText : "Used"; 
+          }
+          
           let finalBadge = isUsed ? `<span class="badge-status status-used" style="white-space: normal;">${usedProjectName}</span>` : (hasActive ? `<span class="badge-status status-active">Available</span>` : `<span class="badge-status status-expired">Expired</span>`);
           
           let btnWA = "-"; if(person.hp && /\d/.test(person.hp)) { let cleanNum = person.hp.toString().replace(/\D/g, ''); if(cleanNum.startsWith('0')) cleanNum = '62' + cleanNum.substring(1); if(cleanNum.length > 9) { btnWA = `<a href="https://wa.me/${cleanNum}" target="_blank" class="btn btn-success btn-sm text-white fw-bold d-inline-flex align-items-center justify-content-center" style="font-size: 0.7rem; padding: 2px 8px; height: 24px; min-width: 60px;"><i class="bi bi-whatsapp" style="font-size: 0.8rem; margin-right: 4px;"></i> Chat</a>`; } else { btnWA = `<span class="small text-muted">${person.hp}</span>`; } }
