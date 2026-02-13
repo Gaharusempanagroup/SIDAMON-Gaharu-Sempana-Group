@@ -1,78 +1,80 @@
-// --- Code.gs (Refactored & Optimized) ---
+// --- Code.gs (Optimized: Single-Fetch, Caching & Modular Security) ---
 
-// --- KONFIGURASI UTAMA ---
+// 1. KONFIGURASI UTAMA
 const CONFIG = {
-  MAIN_SS_ID: "1NYw4b9mSXoa_tYxo38mWZizQahq0wBee-9cU9oUk23o", // ID Spreadsheet Utama
-  PROJECT_SS_ID: "1kPWraQ0VJNB36sdJVlkP7dDZAZKBvisAtrggGYLraqc", // ID Spreadsheet Project
-  MAX_LOG_ENTRIES: 200,
-  CACHE_DURATION: 600, // Cache data selama 10 menit (600 detik)
-  CACHE_KEY: "DASHBOARD_FULL_DATA"
+  MAIN_SS_ID: "1NYw4b9mSXoa_tYxo38mWZizQahq0wBee-9cU9oUk23o",      // ID Spreadsheet Utama
+  PROJECT_SS_ID: "1kPWraQ0VJNB36sdJVlkP7dDZAZKBvisAtrggGYLraqc",   // ID Spreadsheet Project
+  MAX_LOG_ENTRIES: 200,     // Batas Log FIFO
+  CACHE_DURATION: 600,      // Durasi Cache (detik) = 10 Menit
+  CACHE_KEY: "DASHBOARD_FULL_DATA_V1"
 };
 
 /**
  * Handle GET Requests
+ * Menggunakan Single Entry Point untuk mengurangi latency.
  */
 function doGet(e) {
-  // PENGAMAN: Jika dijalankan manual tanpa parameter (Run di editor)
-  if (!e || !e.parameter) {
-    return ContentService.createTextOutput("Status: Server Running.\nInfo: Gunakan Deploy > Test Deploy untuk melihat hasil web, atau gunakan fungsi testDoGetManual() untuk testing backend.");
-  }
-
+  if (!e || !e.parameter) return responseJSON({ error: "Invalid Request" });
+  
   const action = e.parameter.action;
-
+  
   try {
-    switch (action) {
-      case 'getAllData':
-        // SATU REQUEST UNTUK SEMUA DATA (Sangat Cepat)
-        return responseJSON(DataController.getAllData());
-      case 'getSystemLogs':
-        return responseJSON(LoggerService.getLogs());
-      case 'clearCache':
-        CacheService.getScriptCache().remove(CONFIG.CACHE_KEY);
-        return responseJSON({ status: "Cache cleared" });
-      case 'getDataSKK': // Fallback untuk kompatibilitas
-        return responseJSON(DataController._fetchSKK(SpreadsheetApp.openById(CONFIG.MAIN_SS_ID)));
-      default:
-        return responseJSON({ error: "Action not defined" });
+    if (action === 'getAllDashboardData') {
+      // HANYA INI yang dipanggil saat loading awal
+      return responseJSON(DataService.getAllData());
+    } 
+    else if (action === 'getSystemLogs') {
+      return responseJSON(LogService.getLogs());
+    }
+    else {
+      return responseJSON({ error: "Action Unknown" });
     }
   } catch (err) {
-    return responseJSON({ error: err.toString() });
+    return responseJSON({ error: "Server Error: " + err.toString() });
   }
 }
 
 /**
  * Handle POST Requests
+ * Validasi ketat untuk operasi tulis (Write Operations).
  */
 function doPost(e) {
   try {
-    const jsonString = e.postData.contents;
-    const data = JSON.parse(jsonString);
+    const data = JSON.parse(e.postData.contents);
     const action = data.action;
-    let result = {};
 
-    switch (action) {
-      case 'login':
-        result = AuthService.verify(data.password);
-        break;
-      case 'logout':
-        LoggerService.log(data.role, "LOGOUT", "User logged out");
-        result = { status: "Success" };
-        break;
-      case 'saveData':
-        result = DataController.saveData(data.payload, data.password);
-        // Hapus cache agar data baru langsung muncul
-        CacheService.getScriptCache().remove(CONFIG.CACHE_KEY); 
-        break;
-      case 'clearLogs':
-        result = LoggerService.clearLogs(data.startDate, data.endDate, data.password);
-        break;
-      default:
-        result = { error: "Action not defined" };
+    // 1. Login (Public Action)
+    if (action === 'login') {
+      return responseJSON(AuthService.verify(data.password));
     }
+
+    // 2. Secured Actions (Wajib Validasi Password Ulang)
+    if (!data.password) return responseJSON({ error: "Unauthorized: No Credentials" });
     
-    return responseJSON(result);
+    // Verifikasi Auth sebelum melakukan perubahan data
+    const auth = AuthService.verify(data.password);
+    if (!auth.valid) return responseJSON({ error: "Unauthorized: Invalid Password" });
+
+    if (action === 'logout') {
+      LogService.add(data.role, "LOGOUT", "User logged out");
+      return responseJSON({ status: "Success" });
+    }
+    else if (action === 'saveData') {
+      // Cek Role Level
+      if (auth.role !== 'SUPER_ADMIN' && auth.role !== 'ADMIN_INPUT') {
+         return responseJSON({ error: "Akses Ditolak: Role tidak diizinkan." });
+      }
+      return responseJSON(DataService.saveData(data.payload, auth.role));
+    }
+    else if (action === 'clearLogs') {
+      if (auth.role !== 'SUPER_ADMIN') return responseJSON({ error: "Akses Ditolak: Hanya Super Admin." });
+      return responseJSON(LogService.clear(data.startDate, data.endDate));
+    }
+
+    return responseJSON({ error: "Action Not Defined" });
+
   } catch (err) {
-    return responseJSON({ error: "Gagal memproses data: " + err.toString() });
+    return responseJSON({ error: "Processing Error: " + err.toString() });
   }
 }
 
@@ -81,311 +83,249 @@ function responseJSON(data) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// --- CONTROLLER: MANAJEMEN DATA (OPTIMIZED) ---
-const DataController = {
-  // Mengambil semua data sekaligus (SKK, Tugas, Project, Dropdown)
-  getAllData: function() {
-    // 1. Cek Cache (Memori Cepat)
-    const cache = CacheService.getScriptCache();
-    const cachedJSON = cache.get(CONFIG.CACHE_KEY);
-    
-    if (cachedJSON) {
-      // Jika ada di cache, kembalikan langsung (Hemat waktu baca Spreadsheet)
-      return JSON.parse(cachedJSON);
-    }
-
-    // 2. Jika tidak ada di cache, baca dari Spreadsheet
-    const mainSS = SpreadsheetApp.openById(CONFIG.MAIN_SS_ID);
-    const projectSS = SpreadsheetApp.openById(CONFIG.PROJECT_SS_ID);
-
-    const result = {
-      skk: this._fetchSKK(mainSS),
-      penugasan: this._fetchPenugasan(mainSS),
-      project: this._fetchProject(projectSS),
-      dropdown: this._fetchDropdown(mainSS)
-    };
-
-    // 3. Simpan ke Cache
-    try {
-      cache.put(CONFIG.CACHE_KEY, JSON.stringify(result), CONFIG.CACHE_DURATION);
-    } catch(e) {
-      console.log("Cache failed (data too large): " + e.toString());
-    }
-
-    return result;
-  },
-
-  saveData: function(data, passwordAuthHash) {
-     const auth = AuthService.verify(passwordAuthHash);
-     if (!auth.valid || (auth.role !== 'SUPER_ADMIN' && auth.role !== 'ADMIN_INPUT')) {
-       return "Akses Ditolak / Password Salah.";
-     }
-     
-     const lock = LockService.getScriptLock();
-     try {
-       lock.waitLock(10000); // Tunggu antrian max 10 detik
-       
-       const ss = SpreadsheetApp.openById(CONFIG.MAIN_SS_ID);
-       const sheet = ss.getSheetByName("Dashboard SKK");
-       if (!sheet) return "Error: Sheet 'Dashboard SKK' tidak ditemukan.";
-
-       let targetRow;
-       let actionType = "";
-       
-       if (data.rowNumber && data.rowNumber != "") {
-         targetRow = parseInt(data.rowNumber);
-         actionType = "EDIT DATA";
-       } else {
-         // Cari baris kosong pertama logic
-         const lastRow = sheet.getLastRow();
-         targetRow = lastRow + 1;
-         const rangeB = sheet.getRange("B7:B" + (lastRow + 5)).getValues();
-         for (let i = 0; i < rangeB.length; i++) {
-           if (rangeB[i][0] === "" || rangeB[i][0] === null) {
-             targetRow = i + 7;
-             break;
-           }
-         }
-         if (targetRow < 7) targetRow = 7;
-         actionType = "TAMBAH DATA";
-       }
-
-       // Simpan Data
-       sheet.getRange(targetRow, 2).setValue(data.nama);
-       const rowData = [[
-         data.perusahaan, data.sertifikat, data.jenjang, data.asosiasi, data.masaBerlaku 
-       ]];
-       sheet.getRange(targetRow, 5, 1, 5).setValues(rowData);
-       sheet.getRange(targetRow, 12).setValue(data.keterangan);
-       
-       // Update Otomatis Nama Perusahaan di baris lain (Batch Update)
-       this._syncCompanyNames(sheet, data.nama, data.perusahaan);
-
-       SpreadsheetApp.flush(); 
-       LoggerService.log(auth.role, actionType, `${data.nama} - ${data.sertifikat}`);
-       return "Sukses";
-
-     } catch (e) {
-       return "Gagal Sistem: " + e.toString();
-     } finally {
-       lock.releaseLock();
-     }
-  },
-
-  _syncCompanyNames: function(sheet, name, company) {
-    const lastRow = sheet.getLastRow();
-    if (lastRow < 7) return;
-    
-    // Ambil data Nama (Col B) dan Perusahaan (Col E) sekaligus
-    const range = sheet.getRange(7, 2, lastRow - 6, 4); 
-    const values = range.getValues(); // values[i][0] = Nama, values[i][3] = Perusahaan
-    const cleanName = name.toString().toLowerCase().trim();
-    const cleanComp = company.toString().trim();
-    let isUpdated = false;
-
-    for (let i = 0; i < values.length; i++) {
-      const rowName = values[i][0] ? values[i][0].toString().toLowerCase().trim() : "";
-      if (rowName === cleanName) {
-         if (values[i][3] !== cleanComp) {
-           values[i][3] = cleanComp;
-           isUpdated = true;
-         }
-      }
-    }
-    
-    if (isUpdated) {
-      range.setValues(values);
-    }
-  },
-
-  // --- INTERNAL FETCHERS ---
-  _fetchSKK: function(ss) {
-    const sheet = ss.getSheetByName("Dashboard SKK");
-    const dbSheet = ss.getSheetByName("Database"); 
-    if (!sheet || !dbSheet) return [];
-    
-    const data = sheet.getDataRange().getDisplayValues();
-    const dbData = dbSheet.getDataRange().getValues();
-    
-    // Hash Map untuk lookup kontak (O(1))
-    const contactMap = {};
-    for (let j = 1; j < dbData.length; j++) {
-      if (dbData[j][1]) contactMap[dbData[j][1]] = dbData[j][2];
-    }
-
-    if (data.length <= 6) return [];
-    const result = [];
-    for (let i = 6; i < data.length; i++) {
-      if (data[i][1]) {
-        if (contactMap[data[i][1]]) {
-           data[i][2] = contactMap[data[i][1]];
-        }
-        data[i].push(i + 1); 
-        result.push(data[i]);
-      }
-    }
-    return result;
-  },
-
-  _fetchPenugasan: function(ss) {
-    const sheet = ss.getSheetByName("Dashboard Waktu Penugasan");
-    if (!sheet) return [];
-    const data = sheet.getDataRange().getDisplayValues();
-    if (data.length <= 6) return [];
-    return data.slice(6).filter(r => r[1]);
-  },
-
-  _fetchProject: function(ss) {
-    const sheet = ss.getSheetByName("Project");
-    if (!sheet) return [];
-    const data = sheet.getDataRange().getDisplayValues();
-    if (data.length <= 7) return [];
-    return data.slice(7).filter(r => r[2]);
-  },
-
-  _fetchDropdown: function(ss) {
-    const dbSheet = ss.getSheetByName("Database");
-    if (!dbSheet) return {};
-    const data = dbSheet.getDataRange().getValues();
-    const sets = { nama: new Set(), perusahaan: new Set(), sertifikat: new Set(), jenjang: new Set() };
-    
-    for (let i = 1; i < data.length; i++) {
-      if (data[i][1]) sets.nama.add(data[i][1]); 
-      if (data[i][11]) sets.perusahaan.add(data[i][11]);
-      if (data[i][5]) sets.sertifikat.add(data[i][5]); 
-      if (data[i][7]) sets.jenjang.add(data[i][7]); 
-    }
-    
-    return {
-      nama: [...sets.nama].sort(),
-      perusahaan: [...sets.perusahaan].sort(),
-      sertifikat: [...sets.sertifikat].sort(),
-      jenjang: [...sets.jenjang].sort()
-    };
-  }
-};
-
-// --- AUTH SERVICE ---
+// ==========================================
+// MODULE 1: AUTHENTICATION SERVICE
+// ==========================================
 const AuthService = {
+  // Hash String (SHA-256) agar sesuai dengan Client Side
+  hashString: function(str) {
+    if (!str) return "";
+    const rawHash = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, str.toString());
+    return rawHash.map(b => (b < 0 ? b + 256 : b).toString(16).padStart(2, '0')).join('');
+  },
+
+  // Verifikasi Password Hash dengan Database Excel
   verify: function(inputHash) {
     try {
       const ss = SpreadsheetApp.openById(CONFIG.MAIN_SS_ID);
       const sheet = ss.getSheetByName("Admin");
+      if (!sheet) return { valid: false, message: "Sheet Admin Missing" };
+
+      // Urutan di Sheet Admin A2:A5 -> [0]Super, [1]Admin, [2]Teknis, [3]Input
       const storedPasswords = sheet.getRange("A2:A5").getValues().flat();
-      const input = (inputHash || "").toString().trim();
-
-      const check = (idx) => storedPasswords[idx] && input === hashString(storedPasswords[idx]);
-
-      let role = null;
-      if (check(0)) role = "SUPER_ADMIN";
-      else if (check(1)) role = "ADMIN";
-      else if (check(2)) role = "TEKNIS";
-      else if (check(3)) role = "ADMIN_INPUT";
-
-      if (role) {
-        LoggerService.log(role, "LOGIN", "Login berhasil");
-        return { valid: true, role: role };
+      const input = inputHash.toString().trim();
+      const roles = ["SUPER_ADMIN", "ADMIN", "TEKNIS", "ADMIN_INPUT"];
+      
+      for (let i = 0; i < roles.length; i++) {
+        if (storedPasswords[i] && input === this.hashString(storedPasswords[i])) {
+          if (roles[i]) LogService.add(roles[i], "LOGIN", "Login berhasil");
+          return { valid: true, role: roles[i] };
+        }
       }
-      return { valid: false };
-    } catch (e) { return { valid: false, error: e.toString() }; }
+      return { valid: false, message: "Password Salah" };
+    } catch (e) {
+      return { valid: false, error: e.toString() };
+    }
   }
 };
 
-// --- LOGGER SERVICE ---
-const LoggerService = {
-  log: function(role, action, details) {
-    const lock = LockService.getScriptLock();
-    try {
-      lock.waitLock(5000); 
-      const props = PropertiesService.getScriptProperties();
-      let logs = JSON.parse(props.getProperty('SYSTEM_LOGS') || "[]");
-      
-      const now = new Date();
-      const timeString = Utilities.formatDate(now, "Asia/Jakarta", "dd-MM-yyyy HH:mm:ss");
-      
-      logs.unshift({
-        time: timeString,
-        role: role || "UNKNOWN",
-        action: action,
-        details: details
+// ==========================================
+// MODULE 2: DATA SERVICE (Core Logic)
+// ==========================================
+const DataService = {
+  
+  /**
+   * MENGAMBIL SEMUA DATA DALAM 1 REQUEST (Optimized)
+   * Menggunakan CacheService untuk respons instan.
+   */
+  getAllData: function() {
+    // A. Cek Cache (Memori Server)
+    const cache = CacheService.getScriptCache();
+    const cachedData = cache.get(CONFIG.CACHE_KEY);
+    
+    if (cachedData) {
+      // Jika ada di cache, kembalikan langsung (Hemat waktu baca spreadsheet)
+      return JSON.parse(cachedData);
+    }
+
+    // B. Jika Cache Kosong, Baca Spreadsheet
+    const ssMain = SpreadsheetApp.openById(CONFIG.MAIN_SS_ID);
+    const ssProject = SpreadsheetApp.openById(CONFIG.PROJECT_SS_ID);
+
+    const sheetSKK = ssMain.getSheetByName("Dashboard SKK");
+    const sheetDb = ssMain.getSheetByName("Database");
+    const sheetTugas = ssMain.getSheetByName("Dashboard Waktu Penugasan");
+    const sheetProject = ssProject.getSheetByName("Project");
+
+    // Helper function untuk ambil data aman
+    const getVals = (sheet, startRow) => {
+       if(!sheet) return [];
+       const lastRow = sheet.getLastRow();
+       if(lastRow < startRow) return [];
+       return sheet.getRange(startRow, 1, lastRow - (startRow - 1), sheet.getLastColumn()).getDisplayValues();
+    };
+
+    // 1. Proses Database (Kontak & Dropdowns)
+    const rawDb = getVals(sheetDb, 2);
+    const contactMap = {}; 
+    const dropdowns = { nama: [], perusahaan: [], sertifikat: [], jenjang: [] };
+    
+    rawDb.forEach(row => {
+      const name = row[1];
+      if(name) {
+        contactMap[name] = row[2]; // Map Nama -> WA (O(1) Access)
+        dropdowns.nama.push(name);
+        if(row[11]) dropdowns.perusahaan.push(row[11]);
+        if(row[5]) dropdowns.sertifikat.push(row[5]);
+        if(row[7]) dropdowns.jenjang.push(row[7]);
+      }
+    });
+
+    // 2. Proses SKK (Gabungkan dengan Kontak)
+    const rawSKK = getVals(sheetSKK, 7);
+    const cleanSKK = rawSKK
+      .filter(r => r[1]) 
+      .map((r, idx) => {
+        if(contactMap[r[1]]) r[2] = contactMap[r[1]]; // Inject WA
+        r.push(idx + 7); // Simpan Row ID Asli
+        return r;
       });
 
-      if (logs.length > CONFIG.MAX_LOG_ENTRIES) {
-        logs = logs.slice(0, CONFIG.MAX_LOG_ENTRIES);
+    // 3. Proses Data Lain
+    const cleanTugas = getVals(sheetTugas, 7).filter(r => r[1]);
+    const cleanProject = getVals(sheetProject, 8).filter(r => r[2]); 
+
+    // 4. Finalisasi Dropdown (Unique & Sort)
+    const finalDropdowns = {};
+    Object.keys(dropdowns).forEach(k => {
+      finalDropdowns[k] = [...new Set(dropdowns[k])].sort();
+    });
+
+    const result = {
+      skk: cleanSKK,
+      tugas: cleanTugas,
+      project: cleanProject,
+      dropdowns: finalDropdowns
+    };
+
+    // C. Simpan ke Cache (Agar request user berikutnya instan)
+    try {
+      cache.put(CONFIG.CACHE_KEY, JSON.stringify(result), CONFIG.CACHE_DURATION);
+    } catch(e) {
+      console.log("Cache failed (Data too big): " + e.toString());
+    }
+
+    return result;
+  },
+
+  /**
+   * MENYIMPAN DATA (Atomic Transaction)
+   */
+  saveData: function(data, role) {
+    const lock = LockService.getScriptLock();
+    try {
+      lock.waitLock(10000); // Wait max 10 detik
+      
+      const ss = SpreadsheetApp.openById(CONFIG.MAIN_SS_ID);
+      const sheet = ss.getSheetByName("Dashboard SKK");
+      
+      // Hapus Cache agar data baru segera muncul
+      CacheService.getScriptCache().remove(CONFIG.CACHE_KEY);
+
+      let targetRow;
+      let actionType = "TAMBAH DATA";
+
+      // Tentukan Baris (Edit atau Baru)
+      if (data.rowNumber && data.rowNumber != "") {
+        targetRow = parseInt(data.rowNumber);
+        actionType = "EDIT DATA";
+      } else {
+        // Logika cari baris kosong sederhana & efisien
+        targetRow = sheet.getLastRow() + 1;
+        if (targetRow < 7) targetRow = 7;
       }
-      props.setProperty('SYSTEM_LOGS', JSON.stringify(logs));
+
+      // Tulis Data (Batch Write)
+      sheet.getRange(targetRow, 2).setValue(data.nama);
+      const rowValues = [[
+        data.perusahaan, 
+        data.sertifikat, 
+        data.jenjang, 
+        data.asosiasi, 
+        data.masaBerlaku
+      ]];
+      sheet.getRange(targetRow, 5, 1, 5).setValues(rowValues);
+      sheet.getRange(targetRow, 12).setValue(data.keterangan);
+
+      // --- SINKRONISASI PERUSAHAAN (Batch Update) ---
+      // Jika nama personil diupdate perusahaannya, semua entry nama tsb ikut berubah
+      const lastRow = sheet.getLastRow();
+      if (lastRow >= 7) {
+        const rangeNames = sheet.getRange(7, 2, lastRow - 6, 1);
+        const rangeComps = sheet.getRange(7, 5, lastRow - 6, 1);
+        
+        const names = rangeNames.getValues().flat();
+        const comps = rangeComps.getValues();
+        let updated = false;
+        
+        const searchName = data.nama.toLowerCase().trim();
+        const newComp = data.perusahaan;
+
+        for(let i=0; i<names.length; i++) {
+           if(names[i] && names[i].toString().toLowerCase().trim() === searchName) {
+             if(comps[i][0] !== newComp) {
+               comps[i][0] = newComp;
+               updated = true;
+             }
+           }
+        }
+        if(updated) rangeComps.setValues(comps);
+      }
+
+      LogService.add(role, actionType, `${data.nama} - ${data.sertifikat}`);
+      return "Sukses";
+
     } catch (e) {
-      console.error("Log Error: " + e.toString());
+      return "Gagal: " + e.toString();
     } finally {
       lock.releaseLock();
     }
+  }
+};
+
+// ==========================================
+// MODULE 3: LOGGING SERVICE (FIFO System)
+// ==========================================
+const LogService = {
+  add: function(role, action, details) {
+    try {
+      const props = PropertiesService.getScriptProperties();
+      let logs = this.getLogs();
+      const now = Utilities.formatDate(new Date(), "Asia/Jakarta", "dd-MM-yyyy HH:mm:ss");
+      
+      // Tambah log baru di awal array
+      logs.unshift({ time: now, role: role, action: action, details: details });
+      
+      // Jaga agar log tidak melebihi batas (Hemat memori)
+      if (logs.length > CONFIG.MAX_LOG_ENTRIES) logs = logs.slice(0, CONFIG.MAX_LOG_ENTRIES);
+      
+      props.setProperty('SYSTEM_LOGS', JSON.stringify(logs));
+    } catch (e) { console.error("Log Error", e); }
   },
 
   getLogs: function() {
-    const json = PropertiesService.getScriptProperties().getProperty('SYSTEM_LOGS');
-    return json ? JSON.parse(json) : [];
+    try {
+      const json = PropertiesService.getScriptProperties().getProperty('SYSTEM_LOGS');
+      return json ? JSON.parse(json) : [];
+    } catch (e) { return []; }
   },
 
-  clearLogs: function(startDateStr, endDateStr, passwordHashInput) {
-    const lock = LockService.getScriptLock();
-    try {
-      lock.waitLock(5000);
-      
-      // Verifikasi Password Super Admin lagi
-      const ss = SpreadsheetApp.openById(CONFIG.MAIN_SS_ID);
-      const superAdminPass = ss.getSheetByName("Admin").getRange("A2").getValue();
-      
-      if (passwordHashInput.toString() !== hashString(superAdminPass)) {
-        return { error: "Password Salah! Akses Ditolak." };
-      }
-
-      const props = PropertiesService.getScriptProperties();
-      let logs = JSON.parse(props.getProperty('SYSTEM_LOGS') || "[]");
-      const initialCount = logs.length;
-      
-      const start = new Date(startDateStr); start.setHours(0,0,0,0);
-      const end = new Date(endDateStr); end.setHours(23,59,59,999);
-
-      const newLogs = logs.filter(function(log) {
-        const parts = log.time.split(' '); 
-        const dParts = parts[0].split('-'); 
-        const tParts = parts[1].split(':'); 
-        const logDate = new Date(dParts[2], dParts[1] - 1, dParts[0], tParts[0], tParts[1], tParts[2]);
-        return (logDate < start || logDate > end);
-      });
-      
-      props.setProperty('SYSTEM_LOGS', JSON.stringify(newLogs));
-      const deletedCount = initialCount - newLogs.length;
-      
-      this.log("SUPER_ADMIN", "HAPUS LOG", `Menghapus ${deletedCount} data`);
-      return { status: "Sukses", count: deletedCount };
-
-    } catch (e) {
-      return { error: "Gagal: " + e.toString() };
-    } finally {
-      lock.releaseLock();
-    }
+  clear: function(startStr, endStr) {
+     const props = PropertiesService.getScriptProperties();
+     let logs = this.getLogs();
+     const initialCount = logs.length;
+     const start = new Date(startStr); start.setHours(0,0,0,0);
+     const end = new Date(endStr); end.setHours(23,59,59,999);
+     
+     const newLogs = logs.filter(log => {
+        const parts = log.time.split(' '); // dd-MM-yyyy HH:mm:ss
+        const d = parts[0].split('-');
+        const t = parts[1].split(':');
+        const logDate = new Date(d[2], d[1]-1, d[0], t[0], t[1], t[2]);
+        return (logDate < start || logDate > end); // Keep if OUTSIDE range
+     });
+     
+     props.setProperty('SYSTEM_LOGS', JSON.stringify(newLogs));
+     return { status: "Sukses", count: initialCount - newLogs.length };
   }
 };
-
-// --- HELPER: HASHING ---
-function hashString(str) {
-  if (!str) return "";
-  const rawHash = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, str.toString());
-  let txtHash = '';
-  for (let i = 0; i < rawHash.length; i++) {
-    let hashVal = rawHash[i];
-    if (hashVal < 0) hashVal += 256;
-    if (hashVal.toString(16).length == 1) txtHash += '0';
-    txtHash += hashVal.toString(16);
-  }
-  return txtHash;
-}
-
-// --- FUNGSI TEST MANUAL (Jalankan ini di Editor untuk cek Backend) ---
-function testDoGetManual() {
-  console.log("Test: Simulasi getAllData...");
-  const e = { parameter: { action: 'getAllData' } };
-  const result = doGet(e);
-  console.log("Result: " + result.getContent().substring(0, 200) + "...");
-}
