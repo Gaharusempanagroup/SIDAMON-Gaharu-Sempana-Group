@@ -92,9 +92,8 @@
     .stat-card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.07); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); color: white; overflow: hidden; height: 100%; position: relative; z-index: 1; cursor: pointer; }
     .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important; }
     
-    /* Efek Active Filter */
-    .stat-card.active-filter { transform: scale(1.05); box-shadow: 0 0 0 4px rgba(255,255,255,0.3), 0 8px 25px rgba(0,0,0,0.3) !important; z-index: 10; }
-    .stat-card.active-filter::after { content: "✔ Aktif"; position: absolute; top: 10px; right: 10px; font-size: 0.7rem; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 20px; backdrop-filter: blur(4px); }
+    /* Efek Active Filter (Visual Only - No Text) */
+    .stat-card.active-filter { transform: scale(1.05); box-shadow: 0 0 0 4px rgba(255,255,255,0.3), 0 8px 25px rgba(0,0,0,0.3) !important; z-index: 10; border: 1px solid rgba(255,255,255,0.5); }
 
     .stat-card i { transition: all 0.5s ease; }
     .stat-card:hover i { transform: scale(1.2) rotate(10deg); opacity: 0.7 !important; }
