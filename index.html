@@ -25,6 +25,23 @@
     .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }
     .btn-primary:hover { background-color: #000060; border-color: #000060; }
 
+    /* --- LOADING STATE (DISABLE INTERACTION) --- */
+    /* Saat class ini ada di body, semua elemen dashboard tidak bisa diklik */
+    body.data-loading #dashboard-section {
+        pointer-events: none !important; /* Mematikan klik mouse & sentuhan jari */
+        user-select: none; /* Mencegah seleksi teks */
+        opacity: 0.6; /* Membuat dashboard terlihat redup */
+        filter: grayscale(30%); /* Opsional: Sedikit abu-abu */
+        transition: all 0.3s ease;
+    }
+    
+    /* Overlay tetap muncul di atas dashboard yang redup */
+    body.data-loading #loading-overlay {
+        pointer-events: auto !important; 
+        background: rgba(255, 255, 255, 0.5); /* Background transparan agar dashboard terlihat di belakang */
+        backdrop-filter: blur(2px);
+    }
+
     /* --- LOGIN PAGE ANIMATIONS --- */
     #login-section { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; height: 100dvh; display: flex; align-items: center; justify-content: center; background: linear-gradient(-45deg, #000428, #004e92, #000080, #1cb5e0); background-size: 400% 400%; animation: gradientBG 15s ease infinite; overflow: hidden; z-index: 9999; padding: 20px; }
     @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
@@ -756,6 +773,21 @@
     let filterStatusTugas = 'all'; // all, active
     let filterStatusProject = 'all'; // all, expired, done
 
+    // Fungsi untuk Mengaktifkan/Mematikan Mode Loading (Blocking Interaction)
+    function toggleLoadingState(isLoading) {
+        const overlay = document.getElementById('loading-overlay');
+        const loadingText = document.getElementById('loading-text');
+
+        if (isLoading) {
+            document.body.classList.add('data-loading'); // Tambah class CSS (blokir klik & redup)
+            overlay.style.display = 'flex'; 
+            if(loadingText) loadingText.innerText = "Sedang Memuat Data...";
+        } else {
+            document.body.classList.remove('data-loading'); // Hapus class CSS (buka blokir)
+            overlay.style.display = 'none'; 
+        }
+    }
+
     const Toast = Swal.mixin({
       toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true,
       didOpen: (toast) => { toast.addEventListener('mouseenter', Swal.stopTimer); toast.addEventListener('mouseleave', Swal.resumeTimer); }
@@ -817,9 +849,24 @@
     }
 
     function loginSuccess(role, isFirstLogin) {
-        currentUserRole = role; sessionStorage.setItem('userRole', role); 
-        document.getElementById('login-section').style.display = 'none'; document.getElementById('dashboard-section').style.display = 'block'; document.body.classList.remove('login-mode'); document.body.style.position = ''; document.body.style.overflow = 'auto'; 
-        applyRoleAccess(currentUserRole); updateGreeting(currentUserRole); loadAllData(); 
+        currentUserRole = role; 
+        sessionStorage.setItem('userRole', role); 
+        
+        // 1. TAMPILKAN DASHBOARD SEGERA (Tapi dalam mode terkunci)
+        document.getElementById('login-section').style.display = 'none'; 
+        document.getElementById('dashboard-section').style.display = 'block'; 
+        document.body.classList.remove('login-mode'); 
+        document.body.style.position = ''; 
+        document.body.style.overflow = 'auto'; 
+
+        applyRoleAccess(currentUserRole); 
+        updateGreeting(currentUserRole); 
+        
+        // 2. AKTIFKAN MODE LOADING (Dashboard terlihat, tapi tidak bisa diklik)
+        toggleLoadingState(true);
+        
+        // 3. Mulai ambil data
+        loadAllData(); 
     }
 
     async function handleLogout() {
@@ -925,12 +972,20 @@
     }
 
     async function loadAllData() {
+      // Tampilkan Skeleton
       if(currentUserRole !== "TEKNIS") { showSkeleton('bodySkk'); showSkeleton('bodyTugas'); }
       if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "TEKNIS") { showSkeleton('bodyProject'); }
-      const promises = []; let loadSKK = false, loadTugas = false, loadProject = false, loadDropdown = false;
+      
+      const promises = []; 
+      let loadSKK = false, loadTugas = false, loadProject = false, loadDropdown = false;
+      
+      // Safety: Pastikan state loading aktif (jika dipanggil manual)
+      toggleLoadingState(true);
+
       if(currentUserRole !== "TEKNIS") { promises.push(fetchAPI('getDataSKK')); loadSKK = true; promises.push(fetchAPI('getDataPenugasan')); loadTugas = true; }
       if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "TEKNIS") { promises.push(fetchAPI('getDataProject')); loadProject = true; }
       if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT") { promises.push(fetchAPI('getDropdownData')); loadDropdown = true; }
+      
       try {
           const results = await Promise.all(promises);
           let resultIndex = 0;
@@ -939,10 +994,17 @@
           if (loadProject) dataProject = results[resultIndex++];
           let dropdownData = null;
           if (loadDropdown) dropdownData = results[resultIndex++];
+          
           if (loadSKK && loadTugas) { renderSKK(dataSKK, 1); renderTugas(dataTugas, 1); }
           if (loadProject) { renderProject(dataProject, 1); }
           if (loadDropdown && dropdownData) { populateDatalist('listNama', dropdownData.nama); populateDatalist('listPerusahaan', dropdownData.perusahaan); populateDatalist('listSertifikat', dropdownData.sertifikat); populateDatalist('listJenjang', dropdownData.jenjang); }
-      } catch(e) { console.error(e); alert("Gagal memuat sebagian data. Silakan refresh."); }
+      } catch(e) { 
+          console.error(e); 
+          alert("Gagal memuat sebagian data. Silakan refresh."); 
+      } finally {
+          // --- KUNCI UTAMA: BUKA BLOKIR KLIK DI SINI ---
+          toggleLoadingState(false);
+      }
     }
 
     function setupPagination(totalItems, currentPage, containerId, renderCallback) {
@@ -956,8 +1018,13 @@
         const btnNext = document.createElement('button'); btnNext.className = 'btn-page'; btnNext.innerHTML = '<i class="bi bi-chevron-right"></i>'; btnNext.disabled = currentPage === totalPages; btnNext.onclick = () => renderCallback(currentPage + 1); container.appendChild(btnNext);
     }
 
-    // --- NEW HANDLER FUNCTION FOR CLICKABLE STATS ---
+    // --- HANDLER FUNCTION FOR CLICKABLE STATS ---
     function handleStatClick(view, type, colElement) {
+        // SAFETY GUARD: Cek apakah data sudah ada. Jika belum, jangan lakukan apa-apa.
+        if (view === 'skk' && (!dataSKK || dataSKK.length === 0)) return;
+        if (view === 'tugas' && (!dataTugas || dataTugas.length === 0)) return;
+        if (view === 'project' && (!dataProject || dataProject.length === 0)) return;
+
         const parentRow = colElement.parentElement;
         const allCards = parentRow.querySelectorAll('.stat-card');
         allCards.forEach(card => card.classList.remove('active-filter'));
@@ -985,7 +1052,7 @@
         }
     }
 
-    // --- MODIFIED RENDER SKK: Filter Logic Added ---
+    // --- RENDER SKK: Filter Logic Added ---
     function renderSKK(data, page = 1) {
       currentPageSkk = page; 
       const tbody = document.getElementById('bodySkk'); 
@@ -1024,6 +1091,7 @@
       
       let allKeys = Object.keys(groupedData);
 
+      // Hitung Stats dari Data Total (bukan halaman ini saja)
       statTotal = allKeys.length;
       allKeys.forEach(key => { 
           const person = groupedData[key]; 
@@ -1133,7 +1201,7 @@
       setupPagination(allKeys.length, currentPageSkk, 'pagination-skk', (p) => renderSKK(data, p));
     }
 
-    // --- MODIFIED RENDER TUGAS: Filter Logic Added ---
+    // --- RENDER TUGAS: Filter Logic Added ---
     function renderTugas(data, page = 1) {
        currentPageTugas = page; const tbody = document.getElementById('bodyTugas'); let htmlContent = []; 
        
@@ -1173,7 +1241,7 @@
        tbody.innerHTML = htmlContent.join(''); setupPagination(persons.length, currentPageTugas, 'pagination-tugas', (p) => renderTugas(data, p));
     }
 
-    // --- MODIFIED RENDER PROJECT: Filter Logic Added ---
+    // --- RENDER PROJECT: Filter Logic Added ---
     function renderProject(data, page = 1) {
       currentPageProject = page; const tbody = document.getElementById('bodyProject'); let htmlContent = []; 
       let counts = { total: 0, expired: 0, done: 0 }; const today = new Date(); today.setHours(0, 0, 0, 0);
