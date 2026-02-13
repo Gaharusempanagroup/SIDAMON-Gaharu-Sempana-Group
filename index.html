@@ -25,19 +25,19 @@
     .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }
     .btn-primary:hover { background-color: #000060; border-color: #000060; }
 
-    /* --- LOADING STATE (TRANSPARENT LOCK) --- */
-    /* Saat class ini aktif:
-       1. Dashboard terlihat NORMAL (tidak redup, tidak tertutup overlay).
-       2. Skeleton Loading akan terlihat jelas.
-       3. TAPI user tidak bisa klik apapun (pointer-events: none).
+    /* --- SAFE LOADING STATE (TRANSPARENT LOCK) --- */
+    /* Saat class 'data-loading' aktif:
+       1. Dashboard terlihat NORMAL (Jelas, tidak redup).
+       2. Skeleton Loading terlihat.
+       3. User TIDAK BISA klik apapun (Anti-Crash).
     */
     body.data-loading #dashboard-section {
-        pointer-events: none !important; /* ANTI-CRASH: Mematikan semua interaksi */
+        pointer-events: none !important; /* KUNCI UTAMA: Mematikan interaksi */
         user-select: none; 
-        cursor: wait; /* Indikator kursor loading di desktop */
+        cursor: wait; 
     }
     
-    /* Pastikan overlay hilang saat safe loading state aktif */
+    /* Sembunyikan overlay loading agar Skeleton terlihat jelas */
     body.data-loading #loading-overlay {
         display: none !important;
     }
@@ -113,31 +113,9 @@
     .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
 
     /* --- STATS FILTER ANIMATION & STYLE --- */
-    .clickable-card {
-        cursor: pointer;
-        position: relative;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    }
-    /* Animasi saat Card Aktif */
-    .stat-card.active-filter {
-        transform: translateY(-8px) scale(1.02);
-        border: 2px solid rgba(255, 255, 255, 0.8);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3) !important;
-        z-index: 10;
-    }
-    /* Indikator visual kecil */
-    .stat-card.active-filter::after {
-        content: '';
-        position: absolute;
-        bottom: -10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 40px;
-        height: 4px;
-        background-color: rgba(255,255,255,0.8);
-        border-radius: 4px;
-        animation: fadeIn 0.5s ease-in-out;
-    }
+    .clickable-card { cursor: pointer; position: relative; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
+    .stat-card.active-filter { transform: translateY(-8px) scale(1.02); border: 2px solid rgba(255, 255, 255, 0.8); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3) !important; z-index: 10; }
+    .stat-card.active-filter::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 40px; height: 4px; background-color: rgba(255,255,255,0.8); border-radius: 4px; animation: fadeIn 0.5s ease-in-out; }
     
     .bg-gradient-primary { background: linear-gradient(45deg, var(--primary-color), #333399); }
     .bg-gradient-success { background: linear-gradient(45deg, #1cc88a, #13855c); } 
@@ -1101,9 +1079,12 @@
           if (activeAssignmentsMap.has(keyNormalized)) isUsed = true; 
           if (isUsed) statUsed++; 
       });
-      animateValue("skk-total", 0, statTotal, 800); 
-      animateValue("skk-expired", 0, statExpired, 800); 
-      animateValue("skk-used", 0, statUsed, 800);
+      
+      // FIX ANIMASI: Mulai dari angka saat ini (bukan 0) agar tidak berkedip saat filter
+      const getCurrentVal = (id) => parseInt(document.getElementById(id).innerText.replace(/\D/g,'')) || 0;
+      animateValue("skk-total", getCurrentVal("skk-total"), statTotal, 500); 
+      animateValue("skk-expired", getCurrentVal("skk-expired"), statExpired, 500); 
+      animateValue("skk-used", getCurrentVal("skk-used"), statUsed, 500);
 
       // --- LOGIC FILTER CARD STATS ---
       if (filterStatusSKK !== 'all') {
@@ -1206,8 +1187,11 @@
        
        let active = 0; 
        for(let i=0; i<filtered.length; i++) { if((filtered[i][12]||"").toLowerCase().includes('active')) active++; }
-       animateValue("tugas-total", 0, new Set(data.map(r=>r[2])).size, 800); 
-       animateValue("tugas-active", 0, active, 800);
+       
+       // FIX ANIMASI
+       const getCurrentVal = (id) => parseInt(document.getElementById(id).innerText.replace(/\D/g,'')) || 0;
+       animateValue("tugas-total", getCurrentVal("tugas-total"), new Set(data.map(r=>r[2])).size, 500); 
+       animateValue("tugas-active", getCurrentVal("tugas-active"), active, 500);
 
        if(filterStatusTugas === 'active') {
            filtered = filtered.filter(row => (row[12]||"").toLowerCase().includes('active'));
@@ -1247,7 +1231,11 @@
 
       for(let i=0; i<data.length; i++) { const row = data[i]; if (!row[1]) continue; counts.total++; let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13]; const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim(); const isDone = rawStatus.includes('done') || rawStatus.includes('selesai'); const kontrakExpired = !isDone && isExpiredCheck(deadKontrakRaw); const scheduleExpired = !isDone && isExpiredCheck(deadScheduleRaw); if (kontrakExpired || scheduleExpired) counts.expired++; if (isDone) counts.done++; }
       
-      document.getElementById('proj-total').innerText = counts.total; document.getElementById('proj-expired').innerText = counts.expired; document.getElementById('proj-done').innerText = counts.done;
+      // FIX ANIMASI
+      const getCurrentVal = (id) => parseInt(document.getElementById(id).innerText.replace(/\D/g,'')) || 0;
+      animateValue("proj-total", getCurrentVal("proj-total"), counts.total, 500);
+      animateValue("proj-expired", getCurrentVal("proj-expired"), counts.expired, 500);
+      animateValue("proj-done", getCurrentVal("proj-done"), counts.done, 500);
 
       let validRows = data.filter(r => r[1]);
       
