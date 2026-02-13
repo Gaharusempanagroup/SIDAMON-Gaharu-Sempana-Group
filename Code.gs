@@ -1,4 +1,4 @@
-// --- Code.gs (Logic Centralized - No Formulas in Sheet) ---
+// --- Code.gs (Updated Logic: Used = Active + Not Started) ---
 
 // 1. MASUKKAN ID SPREADSHEET UTAMA
 const MAIN_SS_ID = "1NYw4b9mSXoa_tYxo38mWZizQahq0wBee-9cU9oUk23o"; 
@@ -80,7 +80,6 @@ function responseJSON(data) {
 function normalizeDate(dateVal) {
   if (!dateVal) return null;
   if (dateVal instanceof Date) return dateVal;
-  // Handle string formats manually if needed, generally Sheet returns Date object
   return new Date(dateVal);
 }
 
@@ -100,7 +99,7 @@ function formatDateID(dateObj) {
   return dateObj.getDate() + " " + months[dateObj.getMonth()] + " " + dateObj.getFullYear();
 }
 
-// --- DATA FETCHING & BUSINESS LOGIC (PENGGANTI RUMUS SHEET) ---
+// --- DATA FETCHING & BUSINESS LOGIC ---
 
 function getDataPenugasan() {
   try {
@@ -108,37 +107,26 @@ function getDataPenugasan() {
     var sheet = ss.getSheetByName("Dashboard Waktu Penugasan");
     if (!sheet) return [];
     
-    // Ambil semua data mentah (termasuk baris kosong/header)
     var data = sheet.getDataRange().getValues();
-    if (data.length <= 6) return []; // Header diasumsikan sampai baris 6
+    if (data.length <= 6) return []; 
 
     var today = new Date();
     today.setHours(0,0,0,0);
     var result = [];
 
-    // Loop data mulai baris 7 (index 6)
     for (var i = 6; i < data.length; i++) {
       var row = data[i];
-      if (!row[1]) continue; // Skip jika nama kosong
-
-      // --- LOGIC: Hitung End Date & Status ---
-      // Mapping Index:
-      // 8: Durasi (Hari)
-      // 9: Start Date
-      // 10: End Date (Formula di Sheet -> Code di sini)
-      // 12: Status (Formula di Sheet -> Code di sini)
+      if (!row[1]) continue; 
 
       var durasi = parseInt(row[8]) || 0;
       var startDate = normalizeDate(row[9]);
       var endDate = row[10] ? normalizeDate(row[10]) : null;
 
-      // Rumus End Date: Start + Durasi (jika End Date kosong/formula)
       if (startDate && (!endDate || isNaN(endDate.getTime()))) {
         endDate = new Date(startDate);
         endDate.setDate(startDate.getDate() + durasi);
       }
 
-      // Rumus Status Penugasan
       var status = "Not Started";
       if (startDate && endDate) {
         if (today > endDate) {
@@ -150,11 +138,9 @@ function getDataPenugasan() {
         }
       }
 
-      // Update Row Data untuk dikirim ke Client
-      // Kita format tanggal menjadi string agar konsisten di frontend
       row[9] = formatDateID(startDate); 
       row[10] = formatDateID(endDate);
-      row[12] = status; // Overwrite kolom status
+      row[12] = status; 
 
       result.push(row);
     }
@@ -174,24 +160,25 @@ function getDataSKK() {
     var dbData = dbSheet.getDataRange().getValues();
     var contactMap = {};
     
-    // Mapping Kontak dari Database
     for (var j = 1; j < dbData.length; j++) {
       var dbName = dbData[j][1];
       var dbContact = dbData[j][2];
       if (dbName) contactMap[dbName] = dbContact;
     }
 
-    // --- LOGIC: Cross-Check Penugasan (VLOOKUP / COUNTIFS pengganti) ---
-    // Kita butuh tahu siapa saja yang sedang "Active" di Penugasan
-    var rawPenugasan = getDataPenugasan(); // Panggil fungsi internal
-    var activeAssignments = {}; // Key: Nama, Value: Array of Project Names
+    // --- LOGIC PERBAIKAN DI SINI ---
+    var rawPenugasan = getDataPenugasan(); 
+    var activeAssignments = {}; 
 
     rawPenugasan.forEach(function(tugas) {
       var pName = (tugas[1] || "").toString().toLowerCase().trim();
-      var pStatus = (tugas[12] || "").toLowerCase(); // Status yang sudah dihitung script
-      var pProject = tugas[5] || tugas[2]; // Gunakan LPSE atau Nama Paket
+      var pStatus = (tugas[12] || "").toLowerCase(); 
+      var pProject = tugas[5] || tugas[2]; 
 
-      if (pStatus === 'active') {
+      // UPDATED LOGIC:
+      // Masukkan ke daftar 'Used' jika statusnya 'active' ATAU 'not started'
+      // Artinya sertifikat dipakai di proyek berjalan atau proyek masa depan.
+      if (pStatus === 'active' || pStatus === 'not started') {
         if (!activeAssignments[pName]) activeAssignments[pName] = [];
         activeAssignments[pName].push(pProject);
       }
@@ -208,43 +195,32 @@ function getDataSKK() {
         var namaPersonil = rowData[1];
         var cleanName = namaPersonil.toString().toLowerCase().trim();
 
-        // Inject Kontak
         if (contactMap[namaPersonil]) {
            rowData[2] = contactMap[namaPersonil];
         }
-
-        // --- LOGIC: Hitung Sisa Waktu & Status SKK ---
-        // Mapping Index:
-        // 8: Masa Berlaku
-        // 9: Sisa Waktu (Formula -> Code)
-        // 10: Status (Formula -> Code)
 
         var masaBerlaku = normalizeDate(rowData[8]);
         var sisaHari = diffDays(masaBerlaku);
         var statusSKK = "";
 
-        // Logic Status
         var usedProjects = activeAssignments[cleanName];
 
         if (sisaHari < 0) {
           statusSKK = "Expired";
         } else if (usedProjects && usedProjects.length > 0) {
-          // Jika ada di penugasan aktif
+          // Jika ada di activeAssignments (yang sekarang mencakup Active & Not Started)
           var uniqueProjects = [...new Set(usedProjects)].join(", ");
           statusSKK = "Used in " + uniqueProjects;
         } else {
-          statusSKK = "Active"; // atau Available
+          statusSKK = "Active"; 
         }
 
-        // Overwrite nilai array untuk dikirim
         rowData[8] = formatDateID(masaBerlaku);
         rowData[9] = sisaHari + " Hari";
         if (sisaHari < 0) rowData[9] = "Expired";
         
-        // Simpan Status di Kolom 10 (biasanya Status) dan 11 (Keterangan jika kosong)
         rowData[10] = statusSKK;
         
-        // Tambahkan ID baris di akhir array
         rowData.push(i + 1); 
         result.push(rowData);
       }
@@ -260,29 +236,17 @@ function getDataProject() {
     if (!sheet) return [];
     
     var data = sheet.getDataRange().getValues();
-    if (data.length <= 7) return []; // Header asumsi baris 7
+    if (data.length <= 7) return []; 
 
     var result = [];
     var today = new Date(); today.setHours(0,0,0,0);
 
     for (var i = 7; i < data.length; i++) {
       var row = data[i];
-      if (!row[2]) continue; // Nama Pekerjaan kosong skip
-
-      // --- LOGIC: Status Project ---
-      // Index Mapping (Berdasarkan CSV):
-      // 8: Start Date Kontrak
-      // 9: Due Date Kontrak
-      // 12: Start Date Schedule
-      // 13: Due Date Schedule
-      // 16: Status (Manual/Formula) -> Code Calculation
+      if (!row[2]) continue; 
 
       var dueKontrak = normalizeDate(row[9]);
       var dueSchedule = normalizeDate(row[13]);
-      
-      // Hitung Days Left (overwrite kolom Days Left jika ada formula)
-      // Kolom 10 (index 10) -> Days Left Kontrak
-      // Kolom 14 (index 14) -> Days Left Schedule
       
       var daysLeftKontrak = dueKontrak ? diffDays(dueKontrak) : "-";
       var daysLeftSchedule = dueSchedule ? diffDays(dueSchedule) : "-";
@@ -290,15 +254,11 @@ function getDataProject() {
       row[10] = (daysLeftKontrak === "-" ? "-" : daysLeftKontrak + " days");
       row[14] = (daysLeftSchedule === "-" ? "-" : daysLeftSchedule + " days");
 
-      // Logic Status Project (Prioritas: Done Manual > Expired > Ongoing)
       var currentStatus = (row[16] || "").toString().toLowerCase();
-      var finalStatus = row[16]; // Default ambil dari sheet (jika manual done)
+      var finalStatus = row[16]; 
 
-      // Jika belum selesai, hitung otomatis
       if (!currentStatus.includes("done") && !currentStatus.includes("selesai") && !currentStatus.includes("100%")) {
-        // Cek Expired berdasarkan Schedule atau Kontrak
         var targetDue = dueSchedule || dueKontrak;
-        
         if (targetDue && today > targetDue) {
           finalStatus = "Expired / Overdue";
         } else {
@@ -306,10 +266,8 @@ function getDataProject() {
         }
       }
 
-      // Overwrite kolom Status
       row[16] = finalStatus;
 
-      // Format Tanggal untuk Client
       row[8] = formatDateID(normalizeDate(row[8]));
       row[9] = formatDateID(normalizeDate(row[9]));
       row[12] = formatDateID(normalizeDate(row[12]));
@@ -519,19 +477,17 @@ function processForm(data, passwordAuthHash) {
     var targetRow;
     var actionType = "";
     
-    // 1. Tentukan Baris Target (Edit atau Tambah)
     if (data.rowNumber && data.rowNumber != "") {
       targetRow = parseInt(data.rowNumber);
       if (isNaN(targetRow) || targetRow < 7) return "Error: Baris tidak valid.";
       actionType = "EDIT DATA";
     } else {
       var lastRow = sheet.getLastRow();
-      // Cari baris kosong pertama di kolom B mulai baris 7
       var rangeB = sheet.getRange("B7:B" + (lastRow + 5)).getValues();
       targetRow = -1;
       for (var i = 0; i < rangeB.length; i++) {
         if (rangeB[i][0] === "" || rangeB[i][0] === null) {
-          targetRow = i + 7; // Karena index 0 adalah baris 7
+          targetRow = i + 7; 
           break;
         }
       }
@@ -540,8 +496,6 @@ function processForm(data, passwordAuthHash) {
       actionType = "TAMBAH DATA";
     }
 
-    // 2. Simpan Data Inputan Saat Ini (RAW VALUE)
-    // Kita tidak menulis formula, hanya value. Status akan dihitung otomatis saat GET.
     sheet.getRange(targetRow, 2).setValue(data.nama); 
     var rowData = [[
       data.perusahaan, 
@@ -553,11 +507,8 @@ function processForm(data, passwordAuthHash) {
     sheet.getRange(targetRow, 5, 1, 5).setValues(rowData);
     sheet.getRange(targetRow, 12).setValue(data.keterangan);
     
-    // Kosongkan kolom Sisa Waktu (9) & Status (10) di Sheet agar tidak ada sisa data lama
-    // Data ini nanti digenerate oleh script getDataSKK
     sheet.getRange(targetRow, 9, 1, 2).clearContent(); 
     
-    // 3. LOGIKA UPDATE OTOMATIS PERUSAHAAN (Batch Update)
     var lastRowData = sheet.getLastRow();
     if (lastRowData >= 7) {
       var rangeNames = sheet.getRange(7, 2, lastRowData - 6, 1).getValues(); 
