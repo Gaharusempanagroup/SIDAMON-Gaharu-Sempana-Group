@@ -87,9 +87,15 @@
     .sub-nav .btn { border-radius: 20px; font-size: 0.85rem; font-weight: 600; padding: 6px 15px; border: 1px solid #ddd; background: white; color: #555; transition: all 0.2s ease; touch-action: manipulation; }
     .sub-nav .btn.active { background-color: #000080; color: white; border-color: #000080; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
     
+    /* STAT CARDS FILTER STYLE */
     .stats-wrapper { max-width: 1100px; margin: 0 auto; }
-    .stat-card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.07); transition: transform 0.3s ease, box-shadow 0.3s ease; color: white; overflow: hidden; height: 100%; position: relative; z-index: 1; }
+    .stat-card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.07); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); color: white; overflow: hidden; height: 100%; position: relative; z-index: 1; cursor: pointer; }
     .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important; }
+    
+    /* Efek Active Filter */
+    .stat-card.active-filter { transform: scale(1.05); box-shadow: 0 0 0 4px rgba(255,255,255,0.3), 0 8px 25px rgba(0,0,0,0.3) !important; z-index: 10; }
+    .stat-card.active-filter::after { content: "✔ Aktif"; position: absolute; top: 10px; right: 10px; font-size: 0.7rem; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 20px; backdrop-filter: blur(4px); }
+
     .stat-card i { transition: all 0.5s ease; }
     .stat-card:hover i { transform: scale(1.2) rotate(10deg); opacity: 0.7 !important; }
     .stat-value { font-size: 2.5rem; font-weight: 700; line-height: 1; }
@@ -446,13 +452,19 @@
         <div class="stats-wrapper">
             <div class="row g-3 mb-4 justify-content-center">
               <div class="col-12 col-sm-6 col-lg-4">
-                  <div class="stat-card bg-gradient-primary p-3 d-flex justify-content-between align-items-center"><div><div class="stat-label">Total Personil</div><div class="stat-value" id="skk-total">0</div></div><i class="bi bi-people-fill fs-1 opacity-50"></i></div>
+                  <div class="stat-card bg-gradient-primary p-3 d-flex justify-content-between align-items-center active-filter" id="card-skk-total" onclick="applyCardFilter('skk', 'all')">
+                    <div><div class="stat-label">Total Personil</div><div class="stat-value" id="skk-total">0</div></div><i class="bi bi-people-fill fs-1 opacity-50"></i>
+                  </div>
               </div>
               <div class="col-12 col-sm-6 col-lg-4">
-                  <div class="stat-card bg-gradient-danger p-3 d-flex justify-content-between align-items-center"><div><div class="stat-label">Expired</div><div class="stat-value" id="skk-expired">0</div></div><i class="bi bi-exclamation-triangle-fill fs-1 opacity-50"></i></div>
+                  <div class="stat-card bg-gradient-danger p-3 d-flex justify-content-between align-items-center" id="card-skk-expired" onclick="applyCardFilter('skk', 'expired')">
+                    <div><div class="stat-label">Expired</div><div class="stat-value" id="skk-expired">0</div></div><i class="bi bi-exclamation-triangle-fill fs-1 opacity-50"></i>
+                  </div>
               </div>
               <div class="col-12 col-sm-6 col-lg-4">
-                  <div class="stat-card bg-gradient-warning p-3 d-flex justify-content-between align-items-center"><div><div class="stat-label">Personil Terpakai</div><div class="stat-value" id="skk-used">0</div></div><i class="bi bi-briefcase-fill fs-1 opacity-50"></i></div>
+                  <div class="stat-card bg-gradient-warning p-3 d-flex justify-content-between align-items-center" id="card-skk-used" onclick="applyCardFilter('skk', 'used')">
+                    <div><div class="stat-label">Personil Terpakai</div><div class="stat-value" id="skk-used">0</div></div><i class="bi bi-briefcase-fill fs-1 opacity-50"></i>
+                  </div>
               </div>
             </div>
         </div>
@@ -492,10 +504,14 @@
         <div class="stats-wrapper">
             <div class="row g-3 mb-4 justify-content-center">
               <div class="col-12 col-sm-6 col-lg-5">
-                  <div class="stat-card bg-gradient-primary p-3 d-flex justify-content-between align-items-center"><div><div class="stat-label">Total Paket Pekerjaan</div><div class="stat-value" id="tugas-total">0</div></div><i class="bi bi-list-task fs-1 opacity-50"></i></div>
+                  <div class="stat-card bg-gradient-primary p-3 d-flex justify-content-between align-items-center active-filter" id="card-tugas-total" onclick="applyCardFilter('tugas', 'all')">
+                    <div><div class="stat-label">Total Paket Pekerjaan</div><div class="stat-value" id="tugas-total">0</div></div><i class="bi bi-list-task fs-1 opacity-50"></i>
+                  </div>
               </div>
               <div class="col-12 col-sm-6 col-lg-5">
-                  <div class="stat-card bg-gradient-success p-3 d-flex justify-content-between align-items-center"><div><div class="stat-label">Sertifikat Aktif</div><div class="stat-value" id="tugas-active">0</div></div><i class="bi bi-check-circle-fill fs-1 opacity-50"></i></div>
+                  <div class="stat-card bg-gradient-success p-3 d-flex justify-content-between align-items-center" id="card-tugas-active" onclick="applyCardFilter('tugas', 'active')">
+                    <div><div class="stat-label">Sertifikat Aktif</div><div class="stat-value" id="tugas-active">0</div></div><i class="bi bi-check-circle-fill fs-1 opacity-50"></i>
+                  </div>
               </div>
             </div>
         </div>
@@ -532,9 +548,9 @@
       <div id="view-project" class="view-section" style="display: none;">
         <div class="stats-wrapper">
             <div class="row g-3 mb-4 justify-content-center">
-              <div class="col-12 col-sm-6 col-lg-4"><div class="stat-card bg-gradient-primary p-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(45deg, #000080, #333399);"><div><div class="stat-label">Total Pekerjaan</div><div class="stat-value" id="proj-total">0</div></div><i class="bi bi-list-task fs-1 opacity-50"></i></div></div>
-              <div class="col-12 col-sm-6 col-lg-4"><div class="stat-card bg-gradient-danger p-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(45deg, #e74c3c, #c0392b);"><div><div class="stat-label">Pekerjaan Expired</div><div class="stat-value" id="proj-expired">0</div></div><i class="bi bi-exclamation-triangle-fill fs-1 opacity-50"></i></div></div>
-              <div class="col-12 col-sm-6 col-lg-4"><div class="stat-card bg-gradient-success p-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(45deg, #27ae60, #1e8449);"><div><div class="stat-label">Pekerjaan Selesai</div><div class="stat-value" id="proj-done">0</div></div><i class="bi bi-check-circle fs-1 opacity-50"></i></div></div>
+              <div class="col-12 col-sm-6 col-lg-4"><div class="stat-card bg-gradient-primary p-3 d-flex justify-content-between align-items-center active-filter" id="card-proj-total" onclick="applyCardFilter('project', 'all')" style="background: linear-gradient(45deg, #000080, #333399);"><div><div class="stat-label">Total Pekerjaan</div><div class="stat-value" id="proj-total">0</div></div><i class="bi bi-list-task fs-1 opacity-50"></i></div></div>
+              <div class="col-12 col-sm-6 col-lg-4"><div class="stat-card bg-gradient-danger p-3 d-flex justify-content-between align-items-center" id="card-proj-expired" onclick="applyCardFilter('project', 'expired')" style="background: linear-gradient(45deg, #e74c3c, #c0392b);"><div><div class="stat-label">Pekerjaan Expired</div><div class="stat-value" id="proj-expired">0</div></div><i class="bi bi-exclamation-triangle-fill fs-1 opacity-50"></i></div></div>
+              <div class="col-12 col-sm-6 col-lg-4"><div class="stat-card bg-gradient-success p-3 d-flex justify-content-between align-items-center" id="card-proj-done" onclick="applyCardFilter('project', 'done')" style="background: linear-gradient(45deg, #27ae60, #1e8449);"><div><div class="stat-label">Pekerjaan Selesai</div><div class="stat-value" id="proj-done">0</div></div><i class="bi bi-check-circle fs-1 opacity-50"></i></div></div>
             </div>
         </div>
         <div class="table-card">
@@ -697,6 +713,13 @@
     let dataSKK = [], dataTugas = [], dataProject = [], currentChartView = '', currentUserRole = ''; 
     const tooltip = document.getElementById('gantt-tooltip'); const activeTimers = {};
     let canEdit = false; 
+    
+    // --- FILTER STATE ---
+    let currentFilters = {
+        skk: 'all',
+        tugas: 'all',
+        project: 'all'
+    };
 
     const Toast = Swal.mixin({
       toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true,
@@ -875,6 +898,122 @@
         tbody.innerHTML = rows;
     }
 
+    // --- CARD FILTER LOGIC ---
+    function applyCardFilter(view, type) {
+        // 1. Update State
+        currentFilters[view] = type;
+
+        // 2. Update Visual (Active Class)
+        const cards = {
+            skk: ['card-skk-total', 'card-skk-expired', 'card-skk-used'],
+            tugas: ['card-tugas-total', 'card-tugas-active'],
+            project: ['card-proj-total', 'card-proj-expired', 'card-proj-done']
+        };
+
+        if(cards[view]) {
+            cards[view].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) {
+                    if (id.includes(type)) el.classList.add('active-filter');
+                    else el.classList.remove('active-filter');
+                }
+            });
+        }
+
+        // 3. Trigger Render based on View
+        if (view === 'skk') filterAndRenderSKK();
+        else if (view === 'tugas') filterAndRenderTugas();
+        else if (view === 'project') filterAndRenderProject();
+    }
+
+    // --- WRAPPER FUNCTIONS: Combine Search + Card Filter ---
+
+    function filterAndRenderSKK() {
+        const searchVal = document.getElementById('searchSkk').value.toLowerCase();
+        const filterType = currentFilters.skk; // 'all', 'expired', 'used'
+
+        const filtered = dataSKK.filter(r => {
+            // Search Text Logic
+            const matchesSearch = (r[1]||"").toLowerCase().includes(searchVal) || (r[5]||"").toLowerCase().includes(searchVal);
+            
+            // Card Filter Logic (Using status column index 10 and ket index 11)
+            const statusRaw = (r[10]||"").toLowerCase();
+            const ketRaw = (r[11]||"").toLowerCase();
+            let matchesFilter = true;
+
+            if (filterType === 'expired') {
+                matchesFilter = statusRaw.includes('expired');
+            } else if (filterType === 'used') {
+                matchesFilter = statusRaw.includes('used') || ketRaw.includes('used');
+            }
+            // 'all' matches everything
+
+            return matchesSearch && matchesFilter;
+        });
+
+        renderSKK(filtered, 1);
+    }
+
+    function filterAndRenderTugas() {
+        const searchVal = document.getElementById('searchTugas').value.toLowerCase();
+        const filterType = currentFilters.tugas; // 'all', 'active'
+
+        const filtered = dataTugas.filter(r => {
+            const matchesSearch = (r[1]||"").toLowerCase().includes(searchVal) || (r[2]||"").toLowerCase().includes(searchVal) || (r[6]||"").toLowerCase().includes(searchVal);
+            
+            // Note: Standard logic filters out 'completed' always in renderTugas, so we keep that there or here?
+            // Let's rely on renderTugas to hide 'completed', and here we filter the rest.
+            
+            const statusRaw = (r[12]||"").toLowerCase();
+            let matchesFilter = true;
+
+            if (filterType === 'active') {
+                matchesFilter = statusRaw.includes('active');
+            }
+            
+            return matchesSearch && matchesFilter;
+        });
+
+        renderTugas(filtered, 1);
+    }
+
+    function filterAndRenderProject() {
+        const searchVal = document.getElementById('searchProject').value.toLowerCase();
+        const filterType = currentFilters.project; // 'all', 'expired', 'done'
+        const today = new Date(); today.setHours(0,0,0,0);
+
+        const filtered = dataProject.filter(r => {
+            const matchesSearch = (r[2]||"").toLowerCase().includes(searchVal) || (r[4]||"").toLowerCase().includes(searchVal);
+            
+            // Logic duplicated from renderProject for consistency
+            let deadKontrakRaw = r[9]; 
+            let deadScheduleRaw = r[13]; 
+            const statusText = r[16] || ""; 
+            const rawStatus = statusText.toLowerCase().trim(); 
+            const isDone = rawStatus.includes('done') || rawStatus.includes('selesai') || rawStatus.includes('completed') || rawStatus.includes('finish') || rawStatus === '100%'; 
+            
+            const isExpiredFunc = (dateStr) => { 
+                if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false; 
+                const targetDate = parseDate(dateStr); 
+                return targetDate && targetDate < today; 
+            }; 
+            
+            const isExpired = !isDone && (isExpiredFunc(deadKontrakRaw) || isExpiredFunc(deadScheduleRaw));
+
+            let matchesFilter = true;
+            if (filterType === 'expired') {
+                matchesFilter = isExpired;
+            } else if (filterType === 'done') {
+                matchesFilter = isDone;
+            }
+
+            return matchesSearch && matchesFilter;
+        });
+
+        renderProject(filtered, 1);
+    }
+
+
     async function loadAllData() {
       if(currentUserRole !== "TEKNIS") { showSkeleton('bodySkk'); showSkeleton('bodyTugas'); }
       if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "TEKNIS") { showSkeleton('bodyProject'); }
@@ -885,16 +1024,104 @@
       try {
           const results = await Promise.all(promises);
           let resultIndex = 0;
-          if (loadSKK) dataSKK = results[resultIndex++];
-          if (loadTugas) dataTugas = results[resultIndex++];
-          if (loadProject) dataProject = results[resultIndex++];
+          if (loadSKK) { 
+              dataSKK = results[resultIndex++]; 
+              updateStatsSKK(dataSKK); // Hitung Total Awal
+          }
+          if (loadTugas) { 
+              dataTugas = results[resultIndex++]; 
+              updateStatsTugas(dataTugas); // Hitung Total Awal
+          }
+          if (loadProject) { 
+              dataProject = results[resultIndex++]; 
+              updateStatsProject(dataProject); // Hitung Total Awal
+          }
           let dropdownData = null;
           if (loadDropdown) dropdownData = results[resultIndex++];
-          if (loadSKK && loadTugas) { renderSKK(dataSKK, 1); renderTugas(dataTugas, 1); }
-          if (loadProject) { renderProject(dataProject, 1); }
+          
+          if (loadSKK && loadTugas) { filterAndRenderSKK(); filterAndRenderTugas(); }
+          if (loadProject) { filterAndRenderProject(); }
           if (loadDropdown && dropdownData) { populateDatalist('listNama', dropdownData.nama); populateDatalist('listPerusahaan', dropdownData.perusahaan); populateDatalist('listSertifikat', dropdownData.sertifikat); populateDatalist('listJenjang', dropdownData.jenjang); }
       } catch(e) { console.error(e); alert("Gagal memuat sebagian data. Silakan refresh."); }
     }
+
+    // --- SEPARATE STATS UPDATE FUNCTIONS (So filters don't change the card numbers) ---
+    function updateStatsSKK(data) {
+        let statTotal = 0, statUsed = 0, statExpired = 0;
+        const groupedData = {};
+        // Same logic as original renderSKK just for counting
+        data.forEach(row => {
+            const nama = row[1]; if (!nama) return;
+            if (!groupedData[nama]) groupedData[nama] = { items: [] };
+            groupedData[nama].items.push({ statusRaw: row[10], ketRaw: row[11] });
+        });
+        
+        statTotal = Object.keys(groupedData).length;
+        
+        // Helper for fingerprint
+        const getFingerprint = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const activeAssignmentsMap = new Map();
+        if(dataTugas && dataTugas.length > 0) {
+             dataTugas.forEach(row => {
+                 const pNameKey = getFingerprint((row[1]||"").trim());
+                 const pStatus = (row[12]||"").toLowerCase();
+                 if (pNameKey && pStatus.includes('active')) activeAssignmentsMap.set(pNameKey, true);
+             });
+        }
+
+        Object.keys(groupedData).forEach(key => {
+            const person = groupedData[key];
+            let isUsed = false;
+            person.items.forEach(item => {
+                if ((item.statusRaw||"").toLowerCase().includes('expired')) statExpired++;
+                if ((item.statusRaw||"").toLowerCase().includes('used') || (item.ketRaw||"").toLowerCase().includes('used')) isUsed = true;
+            });
+            const keyNormalized = getFingerprint(key);
+            if (activeAssignmentsMap.has(keyNormalized)) isUsed = true;
+            if (isUsed) statUsed++;
+        });
+
+        animateValue("skk-total", 0, statTotal, 800); 
+        animateValue("skk-expired", 0, statExpired, 800); 
+        animateValue("skk-used", 0, statUsed, 800);
+    }
+
+    function updateStatsTugas(data) {
+        let active = 0; 
+        const filtered = data.filter(row => (row[12]||"").toLowerCase() !== 'completed');
+        filtered.forEach(row => {
+            if((row[12]||"").toLowerCase().includes('active')) active++;
+        });
+        animateValue("tugas-total", 0, new Set(data.map(r=>r[2])).size, 800); 
+        animateValue("tugas-active", 0, active, 800);
+    }
+
+    function updateStatsProject(data) {
+        let counts = { total: 0, expired: 0, done: 0 }; 
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        data.forEach(row => {
+            if (!row[1]) return; 
+            counts.total++; 
+            let deadKontrakRaw = row[9]; 
+            let deadScheduleRaw = row[13]; 
+            const statusText = row[16] || ""; 
+            const rawStatus = statusText.toLowerCase().trim(); 
+            const isDone = rawStatus.includes('done') || rawStatus.includes('selesai') || rawStatus.includes('completed') || rawStatus.includes('finish') || rawStatus === '100%'; 
+            const isExpired = (dateStr) => { 
+                if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false; 
+                const targetDate = parseDate(dateStr); 
+                return targetDate && targetDate < today; 
+            }; 
+            const kontrakExpired = !isDone && isExpired(deadKontrakRaw); 
+            const scheduleExpired = !isDone && isExpired(deadScheduleRaw); 
+            if (kontrakExpired || scheduleExpired) counts.expired++; 
+            if (isDone) counts.done++; 
+        });
+        document.getElementById('proj-total').innerText = counts.total; 
+        document.getElementById('proj-expired').innerText = counts.expired; 
+        document.getElementById('proj-done').innerText = counts.done;
+    }
+
 
     function setupPagination(totalItems, currentPage, containerId, renderCallback) {
         const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE); const container = document.getElementById(containerId); container.innerHTML = '';
@@ -909,42 +1136,23 @@
 
     // --- MODIFIED RENDER SKK: FIX DUPLICATE LPSE (AGGRESSIVE NORMALIZATION) ---
     function renderSKK(data, page = 1) {
-      currentPageSkk = page; const tbody = document.getElementById('bodySkk'); let htmlContent = []; let statTotal = 0, statUsed = 0, statExpired = 0;
-      if(!data || data.length === 0) { document.getElementById('msgSkk').classList.remove('d-none'); document.getElementById('pagination-skk').innerHTML = ''; animateValue("skk-total", 0, 0, 800); animateValue("skk-expired", 0, 0, 800); animateValue("skk-used", 0, 0, 800); tbody.innerHTML = ''; return; } else { document.getElementById('msgSkk').classList.add('d-none'); }
+      currentPageSkk = page; const tbody = document.getElementById('bodySkk'); let htmlContent = [];
       
-      // LOGIC: Aggregate LPSE (Collect unique LPSE per person)
+      // LOGIC: Aggregate LPSE (Collect unique LPSE per person) - COPIED FROM OLD RENDER TO KEEP DISPLAY LOGIC
       const activeAssignmentsMap = new Map();
-      
-      // Helper function to create a "fingerprint" for deduplication
-      // Removes all non-alphanumeric chars and lowercases
-      const getFingerprint = (str) => {
-          return str.toLowerCase().replace(/[^a-z0-9]/g, '');
-      };
-
+      const getFingerprint = (str) => { return str.toLowerCase().replace(/[^a-z0-9]/g, ''); };
       if(dataTugas && dataTugas.length > 0) { 
           for(let i=0; i<dataTugas.length; i++){ 
               const row = dataTugas[i]; 
-              // NORMALIZATION: Clean Person Name for better matching
               const pNameOriginal = (row[1] || "").trim();
               const pNameKey = getFingerprint(pNameOriginal);
-
               const pStatus = (row[12] || "").toLowerCase(); 
               if (pNameKey && pStatus.includes('active')) { 
                   const lpse = (row[5] || "").trim();
-                  
                   if(lpse) {
-                      if (!activeAssignmentsMap.has(pNameKey)) {
-                          // Map: Fingerprint -> Original Display String
-                          activeAssignmentsMap.set(pNameKey, new Map());
-                      }
-                      
+                      if (!activeAssignmentsMap.has(pNameKey)) { activeAssignmentsMap.set(pNameKey, new Map()); }
                       const fingerprint = getFingerprint(lpse);
-                      
-                      // Only add if fingerprint doesn't exist yet
-                      if(!activeAssignmentsMap.get(pNameKey).has(fingerprint)){
-                          // Store original string but replace multi-spaces with single space for clean display
-                          activeAssignmentsMap.get(pNameKey).set(fingerprint, lpse.replace(/\s+/g, ' '));
-                      }
+                      if(!activeAssignmentsMap.get(pNameKey).has(fingerprint)){ activeAssignmentsMap.get(pNameKey).set(fingerprint, lpse.replace(/\s+/g, ' ')); }
                   }
               } 
           } 
@@ -952,21 +1160,11 @@
       
       const groupedData = {}; for(let i=0; i<data.length; i++) { const row = data[i]; const nama = row[1]; if (!nama) continue; if (!groupedData[nama]) { groupedData[nama] = { nama: row[1], hp: row[2], perusahaan: row[4], bidang: row[3], items: [] }; } groupedData[nama].items.push({ sertifikat: row[5], jenjang: row[6], sisaWaktu: row[9], statusRaw: row[10], ketRaw: row[11], originalIndex: i }); }
       
-      const allKeys = Object.keys(groupedData); statTotal = allKeys.length;
-      const startIndex = (page - 1) * ITEMS_PER_PAGE; const endIndex = startIndex + ITEMS_PER_PAGE; const pagedKeys = allKeys.slice(startIndex, endIndex);
+      const allKeys = Object.keys(groupedData); 
       
-      // Update Stats Logic with Normalization
-      allKeys.forEach(key => { 
-          const person = groupedData[key]; 
-          let isUsed = false; 
-          person.items.forEach(item => { 
-             if ((item.statusRaw||"").toLowerCase().includes('expired')) statExpired++; 
-             if ((item.statusRaw||"").toLowerCase().includes('used') || (item.ketRaw||"").toLowerCase().includes('used')) isUsed = true; 
-          }); 
-          const keyNormalized = getFingerprint(person.nama);
-          if (activeAssignmentsMap.has(keyNormalized)) isUsed = true; 
-          if (isUsed) statUsed++; 
-      });
+      if(allKeys.length === 0) { document.getElementById('msgSkk').classList.remove('d-none'); document.getElementById('pagination-skk').innerHTML = ''; tbody.innerHTML = ''; return; } else { document.getElementById('msgSkk').classList.add('d-none'); }
+
+      const startIndex = (page - 1) * ITEMS_PER_PAGE; const endIndex = startIndex + ITEMS_PER_PAGE; const pagedKeys = allKeys.slice(startIndex, endIndex);
       
       const canEditRow = (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT");
       
@@ -974,24 +1172,14 @@
           const person = groupedData[pagedKeys[i]]; let isUsed = false, hasActive = false; let usedProjectName = "", spreadsheetUsedText = "";
           for(let j=0; j<person.items.length; j++){ const item = person.items[j]; const s = (item.statusRaw || "").toLowerCase(); const k = (item.ketRaw || "").toLowerCase(); if (s.includes('used') || k.includes('used')) { isUsed = true; if(s.includes('used')) spreadsheetUsedText = item.statusRaw; else if (k.includes('used')) spreadsheetUsedText = item.ketRaw; } if (s.includes('active') || s.includes('available')) hasActive = true; }
           
-          // LOGIC: Retrieve and Format Aggregated LPSE String with Normalization Key
           const keyNormalized = getFingerprint(person.nama);
           const activeLpseMap = activeAssignmentsMap.get(keyNormalized);
           
           if (activeLpseMap && activeLpseMap.size > 0) { 
               isUsed = true; 
-              // Convert Map Values to Array
               const lpseArray = Array.from(activeLpseMap.values());
               let lpseString = "";
-              if (lpseArray.length === 1) {
-                  lpseString = lpseArray[0];
-              } else if (lpseArray.length === 2) {
-                  lpseString = `${lpseArray[0]} dan ${lpseArray[1]}`;
-              } else {
-                  // For 3 or more: "A, B, dan C"
-                  const last = lpseArray.pop();
-                  lpseString = `${lpseArray.join(", ")}, dan ${last}`;
-              }
+              if (lpseArray.length === 1) { lpseString = lpseArray[0]; } else if (lpseArray.length === 2) { lpseString = `${lpseArray[0]} dan ${lpseArray[1]}`; } else { const last = lpseArray.pop(); lpseString = `${lpseArray.join(", ")}, dan ${last}`; }
               usedProjectName = `Used in ${lpseString}`; 
           } else if (isUsed) { 
               usedProjectName = spreadsheetUsedText ? spreadsheetUsedText : "Used"; 
@@ -1002,21 +1190,17 @@
           let btnWA = "-"; if(person.hp && /\d/.test(person.hp)) { let cleanNum = person.hp.toString().replace(/\D/g, ''); if(cleanNum.startsWith('0')) cleanNum = '62' + cleanNum.substring(1); if(cleanNum.length > 9) { btnWA = `<a href="https://wa.me/${cleanNum}" target="_blank" class="btn btn-success btn-sm text-white fw-bold d-inline-flex align-items-center justify-content-center" style="font-size: 0.7rem; padding: 2px 8px; height: 24px; min-width: 60px;"><i class="bi bi-whatsapp" style="font-size: 0.8rem; margin-right: 4px;"></i> Chat</a>`; } else { btnWA = `<span class="small text-muted">${person.hp}</span>`; } }
           
           let htmlSertifikat = '', htmlJenjang = '', htmlSisa = '', htmlKet = '';
-          let mobileDetailListHTML = ''; // Builder untuk Mobile
+          let mobileDetailListHTML = ''; 
           const itemLen = person.items.length;
           
           for(let k=0; k<itemLen; k++){ 
             const item = person.items[k]; 
             let sisaStyle = (item.statusRaw||"").toLowerCase().includes('expired') ? "color: #dc3545; font-weight: 700;" : ""; 
-            
-            // Desktop HTML Construction
             htmlSertifikat += `<div class="nested-cell fw-bold" title="${item.sertifikat}" style="white-space: normal; line-height: 1.3;">${item.sertifikat}</div>`; 
             htmlJenjang += `<div class="nested-cell text-center justify-content-center">${item.jenjang || '-'}</div>`; 
             htmlSisa += `<div class="nested-cell text-center justify-content-center small" style="${sisaStyle}">${item.sisaWaktu || '-'}</div>`; 
             htmlKet += `<div class="nested-cell small text-muted" title="${item.ketRaw || ''}" style="white-space: normal; line-height: 1.2;">${item.ketRaw || ''}</div>`;
             
-            // Mobile HTML Construction (Grouped)
-            // UPDATED: Added word-wrap and break-word to force wrapping
             mobileDetailListHTML += `
               <div class="mobile-detail-item">
                   <div style="font-size: 0.85rem; font-weight: 700; color: #444; margin-bottom: 2px; line-height: 1.3;">${item.sertifikat}</div>
@@ -1029,7 +1213,6 @@
             `;
           }
           
-          // --- ACTION BUTTON LOGIC ---
           let htmlAksi = '', mobileEditBtn = '';
           if (canEditRow) {
              htmlAksi = `<button class="btn btn-sm btn-outline-primary rounded-circle" onclick="openModalEditGroup('${person.nama}')" style="width: 32px; height: 32px;" title="Edit Data ${person.nama}"><i class="bi bi-pencil-fill"></i></button>`;
@@ -1046,17 +1229,17 @@
                 <div class="mt-2 d-md-none">${finalBadge}</div>
                 
                 <div class="d-md-none mt-3">
-                   <div class="mobile-card-label">Jenjang Pendidikan</div>
-                   <div class="small mb-2">${person.bidang || '-'}</div>
-                   
-                   <div class="mobile-card-label">Detail Sertifikat</div>
-                   <div class="mobile-detail-group">
-                       ${mobileDetailListHTML}
-                   </div>
-                   
-                   <div class="mt-3 d-grid gap-2">
-                       ${btnWA.includes('<a') ? btnWA.replace('min-width: 60px;', 'width: 100%; height: 35px;').replace('font-size: 0.7rem;', 'font-size: 0.9rem;') : '<div class="text-center small text-muted">No Contact Info</div>'}
-                   </div>
+                    <div class="mobile-card-label">Jenjang Pendidikan</div>
+                    <div class="small mb-2">${person.bidang || '-'}</div>
+                    
+                    <div class="mobile-card-label">Detail Sertifikat</div>
+                    <div class="mobile-detail-group">
+                        ${mobileDetailListHTML}
+                    </div>
+                    
+                    <div class="mt-3 d-grid gap-2">
+                        ${btnWA.includes('<a') ? btnWA.replace('min-width: 60px;', 'width: 100%; height: 35px;').replace('font-size: 0.7rem;', 'font-size: 0.9rem;') : '<div class="text-center small text-muted">No Contact Info</div>'}
+                    </div>
                 </div>
               </td>
               
@@ -1070,16 +1253,21 @@
               <td class="text-center align-middle-person d-none d-md-table-cell" style="${styleAksi}">${htmlAksi}</td>
             </tr>`);
       }
-      tbody.innerHTML = htmlContent.join(''); setupPagination(allKeys.length, currentPageSkk, 'pagination-skk', (p) => renderSKK(data, p));
-      animateValue("skk-total", 0, statTotal, 800); animateValue("skk-expired", 0, statExpired, 800); animateValue("skk-used", 0, statUsed, 800);
+      tbody.innerHTML = htmlContent.join(''); 
+      // Update pagination using ALL KEYS count, not filtered data count if needed? No, pagination works on current list
+      setupPagination(allKeys.length, currentPageSkk, 'pagination-skk', (p) => { 
+          // Re-slicing logic is inside renderSKK, but since we pass 'data' which is the filtered list,
+          // renderSKK will slice the filtered list correctly.
+          renderSKK(data, p); 
+      });
     }
 
     // --- MODIFIED RENDER TUGAS FOR MOBILE CARD VIEW ---
     function renderTugas(data, page = 1) {
-       currentPageTugas = page; const tbody = document.getElementById('bodyTugas'); let htmlContent = []; let active = 0; const filtered = data.filter(row => (row[12]||"").toLowerCase() !== 'completed');
+       currentPageTugas = page; const tbody = document.getElementById('bodyTugas'); let htmlContent = []; 
+       const filtered = data.filter(row => (row[12]||"").toLowerCase() !== 'completed'); // Base logic: hide completed
+       
        if(filtered.length === 0) { document.getElementById('msgTugas').classList.remove('d-none'); document.getElementById('pagination-tugas').innerHTML = ''; tbody.innerHTML = ''; return; } else { document.getElementById('msgTugas').classList.add('d-none'); }
-       for(let i=0; i<filtered.length; i++) { if((filtered[i][12]||"").toLowerCase().includes('active')) active++; }
-       animateValue("tugas-total", 0, new Set(data.map(r=>r[2])).size, 800); animateValue("tugas-active", 0, active, 800);
        
        const groupedData = {}; for(let i=0; i<filtered.length; i++){ const row = filtered[i]; const nama = row[1]; if(!nama) continue; if (!groupedData[nama]) { groupedData[nama] = { nama: nama, items: [] }; } let status = (row[12]||"").toLowerCase(); let bClass = status.includes('active') ? 'status-active' : (status.includes('not started') ? 'status-not-started' : 'status-expired'); let badgeHTML = `<span class="badge-status ${bClass}">${row[12]}</span>`; groupedData[nama].items.push({ pekerjaan: row[2], lpse: row[5] || '-', metode: row[3], kontrak: row[4], sertifikat: row[6], start: row[9], end: row[10], statusBadge: badgeHTML }); }
        const persons = Object.values(groupedData); const startIndex = (page - 1) * ITEMS_PER_PAGE; const pagedPersons = persons.slice(startIndex, startIndex + ITEMS_PER_PAGE);
@@ -1087,7 +1275,7 @@
        for(let i=0; i<pagedPersons.length; i++) { 
          const person = pagedPersons[i]; 
          let hPekerjaan = '', hLpse = '', hMetode = '', hKontrak = '', hSertifikat = '', hStart = '', hEnd = '', hStatus = ''; 
-         let mobileDetailListHTML = ''; // Mobile Builder
+         let mobileDetailListHTML = ''; 
          
          for(let j=0; j<person.items.length; j++){ 
             const item = person.items[j]; 
@@ -1100,19 +1288,17 @@
             hEnd += `<div class="nested-cell text-center justify-content-center small text-muted">${item.end}</div>`; 
             hStatus += `<div class="nested-cell text-center justify-content-center">${item.statusBadge}</div>`; 
             
-            // Mobile Grouping
-            // UPDATED: Removed text-truncate and max-width on LPSE badge to allow full text reading
             mobileDetailListHTML += `
               <div class="mobile-detail-item">
                   <div class="d-flex justify-content-between align-items-start mb-2">
-                     <span style="font-size: 0.85rem; font-weight: 700; color: #444; width: 65%; line-height: 1.2;">${item.pekerjaan}</span>
-                     <div class="text-end">${item.statusBadge}</div>
+                      <span style="font-size: 0.85rem; font-weight: 700; color: #444; width: 65%; line-height: 1.2;">${item.pekerjaan}</span>
+                      <div class="text-end">${item.statusBadge}</div>
                   </div>
                   <div class="small text-muted mb-1"><i class="bi bi-calendar-event me-1"></i>${item.start} - ${item.end}</div>
                   <div class="small text-muted mb-1"><i class="bi bi-file-text me-1"></i>Kontrak: ${item.kontrak}</div>
                   <div class="d-flex gap-2 mt-2 align-items-center flex-wrap">
-                     <span class="badge bg-light text-dark border">${item.metode}</span>
-                     <span class="badge bg-light text-dark border" style="white-space: normal; text-align: left; line-height: 1.4;">${item.lpse}</span>
+                      <span class="badge bg-light text-dark border">${item.metode}</span>
+                      <span class="badge bg-light text-dark border" style="white-space: normal; text-align: left; line-height: 1.4;">${item.lpse}</span>
                   </div>
               </div>
             `;
@@ -1120,7 +1306,7 @@
          
          htmlContent.push(`
            <tr>
-              <td>
+             <td>
                  <div class="fw-bold text-dark fs-6 mb-1">${person.nama}</div>
                  <div class="d-md-none mt-3">
                    <div class="mobile-card-label">Daftar Penugasan</div>
@@ -1128,15 +1314,15 @@
                        ${mobileDetailListHTML}
                    </div>
                  </div>
-              </td>
-              <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hPekerjaan}</td>
-              <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hLpse}</td>
-              <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hMetode}</td>
-              <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hKontrak}</td>
-              <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hSertifikat}</td>
-              <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hStart}</td>
-              <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hEnd}</td>
-              <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hStatus}</td>
+             </td>
+             <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hPekerjaan}</td>
+             <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hLpse}</td>
+             <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hMetode}</td>
+             <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hKontrak}</td>
+             <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hSertifikat}</td>
+             <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hStart}</td>
+             <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hEnd}</td>
+             <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hStatus}</td>
            </tr>`); 
         }
        tbody.innerHTML = htmlContent.join(''); setupPagination(persons.length, currentPageTugas, 'pagination-tugas', (p) => renderTugas(data, p));
@@ -1144,9 +1330,12 @@
 
     // --- MODIFIED RENDER PROJECT FOR MOBILE CARD VIEW ---
     function renderProject(data, page = 1) {
-      currentPageProject = page; const tbody = document.getElementById('bodyProject'); let htmlContent = []; let counts = { total: 0, expired: 0, done: 0 }; const today = new Date(); today.setHours(0, 0, 0, 0);
-      for(let i=0; i<data.length; i++) { const row = data[i]; if (!row[1]) continue; counts.total++; let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13]; const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim(); const notes = row[18] || ""; const isDone = rawStatus.includes('done') || rawStatus.includes('selesai'); const isExpired = (dateStr) => { if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false; const targetDate = parseDate(dateStr); return targetDate && targetDate < today; }; const kontrakExpired = !isDone && isExpired(deadKontrakRaw); const scheduleExpired = !isDone && isExpired(deadScheduleRaw); if (kontrakExpired || scheduleExpired) counts.expired++; if (isDone) counts.done++; }
-      const validRows = data.filter(r => r[1]); const startIndex = (page - 1) * ITEMS_PER_PAGE; const pagedRows = validRows.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+      currentPageProject = page; const tbody = document.getElementById('bodyProject'); let htmlContent = []; const today = new Date(); today.setHours(0, 0, 0, 0);
+      
+      const validRows = data.filter(r => r[1]); 
+      if(validRows.length === 0) { tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">Data tidak ditemukan.</td></tr>'; return; }
+
+      const startIndex = (page - 1) * ITEMS_PER_PAGE; const pagedRows = validRows.slice(startIndex, startIndex + ITEMS_PER_PAGE);
       for(let i=0; i<pagedRows.length; i++) { 
           const row = pagedRows[i]; const pekerjaan = row[2]; const kordinator = row[4]; const urlSchedule = row[5]; const priority = (row[7] || "").trim(); let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13]; const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim(); const notes = row[18] || ""; const isDone = rawStatus.includes('done') || rawStatus.includes('selesai') || rawStatus.includes('completed') || rawStatus.includes('finish') || rawStatus === '100%'; 
           
@@ -1210,7 +1399,7 @@
               <td class="small text-muted d-none d-md-table-cell">${notes}</td> 
             </tr>`); 
         }
-      tbody.innerHTML = htmlContent.join(''); setupPagination(validRows.length, currentPageProject, 'pagination-project', (p) => renderProject(data, p)); document.getElementById('proj-total').innerText = counts.total; document.getElementById('proj-expired').innerText = counts.expired; document.getElementById('proj-done').innerText = counts.done;
+      tbody.innerHTML = htmlContent.join(''); setupPagination(validRows.length, currentPageProject, 'pagination-project', (p) => renderProject(data, p));
     }
 
     function parseDate(dateStr) { if (!dateStr || dateStr.trim() === '-' || dateStr.trim() === '') return null; if(dateStr.includes('T')) return new Date(dateStr); const parts = dateStr.split(' '); if (parts.length < 3) return new Date(dateStr); const day = parseInt(parts[0]); const monthStr = parts[1].toLowerCase(); const year = parseInt(parts[2]); const months = { 'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'mei': 4, 'may': 4, 'jun': 5, 'jul': 6, 'ags': 7, 'aug': 7, 'sep': 8, 'okt': 9, 'oct': 9, 'nov': 10, 'des': 11, 'dec': 11 }; const month = months[monthStr] !== undefined ? months[monthStr] : 0; return new Date(year, month, day); }
@@ -1293,7 +1482,7 @@
         document.getElementById('inputNama').readOnly = false;
         document.getElementById('inputPerusahaan').readOnly = false;
         
-        document.getElementById('inputSertifikat').style.display = 'block';      // Show Input
+        document.getElementById('inputSertifikat').style.display = 'block';       // Show Input
         document.getElementById('inputSertifikat').required = true;
         document.getElementById('selectSertifikatEdit').style.display = 'none'; // Hide Select
         document.getElementById('selectSertifikatEdit').required = false;
@@ -1331,7 +1520,7 @@
        });
 
        // 4. Ubah Tampilan ke Mode Select
-       document.getElementById('inputSertifikat').style.display = 'none';       // Hide Input
+       document.getElementById('inputSertifikat').style.display = 'none';        // Hide Input
        document.getElementById('inputSertifikat').required = false;
        document.getElementById('selectSertifikatEdit').style.display = 'block'; // Show Select
        document.getElementById('selectSertifikatEdit').required = true;
@@ -1455,15 +1644,27 @@
       }, 300);
     }
 
-    document.getElementById('searchSkk').addEventListener('keyup', (e) => { const k = e.target.value.toLowerCase(); const filtered = dataSKK.filter(r => (r[1]||"").toLowerCase().includes(k) || (r[5]||"").toLowerCase().includes(k)); renderSKK(filtered, 1); });
-    document.getElementById('searchTugas').addEventListener('keyup', (e) => { const k = e.target.value.toLowerCase(); const filtered = dataTugas.filter(r => (r[1]||"").toLowerCase().includes(k) || (r[2]||"").toLowerCase().includes(k) || (r[6]||"").toLowerCase().includes(k)); renderTugas(filtered, 1); });
-    document.getElementById('searchTugasGantt').addEventListener('keyup', (e) => { drawGanttChart('penugasan'); });
-    document.getElementById('searchProject').addEventListener('keyup', e => { const k = e.target.value.toLowerCase(); const filtered = dataProject.filter(r => (r[2]||"").toLowerCase().includes(k) || (r[4]||"").toLowerCase().includes(k)); renderProject(filtered, 1); });
-    document.getElementById('searchProjectGantt').addEventListener('keyup', (e) => { if(currentChartView === 'kontrak') drawGanttChart('kontrak'); else if(currentChartView === 'schedule') drawGanttChart('schedule'); });
+    // --- REPLACED EVENT LISTENERS TO SUPPORT COMBINED FILTERING ---
+    document.getElementById('searchSkk').addEventListener('keyup', (e) => { 
+        filterAndRenderSKK(); 
+    });
+    
+    document.getElementById('searchTugas').addEventListener('keyup', (e) => { 
+        filterAndRenderTugas(); 
+    });
+    
+    document.getElementById('searchTugasGantt').addEventListener('keyup', (e) => { 
+        drawGanttChart('penugasan'); 
+    });
+    
+    document.getElementById('searchProject').addEventListener('keyup', e => { 
+        filterAndRenderProject();
+    });
+    
+    document.getElementById('searchProjectGantt').addEventListener('keyup', (e) => { 
+        if(currentChartView === 'kontrak') drawGanttChart('kontrak'); 
+        else if(currentChartView === 'schedule') drawGanttChart('schedule'); 
+    });
   </script>
 </body>
 </html>
-
-
-
-
