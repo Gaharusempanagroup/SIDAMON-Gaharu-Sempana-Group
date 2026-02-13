@@ -1,4 +1,4 @@
-// --- Code.gs (Updated Logic: Used = Active + Not Started) ---
+// --- Code.gs (Final - Secured & Mobile Optimized) ---
 
 // 1. MASUKKAN ID SPREADSHEET UTAMA
 const MAIN_SS_ID = "1NYw4b9mSXoa_tYxo38mWZizQahq0wBee-9cU9oUk23o"; 
@@ -7,7 +7,7 @@ const MAIN_SS_ID = "1NYw4b9mSXoa_tYxo38mWZizQahq0wBee-9cU9oUk23o";
 const PROJECT_SS_ID = "1kPWraQ0VJNB36sdJVlkP7dDZAZKBvisAtrggGYLraqc"; 
 
 // --- KONFIGURASI LOG ---
-const MAX_LOG_ENTRIES = 200; 
+const MAX_LOG_ENTRIES = 200; // Batas simpan log otomatis (FIFO)
 
 /**
  * Handle GET Requests
@@ -48,6 +48,7 @@ function doPost(e) {
     var result = {};
 
     if (action === 'login') {
+      // Password yang diterima di sini sudah dalam bentuk HASH dari Client
       result = verifyPassword(data.password);
     } 
     else if (action === 'logout') {
@@ -75,235 +76,8 @@ function responseJSON(data) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// --- UTILS: DATE & CALCULATIONS ---
-
-function normalizeDate(dateVal) {
-  if (!dateVal) return null;
-  if (dateVal instanceof Date) return dateVal;
-  return new Date(dateVal);
-}
-
-function diffDays(targetDate) {
-  if (!targetDate) return 0;
-  const today = new Date();
-  today.setHours(0,0,0,0);
-  const target = new Date(targetDate);
-  target.setHours(0,0,0,0);
-  const diffTime = target - today;
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-}
-
-function formatDateID(dateObj) {
-  if (!dateObj || isNaN(dateObj.getTime())) return "-";
-  const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
-  return dateObj.getDate() + " " + months[dateObj.getMonth()] + " " + dateObj.getFullYear();
-}
-
-// --- DATA FETCHING & BUSINESS LOGIC ---
-
-function getDataPenugasan() {
-  try {
-    var ss = SpreadsheetApp.openById(MAIN_SS_ID);
-    var sheet = ss.getSheetByName("Dashboard Waktu Penugasan");
-    if (!sheet) return [];
-    
-    var data = sheet.getDataRange().getValues();
-    if (data.length <= 6) return []; 
-
-    var today = new Date();
-    today.setHours(0,0,0,0);
-    var result = [];
-
-    for (var i = 6; i < data.length; i++) {
-      var row = data[i];
-      if (!row[1]) continue; 
-
-      var durasi = parseInt(row[8]) || 0;
-      var startDate = normalizeDate(row[9]);
-      var endDate = row[10] ? normalizeDate(row[10]) : null;
-
-      if (startDate && (!endDate || isNaN(endDate.getTime()))) {
-        endDate = new Date(startDate);
-        endDate.setDate(startDate.getDate() + durasi);
-      }
-
-      var status = "Not Started";
-      if (startDate && endDate) {
-        if (today > endDate) {
-          status = "Completed";
-        } else if (today >= startDate && today <= endDate) {
-          status = "Active";
-        } else {
-          status = "Not Started";
-        }
-      }
-
-      row[9] = formatDateID(startDate); 
-      row[10] = formatDateID(endDate);
-      row[12] = status; 
-
-      result.push(row);
-    }
-    return result;
-  } catch (e) { return []; }
-}
-
-function getDataSKK() {
-  try {
-    var ss = SpreadsheetApp.openById(MAIN_SS_ID);
-    var sheet = ss.getSheetByName("Dashboard SKK");
-    var dbSheet = ss.getSheetByName("Database"); 
-    
-    if (!sheet || !dbSheet) return [];
-    
-    var data = sheet.getDataRange().getValues();
-    var dbData = dbSheet.getDataRange().getValues();
-    var contactMap = {};
-    
-    for (var j = 1; j < dbData.length; j++) {
-      var dbName = dbData[j][1];
-      var dbContact = dbData[j][2];
-      if (dbName) contactMap[dbName] = dbContact;
-    }
-
-    // --- LOGIC PERBAIKAN DI SINI ---
-    var rawPenugasan = getDataPenugasan(); 
-    var activeAssignments = {}; 
-
-    rawPenugasan.forEach(function(tugas) {
-      var pName = (tugas[1] || "").toString().toLowerCase().trim();
-      var pStatus = (tugas[12] || "").toLowerCase(); 
-      var pProject = tugas[5] || tugas[2]; 
-
-      // UPDATED LOGIC:
-      // Masukkan ke daftar 'Used' jika statusnya 'active' ATAU 'not started'
-      // Artinya sertifikat dipakai di proyek berjalan atau proyek masa depan.
-      if (pStatus === 'active' || pStatus === 'not started') {
-        if (!activeAssignments[pName]) activeAssignments[pName] = [];
-        activeAssignments[pName].push(pProject);
-      }
-    });
-
-    if (data.length <= 6) return [];
-
-    var result = [];
-    var today = new Date(); today.setHours(0,0,0,0);
-
-    for (var i = 6; i < data.length; i++) {
-      if (data[i][1] !== "" && data[i][1] !== null) {
-        var rowData = data[i]; 
-        var namaPersonil = rowData[1];
-        var cleanName = namaPersonil.toString().toLowerCase().trim();
-
-        if (contactMap[namaPersonil]) {
-           rowData[2] = contactMap[namaPersonil];
-        }
-
-        var masaBerlaku = normalizeDate(rowData[8]);
-        var sisaHari = diffDays(masaBerlaku);
-        var statusSKK = "";
-
-        var usedProjects = activeAssignments[cleanName];
-
-        if (sisaHari < 0) {
-          statusSKK = "Expired";
-        } else if (usedProjects && usedProjects.length > 0) {
-          // Jika ada di activeAssignments (yang sekarang mencakup Active & Not Started)
-          var uniqueProjects = [...new Set(usedProjects)].join(", ");
-          statusSKK = "Used in " + uniqueProjects;
-        } else {
-          statusSKK = "Active"; 
-        }
-
-        rowData[8] = formatDateID(masaBerlaku);
-        rowData[9] = sisaHari + " Hari";
-        if (sisaHari < 0) rowData[9] = "Expired";
-        
-        rowData[10] = statusSKK;
-        
-        rowData.push(i + 1); 
-        result.push(rowData);
-      }
-    }
-    return result;
-  } catch (e) { return []; }
-}
-
-function getDataProject() {
-  try {
-    var ss = SpreadsheetApp.openById(PROJECT_SS_ID);
-    var sheet = ss.getSheetByName("Project");
-    if (!sheet) return [];
-    
-    var data = sheet.getDataRange().getValues();
-    if (data.length <= 7) return []; 
-
-    var result = [];
-    var today = new Date(); today.setHours(0,0,0,0);
-
-    for (var i = 7; i < data.length; i++) {
-      var row = data[i];
-      if (!row[2]) continue; 
-
-      var dueKontrak = normalizeDate(row[9]);
-      var dueSchedule = normalizeDate(row[13]);
-      
-      var daysLeftKontrak = dueKontrak ? diffDays(dueKontrak) : "-";
-      var daysLeftSchedule = dueSchedule ? diffDays(dueSchedule) : "-";
-
-      row[10] = (daysLeftKontrak === "-" ? "-" : daysLeftKontrak + " days");
-      row[14] = (daysLeftSchedule === "-" ? "-" : daysLeftSchedule + " days");
-
-      var currentStatus = (row[16] || "").toString().toLowerCase();
-      var finalStatus = row[16]; 
-
-      if (!currentStatus.includes("done") && !currentStatus.includes("selesai") && !currentStatus.includes("100%")) {
-        var targetDue = dueSchedule || dueKontrak;
-        if (targetDue && today > targetDue) {
-          finalStatus = "Expired / Overdue";
-        } else {
-          finalStatus = "Ongoing";
-        }
-      }
-
-      row[16] = finalStatus;
-
-      row[8] = formatDateID(normalizeDate(row[8]));
-      row[9] = formatDateID(normalizeDate(row[9]));
-      row[12] = formatDateID(normalizeDate(row[12]));
-      row[13] = formatDateID(normalizeDate(row[13]));
-
-      result.push(row);
-    }
-    return result;
-  } catch (e) { return []; }
-}
-
-// --- DATA UTILS ---
-
-function getDropdownData() {
-  var ss = SpreadsheetApp.openById(MAIN_SS_ID);
-  var dbSheet = ss.getSheetByName("Database");
-  if (!dbSheet) return { error: "Sheet 'Database' tidak ditemukan!" };
-
-  var data = dbSheet.getDataRange().getValues();
-  var dropdowns = { nama: [], perusahaan: [], sertifikat: [], jenjang: [] };
-
-  for (var i = 1; i < data.length; i++) {
-    if (data[i][1]) dropdowns.nama.push(data[i][1]); 
-    if (data[i][11]) dropdowns.perusahaan.push(data[i][11]);
-    if (data[i][5]) dropdowns.sertifikat.push(data[i][5]); 
-    if (data[i][7]) dropdowns.jenjang.push(data[i][7]); 
-  }
-  
-  for (var key in dropdowns) {
-    dropdowns[key] = [...new Set(dropdowns[key])].sort();
-  }
-  return dropdowns;
-}
-
-// --- AUTH & LOGGING ---
-
+// --- HELPER: SERVER SIDE HASHING ---
+// Mengubah string password di Excel menjadi Hash agar bisa dibandingkan dengan Hash dari Client
 function hashString(str) {
   if (!str) return "";
   var rawHash = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, str.toString());
@@ -317,6 +91,8 @@ function hashString(str) {
   return txtHash;
 }
 
+// --- FUNGSI AUTH & LOGIC ---
+
 function verifyPassword(inputHash) {
   try {
     var ss = SpreadsheetApp.openById(MAIN_SS_ID);
@@ -324,9 +100,10 @@ function verifyPassword(inputHash) {
     if (!sheet) return { valid: false, message: "Sheet Admin hilang" }; 
     
     var storedPasswords = sheet.getRange("A2:A5").getValues().flat();
-    var input = inputHash.toString().trim();
+    var input = inputHash.toString().trim(); // Input adalah HASH
 
     var role = null;
+    // Bandingkan: Hash Client === Hash(Password di Excel)
     if (storedPasswords[0] && input === hashString(storedPasswords[0])) role = "SUPER_ADMIN";
     else if (storedPasswords[1] && input === hashString(storedPasswords[1])) role = "ADMIN";
     else if (storedPasswords[2] && input === hashString(storedPasswords[2])) role = "TEKNIS";
@@ -340,6 +117,8 @@ function verifyPassword(inputHash) {
     return { valid: false };
   } catch (e) { return { valid: false, error: e.toString() }; }
 }
+
+// --- LOG SYSTEM (INTERNAL MEMORY) ---
 
 function logUserActivity(role, action, details) {
   var lock = LockService.getScriptLock();
@@ -369,7 +148,7 @@ function logUserActivity(role, action, details) {
       details: details
     };
 
-    logs.unshift(newLog); 
+    logs.unshift(newLog); // Tambah di awal (terbaru)
 
     if (logs.length > MAX_LOG_ENTRIES) {
       logs = logs.slice(0, MAX_LOG_ENTRIES);
@@ -395,6 +174,7 @@ function getSystemLogs() {
   }
 }
 
+// --- FUNGSI HAPUS LOG MANUAL ---
 function clearLogData(startDateStr, endDateStr, passwordHashInput) {
   var lock = LockService.getScriptLock();
   try {
@@ -407,6 +187,7 @@ function clearLogData(startDateStr, endDateStr, passwordHashInput) {
     var passwords = sheetAdmin.getRange("A2:A5").getValues().flat();
     var superAdminPass = passwords[0];
     
+    // Verifikasi Hash
     if (passwordHashInput.toString() !== hashString(superAdminPass)) {
       return { error: "Password Salah! Akses Ditolak." };
     }
@@ -444,7 +225,88 @@ function clearLogData(startDateStr, endDateStr, passwordHashInput) {
   }
 }
 
-// --- FORM PROCESSING ---
+// --- DATA FETCHING ---
+
+function getDataSKK() {
+  try {
+    var ss = SpreadsheetApp.openById(MAIN_SS_ID);
+    var sheet = ss.getSheetByName("Dashboard SKK");
+    var dbSheet = ss.getSheetByName("Database"); 
+    
+    if (!sheet || !dbSheet) return [];
+    
+    var data = sheet.getDataRange().getDisplayValues();
+    var dbData = dbSheet.getDataRange().getValues();
+    var contactMap = {};
+    
+    for (var j = 1; j < dbData.length; j++) {
+      var dbName = dbData[j][1];
+      var dbContact = dbData[j][2];
+      if (dbName) contactMap[dbName] = dbContact;
+    }
+
+    if (data.length <= 6) return [];
+
+    var result = [];
+    for (var i = 6; i < data.length; i++) {
+      if (data[i][1] !== "" && data[i][1] !== null) {
+        var rowData = data[i]; 
+        var namaPersonil = rowData[1];
+        if (contactMap[namaPersonil]) {
+           rowData[2] = contactMap[namaPersonil];
+        }
+        rowData.push(i + 1); 
+        result.push(rowData);
+      }
+    }
+    return result;
+  } catch (e) { return []; }
+}
+
+function getDataPenugasan() {
+  try {
+    var ss = SpreadsheetApp.openById(MAIN_SS_ID);
+    var sheet = ss.getSheetByName("Dashboard Waktu Penugasan");
+    if (!sheet) return [];
+    var data = sheet.getDataRange().getDisplayValues();
+    if (data.length <= 6) return [];
+    return data.slice(6).filter(r => r[1] !== "" && r[1] !== null);
+  } catch (e) { return []; }
+}
+
+function getDataProject() {
+  try {
+    var ss = SpreadsheetApp.openById(PROJECT_SS_ID);
+    var sheet = ss.getSheetByName("Project");
+    if (!sheet) return [];
+    var data = sheet.getDataRange().getDisplayValues();
+    if (data.length <= 7) return [];
+    return data.slice(7).filter(r => r[2] !== "" && r[2] !== null);
+  } catch (e) { return []; }
+}
+
+function getDropdownData() {
+  var ss = SpreadsheetApp.openById(MAIN_SS_ID);
+  var dbSheet = ss.getSheetByName("Database");
+  if (!dbSheet) return { error: "Sheet 'Database' tidak ditemukan!" };
+
+  var data = dbSheet.getDataRange().getValues();
+  var dropdowns = { nama: [], perusahaan: [], sertifikat: [], jenjang: [] };
+
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][1]) dropdowns.nama.push(data[i][1]); 
+    if (data[i][11]) dropdowns.perusahaan.push(data[i][11]);
+    if (data[i][5]) dropdowns.sertifikat.push(data[i][5]); 
+    if (data[i][7]) dropdowns.jenjang.push(data[i][7]); 
+  }
+  
+  for (var key in dropdowns) {
+    dropdowns[key] = [...new Set(dropdowns[key])].sort();
+  }
+  return dropdowns;
+}
+
+// --- Code.gs ---
 
 function processForm(data, passwordAuthHash) {
   var ss = SpreadsheetApp.openById(MAIN_SS_ID);
@@ -477,17 +339,19 @@ function processForm(data, passwordAuthHash) {
     var targetRow;
     var actionType = "";
     
+    // 1. Tentukan Baris Target (Edit atau Tambah)
     if (data.rowNumber && data.rowNumber != "") {
       targetRow = parseInt(data.rowNumber);
       if (isNaN(targetRow) || targetRow < 7) return "Error: Baris tidak valid.";
       actionType = "EDIT DATA";
     } else {
       var lastRow = sheet.getLastRow();
+      // Cari baris kosong pertama di kolom B mulai baris 7
       var rangeB = sheet.getRange("B7:B" + (lastRow + 5)).getValues();
       targetRow = -1;
       for (var i = 0; i < rangeB.length; i++) {
         if (rangeB[i][0] === "" || rangeB[i][0] === null) {
-          targetRow = i + 7; 
+          targetRow = i + 7; // Karena index 0 adalah baris 7
           break;
         }
       }
@@ -496,6 +360,7 @@ function processForm(data, passwordAuthHash) {
       actionType = "TAMBAH DATA";
     }
 
+    // 2. Simpan Data Inputan Saat Ini
     sheet.getRange(targetRow, 2).setValue(data.nama); 
     var rowData = [[
       data.perusahaan, 
@@ -507,10 +372,14 @@ function processForm(data, passwordAuthHash) {
     sheet.getRange(targetRow, 5, 1, 5).setValues(rowData);
     sheet.getRange(targetRow, 12).setValue(data.keterangan);
     
-    sheet.getRange(targetRow, 9, 1, 2).clearContent(); 
-    
+    // -----------------------------------------------------------
+    // 3. LOGIKA UPDATE OTOMATIS PERUSAHAAN (Batch Update)
+    // Jika nama personil ini ada di baris lain, update perusahaannya juga
+    // agar data konsisten.
+    // -----------------------------------------------------------
     var lastRowData = sheet.getLastRow();
     if (lastRowData >= 7) {
+      // Ambil Kolom Nama (B) dan Perusahaan (E)
       var rangeNames = sheet.getRange(7, 2, lastRowData - 6, 1).getValues(); 
       var rangeComps = sheet.getRange(7, 5, lastRowData - 6, 1); 
       var currentComps = rangeComps.getValues();
@@ -521,6 +390,8 @@ function processForm(data, passwordAuthHash) {
 
       for (var i = 0; i < rangeNames.length; i++) {
         var rowName = rangeNames[i][0] ? rangeNames[i][0].toString().toLowerCase().trim() : "";
+        
+        // Jika Nama sama TAPI Perusahaannya beda, update perusahaannya
         if (rowName === inputNameClean) {
            if (currentComps[i][0] !== inputCompClean) {
              currentComps[i][0] = inputCompClean;
@@ -529,10 +400,12 @@ function processForm(data, passwordAuthHash) {
         }
       }
       
+      // Tulis ulang kolom Perusahaan sekaligus (jika ada perubahan)
       if (isUpdated) {
         rangeComps.setValues(currentComps);
       }
     }
+    // -----------------------------------------------------------
 
     SpreadsheetApp.flush(); 
     logUserActivity(currentRole, actionType, `${data.nama} - ${data.sertifikat}`);
