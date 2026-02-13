@@ -94,6 +94,33 @@
     .stat-card:hover i { transform: scale(1.2) rotate(10deg); opacity: 0.7 !important; }
     .stat-value { font-size: 2.5rem; font-weight: 700; line-height: 1; }
     .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
+
+    /* --- STATS FILTER ANIMATION & STYLE --- */
+    .clickable-card {
+        cursor: pointer;
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    /* Animasi saat Card Aktif */
+    .stat-card.active-filter {
+        transform: translateY(-8px) scale(1.02);
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3) !important;
+        z-index: 10;
+    }
+    /* Indikator visual kecil */
+    .stat-card.active-filter::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 4px;
+        background-color: rgba(255,255,255,0.8);
+        border-radius: 4px;
+        animation: fadeIn 0.5s ease-in-out;
+    }
     
     .bg-gradient-primary { background: linear-gradient(45deg, var(--primary-color), #333399); }
     .bg-gradient-success { background: linear-gradient(45deg, #1cc88a, #13855c); } 
@@ -202,8 +229,7 @@
     input[list]::-webkit-calendar-picker-indicator { opacity: 0.6; cursor: pointer; transition: 0.2s; }
     input[list]:hover::-webkit-calendar-picker-indicator { opacity: 1; transform: scale(1.1); }
     
-    /* FIX: TAMPILAN DATE PICKER CLEAN (ICON HILANG TAPI KLIK BISA DI MANA SAJA) */
-    /* 1. Sembunyikan icon native tapi buat dia 'menutupi' seluruh input agar bisa diklik */
+    /* FIX: TAMPILAN DATE PICKER CLEAN */
     input[type="date"]::-webkit-calendar-picker-indicator {
         position: absolute;
         top: 0;
@@ -271,7 +297,6 @@
       }
       .table td {
           text-align: left !important;
-          /* UPDATED PADDING: Reduced side padding to 10px to widen content area */
           padding: 12px 10px !important;
           border: none;
           position: relative;
@@ -283,7 +308,7 @@
           border-bottom: 1px solid #f0f0f0;
           padding-top: 15px;
           padding-bottom: 12px;
-          padding-right: 10px; /* Reset padding to normal since we use pe-5 on name */
+          padding-right: 10px;
       }
       
       /* Mobile Elements Styling */
@@ -299,7 +324,7 @@
       .mobile-detail-group {
           background-color: #f8f9fa;
           border-radius: 8px;
-          padding: 12px; /* Slightly increased internal padding */
+          padding: 12px;
           margin-top: 10px;
           border-left: 3px solid var(--primary-color);
       }
@@ -333,17 +358,15 @@
       }
       .mobile-floating-edit:active { background-color: #f0f0f0; transform: scale(0.95); }
       
-      /* FIX: Kecilkan font tanggal khusus mobile agar tidak tenggelam */
       .modern-input-group input[type="date"].form-control {
-          font-size: 13px !important; /* Force smaller font specifically for mobile date */
-          padding-top: 1.6rem !important; /* Adjust top padding to center visible text below label */
-          padding-bottom: 0 !important;   /* Remove bottom padding to prevent cutoff */
-          min-height: 55px !important;    /* Maintain height */
+          font-size: 13px !important;
+          padding-top: 1.6rem !important;
+          padding-bottom: 0 !important;   
+          min-height: 55px !important;    
           display: flex;
           align-items: center;
       }
 
-      /* Specific Adjustments */
       .nested-cell { border-bottom: none !important; padding: 2px 0 !important; min-height: auto !important; display: block !important; }
     }
   </style>
@@ -445,14 +468,23 @@
       <div id="view-skk" class="view-section active-view">
         <div class="stats-wrapper">
             <div class="row g-3 mb-4 justify-content-center">
-              <div class="col-12 col-sm-6 col-lg-4">
-                  <div class="stat-card bg-gradient-primary p-3 d-flex justify-content-between align-items-center"><div><div class="stat-label">Total Personil</div><div class="stat-value" id="skk-total">0</div></div><i class="bi bi-people-fill fs-1 opacity-50"></i></div>
+              <div class="col-12 col-sm-6 col-lg-4" onclick="handleStatClick('skk', 'all', this)">
+                  <div class="stat-card bg-gradient-primary p-3 d-flex justify-content-between align-items-center clickable-card active-filter">
+                    <div><div class="stat-label">Total Personil</div><div class="stat-value" id="skk-total">0</div></div>
+                    <i class="bi bi-people-fill fs-1 opacity-50"></i>
+                  </div>
               </div>
-              <div class="col-12 col-sm-6 col-lg-4">
-                  <div class="stat-card bg-gradient-danger p-3 d-flex justify-content-between align-items-center"><div><div class="stat-label">Expired</div><div class="stat-value" id="skk-expired">0</div></div><i class="bi bi-exclamation-triangle-fill fs-1 opacity-50"></i></div>
+              <div class="col-12 col-sm-6 col-lg-4" onclick="handleStatClick('skk', 'expired', this)">
+                  <div class="stat-card bg-gradient-danger p-3 d-flex justify-content-between align-items-center clickable-card">
+                    <div><div class="stat-label">Expired</div><div class="stat-value" id="skk-expired">0</div></div>
+                    <i class="bi bi-exclamation-triangle-fill fs-1 opacity-50"></i>
+                  </div>
               </div>
-              <div class="col-12 col-sm-6 col-lg-4">
-                  <div class="stat-card bg-gradient-warning p-3 d-flex justify-content-between align-items-center"><div><div class="stat-label">Personil Terpakai</div><div class="stat-value" id="skk-used">0</div></div><i class="bi bi-briefcase-fill fs-1 opacity-50"></i></div>
+              <div class="col-12 col-sm-6 col-lg-4" onclick="handleStatClick('skk', 'used', this)">
+                  <div class="stat-card bg-gradient-warning p-3 d-flex justify-content-between align-items-center clickable-card">
+                    <div><div class="stat-label">Personil Terpakai</div><div class="stat-value" id="skk-used">0</div></div>
+                    <i class="bi bi-briefcase-fill fs-1 opacity-50"></i>
+                  </div>
               </div>
             </div>
         </div>
@@ -491,11 +523,17 @@
       <div id="view-penugasan" class="view-section" style="display: none;">
         <div class="stats-wrapper">
             <div class="row g-3 mb-4 justify-content-center">
-              <div class="col-12 col-sm-6 col-lg-5">
-                  <div class="stat-card bg-gradient-primary p-3 d-flex justify-content-between align-items-center"><div><div class="stat-label">Total Paket Pekerjaan</div><div class="stat-value" id="tugas-total">0</div></div><i class="bi bi-list-task fs-1 opacity-50"></i></div>
+              <div class="col-12 col-sm-6 col-lg-5" onclick="handleStatClick('tugas', 'all', this)">
+                  <div class="stat-card bg-gradient-primary p-3 d-flex justify-content-between align-items-center clickable-card active-filter">
+                    <div><div class="stat-label">Total Paket Pekerjaan</div><div class="stat-value" id="tugas-total">0</div></div>
+                    <i class="bi bi-list-task fs-1 opacity-50"></i>
+                  </div>
               </div>
-              <div class="col-12 col-sm-6 col-lg-5">
-                  <div class="stat-card bg-gradient-success p-3 d-flex justify-content-between align-items-center"><div><div class="stat-label">Sertifikat Aktif</div><div class="stat-value" id="tugas-active">0</div></div><i class="bi bi-check-circle-fill fs-1 opacity-50"></i></div>
+              <div class="col-12 col-sm-6 col-lg-5" onclick="handleStatClick('tugas', 'active', this)">
+                  <div class="stat-card bg-gradient-success p-3 d-flex justify-content-between align-items-center clickable-card">
+                    <div><div class="stat-label">Penugasan Aktif</div><div class="stat-value" id="tugas-active">0</div></div>
+                    <i class="bi bi-check-circle-fill fs-1 opacity-50"></i>
+                  </div>
               </div>
             </div>
         </div>
@@ -532,9 +570,24 @@
       <div id="view-project" class="view-section" style="display: none;">
         <div class="stats-wrapper">
             <div class="row g-3 mb-4 justify-content-center">
-              <div class="col-12 col-sm-6 col-lg-4"><div class="stat-card bg-gradient-primary p-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(45deg, #000080, #333399);"><div><div class="stat-label">Total Pekerjaan</div><div class="stat-value" id="proj-total">0</div></div><i class="bi bi-list-task fs-1 opacity-50"></i></div></div>
-              <div class="col-12 col-sm-6 col-lg-4"><div class="stat-card bg-gradient-danger p-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(45deg, #e74c3c, #c0392b);"><div><div class="stat-label">Pekerjaan Expired</div><div class="stat-value" id="proj-expired">0</div></div><i class="bi bi-exclamation-triangle-fill fs-1 opacity-50"></i></div></div>
-              <div class="col-12 col-sm-6 col-lg-4"><div class="stat-card bg-gradient-success p-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(45deg, #27ae60, #1e8449);"><div><div class="stat-label">Pekerjaan Selesai</div><div class="stat-value" id="proj-done">0</div></div><i class="bi bi-check-circle fs-1 opacity-50"></i></div></div>
+              <div class="col-12 col-sm-6 col-lg-4" onclick="handleStatClick('project', 'all', this)">
+                <div class="stat-card bg-gradient-primary p-3 d-flex justify-content-between align-items-center clickable-card active-filter" style="background: linear-gradient(45deg, #000080, #333399);">
+                  <div><div class="stat-label">Total Pekerjaan</div><div class="stat-value" id="proj-total">0</div></div>
+                  <i class="bi bi-list-task fs-1 opacity-50"></i>
+                </div>
+              </div>
+              <div class="col-12 col-sm-6 col-lg-4" onclick="handleStatClick('project', 'expired', this)">
+                <div class="stat-card bg-gradient-danger p-3 d-flex justify-content-between align-items-center clickable-card" style="background: linear-gradient(45deg, #e74c3c, #c0392b);">
+                  <div><div class="stat-label">Pekerjaan Expired</div><div class="stat-value" id="proj-expired">0</div></div>
+                  <i class="bi bi-exclamation-triangle-fill fs-1 opacity-50"></i>
+                </div>
+              </div>
+              <div class="col-12 col-sm-6 col-lg-4" onclick="handleStatClick('project', 'done', this)">
+                <div class="stat-card bg-gradient-success p-3 d-flex justify-content-between align-items-center clickable-card" style="background: linear-gradient(45deg, #27ae60, #1e8449);">
+                  <div><div class="stat-label">Pekerjaan Selesai</div><div class="stat-value" id="proj-done">0</div></div>
+                  <i class="bi bi-check-circle fs-1 opacity-50"></i>
+                </div>
+              </div>
             </div>
         </div>
         <div class="table-card">
@@ -698,6 +751,11 @@
     const tooltip = document.getElementById('gantt-tooltip'); const activeTimers = {};
     let canEdit = false; 
 
+    // --- GLOBAL VARIABLES FOR FILTERING ---
+    let filterStatusSKK = 'all'; // all, expired, used
+    let filterStatusTugas = 'all'; // all, active
+    let filterStatusProject = 'all'; // all, expired, done
+
     const Toast = Swal.mixin({
       toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true,
       didOpen: (toast) => { toast.addEventListener('mouseenter', Swal.stopTimer); toast.addEventListener('mouseleave', Swal.resumeTimer); }
@@ -774,26 +832,17 @@
     function updateGreeting(role) {
         const hour = new Date().getHours();
         let timeText = hour < 11 ? "Selamat Pagi" : (hour < 15 ? "Selamat Siang" : (hour < 18 ? "Selamat Sore" : "Selamat Malam"));
-        
-        // Perhatikan: Icon malam menggunakan 'text-white'
         let icon = hour < 11 ? "<i class='bi bi-brightness-alt-high-fill text-warning me-1'></i>" : (hour < 18 ? "<i class='bi bi-sun-fill text-warning me-1'></i>" : "<i class='bi bi-moon-stars-fill text-white me-1'></i>");
-        
         let roleText = role === 'SUPER_ADMIN' ? "Manajemen Gaharu Sempana Group" : (role === 'ADMIN' ? "Tim Admin Gaharu Sempana Group" : (role === 'TEKNIS' ? "Tim Teknis Gaharu Sempana Group" : (role === 'ADMIN_INPUT' ? "Tim Admin Database Gaharu Sempana Group" : "Gaharu Sempana Group")));
         
-        // 1. Update Tampilan Desktop (Navbar Biru -> Icon Putih Aman)
         const desktopTime = document.getElementById('greeting-time');
         const desktopRole = document.getElementById('greeting-role');
         if (desktopTime) desktopTime.innerHTML = `${icon} ${timeText}`; 
         if (desktopRole) desktopRole.innerText = roleText;
         
-        // 2. Update Tampilan Mobile (Card Putih -> Icon Putih TIDAK KELIHATAN)
-        // SOLUSI: Kita ubah class warna icon khusus untuk mobile
         const mobileTime = document.getElementById('mobile-greeting-time'); 
         const mobileRole = document.getElementById('mobile-greeting-role');
-        
         if(mobileTime) {
-            // Trik: Replace 'text-white' menjadi 'text-primary' (biru) atau 'text-dark' hanya untuk mobile
-            // Agar icon bulan terlihat di background putih
             let mobileIcon = icon.replace('text-white', 'text-primary'); 
             mobileTime.innerHTML = `${mobileIcon} ${timeText}`;
         }
@@ -907,42 +956,58 @@
         const btnNext = document.createElement('button'); btnNext.className = 'btn-page'; btnNext.innerHTML = '<i class="bi bi-chevron-right"></i>'; btnNext.disabled = currentPage === totalPages; btnNext.onclick = () => renderCallback(currentPage + 1); container.appendChild(btnNext);
     }
 
-    // --- MODIFIED RENDER SKK: FIX DUPLICATE LPSE (AGGRESSIVE NORMALIZATION) ---
+    // --- NEW HANDLER FUNCTION FOR CLICKABLE STATS ---
+    function handleStatClick(view, type, colElement) {
+        const parentRow = colElement.parentElement;
+        const allCards = parentRow.querySelectorAll('.stat-card');
+        allCards.forEach(card => card.classList.remove('active-filter'));
+
+        const card = colElement.querySelector('.stat-card');
+        if(card) card.classList.add('active-filter');
+
+        if(view === 'skk') {
+            filterStatusSKK = type;
+            const keyword = document.getElementById('searchSkk').value.toLowerCase();
+            const filtered = dataSKK.filter(r => (r[1]||"").toLowerCase().includes(keyword) || (r[5]||"").toLowerCase().includes(keyword));
+            renderSKK(filtered, 1);
+        } 
+        else if(view === 'tugas') {
+            filterStatusTugas = type;
+            const keyword = document.getElementById('searchTugas').value.toLowerCase();
+            const filtered = dataTugas.filter(r => (r[1]||"").toLowerCase().includes(keyword) || (r[2]||"").toLowerCase().includes(keyword));
+            renderTugas(filtered, 1);
+        } 
+        else if(view === 'project') {
+            filterStatusProject = type;
+            const keyword = document.getElementById('searchProject').value.toLowerCase();
+            const filtered = dataProject.filter(r => (r[2]||"").toLowerCase().includes(keyword) || (r[4]||"").toLowerCase().includes(keyword));
+            renderProject(filtered, 1);
+        }
+    }
+
+    // --- MODIFIED RENDER SKK: Filter Logic Added ---
     function renderSKK(data, page = 1) {
-      currentPageSkk = page; const tbody = document.getElementById('bodySkk'); let htmlContent = []; let statTotal = 0, statUsed = 0, statExpired = 0;
-      if(!data || data.length === 0) { document.getElementById('msgSkk').classList.remove('d-none'); document.getElementById('pagination-skk').innerHTML = ''; animateValue("skk-total", 0, 0, 800); animateValue("skk-expired", 0, 0, 800); animateValue("skk-used", 0, 0, 800); tbody.innerHTML = ''; return; } else { document.getElementById('msgSkk').classList.add('d-none'); }
+      currentPageSkk = page; 
+      const tbody = document.getElementById('bodySkk'); 
+      let htmlContent = []; 
       
-      // LOGIC: Aggregate LPSE (Collect unique LPSE per person)
+      let statTotal = 0, statUsed = 0, statExpired = 0;
+      
       const activeAssignmentsMap = new Map();
-      
-      // Helper function to create a "fingerprint" for deduplication
-      // Removes all non-alphanumeric chars and lowercases
-      const getFingerprint = (str) => {
-          return str.toLowerCase().replace(/[^a-z0-9]/g, '');
-      };
+      const getFingerprint = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
 
       if(dataTugas && dataTugas.length > 0) { 
           for(let i=0; i<dataTugas.length; i++){ 
               const row = dataTugas[i]; 
-              // NORMALIZATION: Clean Person Name for better matching
               const pNameOriginal = (row[1] || "").trim();
               const pNameKey = getFingerprint(pNameOriginal);
-
               const pStatus = (row[12] || "").toLowerCase(); 
               if (pNameKey && pStatus.includes('active')) { 
                   const lpse = (row[5] || "").trim();
-                  
                   if(lpse) {
-                      if (!activeAssignmentsMap.has(pNameKey)) {
-                          // Map: Fingerprint -> Original Display String
-                          activeAssignmentsMap.set(pNameKey, new Map());
-                      }
-                      
+                      if (!activeAssignmentsMap.has(pNameKey)) activeAssignmentsMap.set(pNameKey, new Map());
                       const fingerprint = getFingerprint(lpse);
-                      
-                      // Only add if fingerprint doesn't exist yet
                       if(!activeAssignmentsMap.get(pNameKey).has(fingerprint)){
-                          // Store original string but replace multi-spaces with single space for clean display
                           activeAssignmentsMap.get(pNameKey).set(fingerprint, lpse.replace(/\s+/g, ' '));
                       }
                   }
@@ -950,12 +1015,16 @@
           } 
       }
       
-      const groupedData = {}; for(let i=0; i<data.length; i++) { const row = data[i]; const nama = row[1]; if (!nama) continue; if (!groupedData[nama]) { groupedData[nama] = { nama: row[1], hp: row[2], perusahaan: row[4], bidang: row[3], items: [] }; } groupedData[nama].items.push({ sertifikat: row[5], jenjang: row[6], sisaWaktu: row[9], statusRaw: row[10], ketRaw: row[11], originalIndex: i }); }
+      const groupedData = {}; 
+      for(let i=0; i<data.length; i++) { 
+          const row = data[i]; const nama = row[1]; if (!nama) continue; 
+          if (!groupedData[nama]) { groupedData[nama] = { nama: row[1], hp: row[2], perusahaan: row[4], bidang: row[3], items: [] }; } 
+          groupedData[nama].items.push({ sertifikat: row[5], jenjang: row[6], sisaWaktu: row[9], statusRaw: row[10], ketRaw: row[11], originalIndex: i }); 
+      }
       
-      const allKeys = Object.keys(groupedData); statTotal = allKeys.length;
-      const startIndex = (page - 1) * ITEMS_PER_PAGE; const endIndex = startIndex + ITEMS_PER_PAGE; const pagedKeys = allKeys.slice(startIndex, endIndex);
-      
-      // Update Stats Logic with Normalization
+      let allKeys = Object.keys(groupedData);
+
+      statTotal = allKeys.length;
       allKeys.forEach(key => { 
           const person = groupedData[key]; 
           let isUsed = false; 
@@ -967,31 +1036,68 @@
           if (activeAssignmentsMap.has(keyNormalized)) isUsed = true; 
           if (isUsed) statUsed++; 
       });
-      
+      animateValue("skk-total", 0, statTotal, 800); 
+      animateValue("skk-expired", 0, statExpired, 800); 
+      animateValue("skk-used", 0, statUsed, 800);
+
+      // --- LOGIC FILTER CARD STATS ---
+      if (filterStatusSKK !== 'all') {
+          allKeys = allKeys.filter(key => {
+              const person = groupedData[key];
+              const keyNormalized = getFingerprint(person.nama);
+              
+              if (filterStatusSKK === 'expired') {
+                  return person.items.some(item => (item.statusRaw||"").toLowerCase().includes('expired'));
+              } 
+              else if (filterStatusSKK === 'used') {
+                  let isPersonUsed = activeAssignmentsMap.has(keyNormalized);
+                  if(!isPersonUsed) {
+                      isPersonUsed = person.items.some(item => 
+                          (item.statusRaw||"").toLowerCase().includes('used') || 
+                          (item.ketRaw||"").toLowerCase().includes('used')
+                      );
+                  }
+                  return isPersonUsed;
+              }
+              return true;
+          });
+      }
+
+      if(allKeys.length === 0) { 
+          document.getElementById('msgSkk').classList.remove('d-none'); 
+          document.getElementById('pagination-skk').innerHTML = ''; 
+          tbody.innerHTML = ''; 
+          return; 
+      } else { 
+          document.getElementById('msgSkk').classList.add('d-none'); 
+      }
+
+      const startIndex = (page - 1) * ITEMS_PER_PAGE; 
+      const endIndex = startIndex + ITEMS_PER_PAGE; 
+      const pagedKeys = allKeys.slice(startIndex, endIndex);
       const canEditRow = (currentUserRole === "SUPER_ADMIN" || currentUserRole === "ADMIN_INPUT");
       
       for(let i=0; i<pagedKeys.length; i++) {
-          const person = groupedData[pagedKeys[i]]; let isUsed = false, hasActive = false; let usedProjectName = "", spreadsheetUsedText = "";
-          for(let j=0; j<person.items.length; j++){ const item = person.items[j]; const s = (item.statusRaw || "").toLowerCase(); const k = (item.ketRaw || "").toLowerCase(); if (s.includes('used') || k.includes('used')) { isUsed = true; if(s.includes('used')) spreadsheetUsedText = item.statusRaw; else if (k.includes('used')) spreadsheetUsedText = item.ketRaw; } if (s.includes('active') || s.includes('available')) hasActive = true; }
+          const person = groupedData[pagedKeys[i]]; 
+          let isUsed = false, hasActive = false; let usedProjectName = "", spreadsheetUsedText = "";
+          for(let j=0; j<person.items.length; j++){ 
+              const item = person.items[j]; 
+              const s = (item.statusRaw || "").toLowerCase(); 
+              const k = (item.ketRaw || "").toLowerCase(); 
+              if (s.includes('used') || k.includes('used')) { 
+                  isUsed = true; 
+                  if(s.includes('used')) spreadsheetUsedText = item.statusRaw; else if (k.includes('used')) spreadsheetUsedText = item.ketRaw; 
+              } 
+              if (s.includes('active') || s.includes('available')) hasActive = true; 
+          }
           
-          // LOGIC: Retrieve and Format Aggregated LPSE String with Normalization Key
           const keyNormalized = getFingerprint(person.nama);
           const activeLpseMap = activeAssignmentsMap.get(keyNormalized);
           
           if (activeLpseMap && activeLpseMap.size > 0) { 
               isUsed = true; 
-              // Convert Map Values to Array
               const lpseArray = Array.from(activeLpseMap.values());
-              let lpseString = "";
-              if (lpseArray.length === 1) {
-                  lpseString = lpseArray[0];
-              } else if (lpseArray.length === 2) {
-                  lpseString = `${lpseArray[0]} dan ${lpseArray[1]}`;
-              } else {
-                  // For 3 or more: "A, B, dan C"
-                  const last = lpseArray.pop();
-                  lpseString = `${lpseArray.join(", ")}, dan ${last}`;
-              }
+              let lpseString = lpseArray.length === 1 ? lpseArray[0] : (lpseArray.length === 2 ? `${lpseArray[0]} dan ${lpseArray[1]}` : `${lpseArray.join(", ")}, dan ${lpseArray.pop()}`);
               usedProjectName = `Used in ${lpseString}`; 
           } else if (isUsed) { 
               usedProjectName = spreadsheetUsedText ? spreadsheetUsedText : "Used"; 
@@ -1001,35 +1107,19 @@
           
           let btnWA = "-"; if(person.hp && /\d/.test(person.hp)) { let cleanNum = person.hp.toString().replace(/\D/g, ''); if(cleanNum.startsWith('0')) cleanNum = '62' + cleanNum.substring(1); if(cleanNum.length > 9) { btnWA = `<a href="https://wa.me/${cleanNum}" target="_blank" class="btn btn-success btn-sm text-white fw-bold d-inline-flex align-items-center justify-content-center" style="font-size: 0.7rem; padding: 2px 8px; height: 24px; min-width: 60px;"><i class="bi bi-whatsapp" style="font-size: 0.8rem; margin-right: 4px;"></i> Chat</a>`; } else { btnWA = `<span class="small text-muted">${person.hp}</span>`; } }
           
-          let htmlSertifikat = '', htmlJenjang = '', htmlSisa = '', htmlKet = '';
-          let mobileDetailListHTML = ''; // Builder untuk Mobile
+          let htmlSertifikat = '', htmlJenjang = '', htmlSisa = '', htmlKet = '', mobileDetailListHTML = '';
           const itemLen = person.items.length;
           
           for(let k=0; k<itemLen; k++){ 
             const item = person.items[k]; 
             let sisaStyle = (item.statusRaw||"").toLowerCase().includes('expired') ? "color: #dc3545; font-weight: 700;" : ""; 
-            
-            // Desktop HTML Construction
             htmlSertifikat += `<div class="nested-cell fw-bold" title="${item.sertifikat}" style="white-space: normal; line-height: 1.3;">${item.sertifikat}</div>`; 
             htmlJenjang += `<div class="nested-cell text-center justify-content-center">${item.jenjang || '-'}</div>`; 
             htmlSisa += `<div class="nested-cell text-center justify-content-center small" style="${sisaStyle}">${item.sisaWaktu || '-'}</div>`; 
             htmlKet += `<div class="nested-cell small text-muted" title="${item.ketRaw || ''}" style="white-space: normal; line-height: 1.2;">${item.ketRaw || ''}</div>`;
-            
-            // Mobile HTML Construction (Grouped)
-            // UPDATED: Added word-wrap and break-word to force wrapping
-            mobileDetailListHTML += `
-              <div class="mobile-detail-item">
-                  <div style="font-size: 0.85rem; font-weight: 700; color: #444; margin-bottom: 2px; line-height: 1.3;">${item.sertifikat}</div>
-                  <div class="d-flex justify-content-between align-items-center mb-1">
-                      <span class="badge bg-light text-dark border">${item.jenjang || '-'}</span>
-                      <span style="font-size: 0.75rem; ${sisaStyle}">${item.sisaWaktu || '-'}</span>
-                  </div>
-                  ${item.ketRaw ? `<div class="small text-muted fst-italic mt-1" style="font-size: 0.75rem; word-wrap: break-word; overflow-wrap: break-word; word-break: break-word;">${item.ketRaw}</div>` : ''}
-              </div>
-            `;
+            mobileDetailListHTML += `<div class="mobile-detail-item"><div style="font-size: 0.85rem; font-weight: 700; color: #444; margin-bottom: 2px; line-height: 1.3;">${item.sertifikat}</div><div class="d-flex justify-content-between align-items-center mb-1"><span class="badge bg-light text-dark border">${item.jenjang || '-'}</span><span style="font-size: 0.75rem; ${sisaStyle}">${item.sisaWaktu || '-'}</span></div>${item.ketRaw ? `<div class="small text-muted fst-italic mt-1" style="font-size: 0.75rem; word-wrap: break-word; overflow-wrap: break-word; word-break: break-word;">${item.ketRaw}</div>` : ''}</div>`;
           }
           
-          // --- ACTION BUTTON LOGIC ---
           let htmlAksi = '', mobileEditBtn = '';
           if (canEditRow) {
              htmlAksi = `<button class="btn btn-sm btn-outline-primary rounded-circle" onclick="openModalEditGroup('${person.nama}')" style="width: 32px; height: 32px;" title="Edit Data ${person.nama}"><i class="bi bi-pencil-fill"></i></button>`;
@@ -1037,58 +1127,35 @@
           }
           const styleAksi = canEditRow ? '' : 'display:none;';
           
-          htmlContent.push(`
-            <tr>
-              <td>
-                ${mobileEditBtn}
-                <div class="fw-bold text-dark fs-6 pe-5">${person.nama}</div>
-                <div class="small text-muted" style="line-height: 1.2;"><i class="bi bi-building me-1"></i>${person.perusahaan || '-'}</div>
-                <div class="mt-2 d-md-none">${finalBadge}</div>
-                
-                <div class="d-md-none mt-3">
-                   <div class="mobile-card-label">Jenjang Pendidikan</div>
-                   <div class="small mb-2">${person.bidang || '-'}</div>
-                   
-                   <div class="mobile-card-label">Detail Sertifikat</div>
-                   <div class="mobile-detail-group">
-                       ${mobileDetailListHTML}
-                   </div>
-                   
-                   <div class="mt-3 d-grid gap-2">
-                       ${btnWA.includes('<a') ? btnWA.replace('min-width: 60px;', 'width: 100%; height: 35px;').replace('font-size: 0.7rem;', 'font-size: 0.9rem;') : '<div class="text-center small text-muted">No Contact Info</div>'}
-                   </div>
-                </div>
-              </td>
-              
-              <td class="text-center align-middle-person d-none d-md-table-cell">${btnWA}</td>
-              <td class="align-middle-person small d-none d-md-table-cell" style="white-space: normal !important; word-wrap: break-word; line-height: 1.3;">${person.bidang || '-'}</td>
-              <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0; white-space: normal !important;">${htmlSertifikat}</td>
-              <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${htmlJenjang}</td>
-              <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${htmlSisa}</td>
-              <td class="text-center align-middle-person d-none d-md-table-cell" style="white-space: normal !important;">${finalBadge}</td>
-              <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0; white-space: normal !important;">${htmlKet}</td>
-              <td class="text-center align-middle-person d-none d-md-table-cell" style="${styleAksi}">${htmlAksi}</td>
-            </tr>`);
+          htmlContent.push(`<tr><td>${mobileEditBtn}<div class="fw-bold text-dark fs-6 pe-5">${person.nama}</div><div class="small text-muted" style="line-height: 1.2;"><i class="bi bi-building me-1"></i>${person.perusahaan || '-'}</div><div class="mt-2 d-md-none">${finalBadge}</div><div class="d-md-none mt-3"><div class="mobile-card-label">Jenjang Pendidikan</div><div class="small mb-2">${person.bidang || '-'}</div><div class="mobile-card-label">Detail Sertifikat</div><div class="mobile-detail-group">${mobileDetailListHTML}</div><div class="mt-3 d-grid gap-2">${btnWA.includes('<a') ? btnWA.replace('min-width: 60px;', 'width: 100%; height: 35px;').replace('font-size: 0.7rem;', 'font-size: 0.9rem;') : '<div class="text-center small text-muted">No Contact Info</div>'}</div></div></td><td class="text-center align-middle-person d-none d-md-table-cell">${btnWA}</td><td class="align-middle-person small d-none d-md-table-cell" style="white-space: normal !important; word-wrap: break-word; line-height: 1.3;">${person.bidang || '-'}</td><td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0; white-space: normal !important;">${htmlSertifikat}</td><td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${htmlJenjang}</td><td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${htmlSisa}</td><td class="text-center align-middle-person d-none d-md-table-cell" style="white-space: normal !important;">${finalBadge}</td><td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0; white-space: normal !important;">${htmlKet}</td><td class="text-center align-middle-person d-none d-md-table-cell" style="${styleAksi}">${htmlAksi}</td></tr>`);
       }
-      tbody.innerHTML = htmlContent.join(''); setupPagination(allKeys.length, currentPageSkk, 'pagination-skk', (p) => renderSKK(data, p));
-      animateValue("skk-total", 0, statTotal, 800); animateValue("skk-expired", 0, statExpired, 800); animateValue("skk-used", 0, statUsed, 800);
+      tbody.innerHTML = htmlContent.join(''); 
+      setupPagination(allKeys.length, currentPageSkk, 'pagination-skk', (p) => renderSKK(data, p));
     }
 
-    // --- MODIFIED RENDER TUGAS FOR MOBILE CARD VIEW ---
+    // --- MODIFIED RENDER TUGAS: Filter Logic Added ---
     function renderTugas(data, page = 1) {
-       currentPageTugas = page; const tbody = document.getElementById('bodyTugas'); let htmlContent = []; let active = 0; const filtered = data.filter(row => (row[12]||"").toLowerCase() !== 'completed');
-       if(filtered.length === 0) { document.getElementById('msgTugas').classList.remove('d-none'); document.getElementById('pagination-tugas').innerHTML = ''; tbody.innerHTML = ''; return; } else { document.getElementById('msgTugas').classList.add('d-none'); }
+       currentPageTugas = page; const tbody = document.getElementById('bodyTugas'); let htmlContent = []; 
+       
+       let filtered = data.filter(row => (row[12]||"").toLowerCase() !== 'completed');
+       
+       let active = 0; 
        for(let i=0; i<filtered.length; i++) { if((filtered[i][12]||"").toLowerCase().includes('active')) active++; }
-       animateValue("tugas-total", 0, new Set(data.map(r=>r[2])).size, 800); animateValue("tugas-active", 0, active, 800);
+       animateValue("tugas-total", 0, new Set(data.map(r=>r[2])).size, 800); 
+       animateValue("tugas-active", 0, active, 800);
+
+       if(filterStatusTugas === 'active') {
+           filtered = filtered.filter(row => (row[12]||"").toLowerCase().includes('active'));
+       }
+
+       if(filtered.length === 0) { document.getElementById('msgTugas').classList.remove('d-none'); document.getElementById('pagination-tugas').innerHTML = ''; tbody.innerHTML = ''; return; } else { document.getElementById('msgTugas').classList.add('d-none'); }
        
        const groupedData = {}; for(let i=0; i<filtered.length; i++){ const row = filtered[i]; const nama = row[1]; if(!nama) continue; if (!groupedData[nama]) { groupedData[nama] = { nama: nama, items: [] }; } let status = (row[12]||"").toLowerCase(); let bClass = status.includes('active') ? 'status-active' : (status.includes('not started') ? 'status-not-started' : 'status-expired'); let badgeHTML = `<span class="badge-status ${bClass}">${row[12]}</span>`; groupedData[nama].items.push({ pekerjaan: row[2], lpse: row[5] || '-', metode: row[3], kontrak: row[4], sertifikat: row[6], start: row[9], end: row[10], statusBadge: badgeHTML }); }
        const persons = Object.values(groupedData); const startIndex = (page - 1) * ITEMS_PER_PAGE; const pagedPersons = persons.slice(startIndex, startIndex + ITEMS_PER_PAGE);
        
        for(let i=0; i<pagedPersons.length; i++) { 
          const person = pagedPersons[i]; 
-         let hPekerjaan = '', hLpse = '', hMetode = '', hKontrak = '', hSertifikat = '', hStart = '', hEnd = '', hStatus = ''; 
-         let mobileDetailListHTML = ''; // Mobile Builder
-         
+         let hPekerjaan = '', hLpse = '', hMetode = '', hKontrak = '', hSertifikat = '', hStart = '', hEnd = '', hStatus = '', mobileDetailListHTML = ''; 
          for(let j=0; j<person.items.length; j++){ 
             const item = person.items[j]; 
             hPekerjaan += `<div class="nested-cell fw-bold" title="${item.pekerjaan}">${item.pekerjaan}</div>`; 
@@ -1099,118 +1166,62 @@
             hStart += `<div class="nested-cell text-center justify-content-center small text-muted">${item.start}</div>`; 
             hEnd += `<div class="nested-cell text-center justify-content-center small text-muted">${item.end}</div>`; 
             hStatus += `<div class="nested-cell text-center justify-content-center">${item.statusBadge}</div>`; 
-            
-            // Mobile Grouping
-            // UPDATED: Removed text-truncate and max-width on LPSE badge to allow full text reading
-            mobileDetailListHTML += `
-              <div class="mobile-detail-item">
-                  <div class="d-flex justify-content-between align-items-start mb-2">
-                     <span style="font-size: 0.85rem; font-weight: 700; color: #444; width: 65%; line-height: 1.2;">${item.pekerjaan}</span>
-                     <div class="text-end">${item.statusBadge}</div>
-                  </div>
-                  <div class="small text-muted mb-1"><i class="bi bi-calendar-event me-1"></i>${item.start} - ${item.end}</div>
-                  <div class="small text-muted mb-1"><i class="bi bi-file-text me-1"></i>Kontrak: ${item.kontrak}</div>
-                  <div class="d-flex gap-2 mt-2 align-items-center flex-wrap">
-                     <span class="badge bg-light text-dark border">${item.metode}</span>
-                     <span class="badge bg-light text-dark border" style="white-space: normal; text-align: left; line-height: 1.4;">${item.lpse}</span>
-                  </div>
-              </div>
-            `;
+            mobileDetailListHTML += `<div class="mobile-detail-item"><div class="d-flex justify-content-between align-items-start mb-2"><span style="font-size: 0.85rem; font-weight: 700; color: #444; width: 65%; line-height: 1.2;">${item.pekerjaan}</span><div class="text-end">${item.statusBadge}</div></div><div class="small text-muted mb-1"><i class="bi bi-calendar-event me-1"></i>${item.start} - ${item.end}</div><div class="small text-muted mb-1"><i class="bi bi-file-text me-1"></i>Kontrak: ${item.kontrak}</div><div class="d-flex gap-2 mt-2 align-items-center flex-wrap"><span class="badge bg-light text-dark border">${item.metode}</span><span class="badge bg-light text-dark border" style="white-space: normal; text-align: left; line-height: 1.4;">${item.lpse}</span></div></div>`;
          } 
-         
-         htmlContent.push(`
-           <tr>
-              <td>
-                 <div class="fw-bold text-dark fs-6 mb-1">${person.nama}</div>
-                 <div class="d-md-none mt-3">
-                   <div class="mobile-card-label">Daftar Penugasan</div>
-                   <div class="mobile-detail-group">
-                       ${mobileDetailListHTML}
-                   </div>
-                 </div>
-              </td>
-              <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hPekerjaan}</td>
-              <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hLpse}</td>
-              <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hMetode}</td>
-              <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hKontrak}</td>
-              <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hSertifikat}</td>
-              <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hStart}</td>
-              <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hEnd}</td>
-              <td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hStatus}</td>
-           </tr>`); 
-        }
+         htmlContent.push(`<tr><td><div class="fw-bold text-dark fs-6 mb-1">${person.nama}</div><div class="d-md-none mt-3"><div class="mobile-card-label">Daftar Penugasan</div><div class="mobile-detail-group">${mobileDetailListHTML}</div></div></td><td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hPekerjaan}</td><td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hLpse}</td><td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hMetode}</td><td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hKontrak}</td><td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hSertifikat}</td><td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hStart}</td><td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hEnd}</td><td class="d-none d-md-table-cell" style="padding-top:0; padding-bottom:0;">${hStatus}</td></tr>`); 
+       }
        tbody.innerHTML = htmlContent.join(''); setupPagination(persons.length, currentPageTugas, 'pagination-tugas', (p) => renderTugas(data, p));
     }
 
-    // --- MODIFIED RENDER PROJECT FOR MOBILE CARD VIEW ---
+    // --- MODIFIED RENDER PROJECT: Filter Logic Added ---
     function renderProject(data, page = 1) {
-      currentPageProject = page; const tbody = document.getElementById('bodyProject'); let htmlContent = []; let counts = { total: 0, expired: 0, done: 0 }; const today = new Date(); today.setHours(0, 0, 0, 0);
-      for(let i=0; i<data.length; i++) { const row = data[i]; if (!row[1]) continue; counts.total++; let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13]; const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim(); const notes = row[18] || ""; const isDone = rawStatus.includes('done') || rawStatus.includes('selesai'); const isExpired = (dateStr) => { if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false; const targetDate = parseDate(dateStr); return targetDate && targetDate < today; }; const kontrakExpired = !isDone && isExpired(deadKontrakRaw); const scheduleExpired = !isDone && isExpired(deadScheduleRaw); if (kontrakExpired || scheduleExpired) counts.expired++; if (isDone) counts.done++; }
-      const validRows = data.filter(r => r[1]); const startIndex = (page - 1) * ITEMS_PER_PAGE; const pagedRows = validRows.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+      currentPageProject = page; const tbody = document.getElementById('bodyProject'); let htmlContent = []; 
+      let counts = { total: 0, expired: 0, done: 0 }; const today = new Date(); today.setHours(0, 0, 0, 0);
+      
+      const isExpiredCheck = (dateStr) => { if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false; const targetDate = parseDate(dateStr); return targetDate && targetDate < today; }; 
+
+      for(let i=0; i<data.length; i++) { const row = data[i]; if (!row[1]) continue; counts.total++; let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13]; const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim(); const isDone = rawStatus.includes('done') || rawStatus.includes('selesai'); const kontrakExpired = !isDone && isExpiredCheck(deadKontrakRaw); const scheduleExpired = !isDone && isExpiredCheck(deadScheduleRaw); if (kontrakExpired || scheduleExpired) counts.expired++; if (isDone) counts.done++; }
+      
+      document.getElementById('proj-total').innerText = counts.total; document.getElementById('proj-expired').innerText = counts.expired; document.getElementById('proj-done').innerText = counts.done;
+
+      let validRows = data.filter(r => r[1]);
+      
+      if (filterStatusProject === 'done') {
+          validRows = validRows.filter(row => {
+              const rawStatus = (row[16] || "").toLowerCase().trim();
+              return rawStatus.includes('done') || rawStatus.includes('selesai') || rawStatus.includes('completed') || rawStatus === '100%';
+          });
+      } 
+      else if (filterStatusProject === 'expired') {
+          validRows = validRows.filter(row => {
+               const deadKontrakRaw = row[9];
+               const deadScheduleRaw = row[13];
+               const rawStatus = (row[16] || "").toLowerCase().trim();
+               const isDone = rawStatus.includes('done') || rawStatus.includes('selesai');
+               if (isDone) return false;
+               return isExpiredCheck(deadKontrakRaw) || isExpiredCheck(deadScheduleRaw);
+          });
+      }
+
+      const startIndex = (page - 1) * ITEMS_PER_PAGE; const pagedRows = validRows.slice(startIndex, startIndex + ITEMS_PER_PAGE);
       for(let i=0; i<pagedRows.length; i++) { 
           const row = pagedRows[i]; const pekerjaan = row[2]; const kordinator = row[4]; const urlSchedule = row[5]; const priority = (row[7] || "").trim(); let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13]; const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim(); const notes = row[18] || ""; const isDone = rawStatus.includes('done') || rawStatus.includes('selesai') || rawStatus.includes('completed') || rawStatus.includes('finish') || rawStatus === '100%'; 
-          
-          const isExpired = (dateStr) => { if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false; const targetDate = parseDate(dateStr); return targetDate && targetDate < today; }; 
           
           let deadKontrakView = deadKontrakRaw || '-'; 
           let deadScheduleView = deadScheduleRaw || '-'; 
           const iconCheck = '<i class="bi bi-check-circle-fill text-success" style="font-size: 1.2rem;"></i>';
 
-          if (isDone) { 
-              deadKontrakView = iconCheck; 
-              deadScheduleView = iconCheck; 
-          } else { 
-              if (isExpired(deadKontrakRaw)) deadKontrakView = `<span class="text-danger fw-bold">EXPIRED</span>`; 
-              if (isExpired(deadScheduleRaw)) deadScheduleView = `<span class="text-danger fw-bold">EXPIRED</span>`; 
-          } 
+          if (isDone) { deadKontrakView = iconCheck; deadScheduleView = iconCheck; } else { if (isExpiredCheck(deadKontrakRaw)) deadKontrakView = `<span class="text-danger fw-bold">EXPIRED</span>`; if (isExpiredCheck(deadScheduleRaw)) deadScheduleView = `<span class="text-danger fw-bold">EXPIRED</span>`; } 
           
           let badgeClass = "bg-secondary"; if (rawStatus.includes('ongoing')) badgeClass = "bg-info text-white"; else if (rawStatus.includes('dummy')) badgeClass = "bg-warning text-dark"; else if (isDone) badgeClass = "bg-success"; else if (rawStatus.includes('past')) badgeClass = "bg-danger"; 
           
-          let btnUrl = "-"; 
-          let mobileBtnUrl = "";
-          if (urlSchedule && urlSchedule.includes("http")) { 
-              btnUrl = `<a href="${urlSchedule}" target="_blank" class="btn btn-primary btn-sm d-inline-flex align-items-center justify-content-center" style="font-size: 0.7rem; padding: 2px 8px; height: 24px; min-width: 50px;"><i class="bi bi-link-45deg me-1" style="font-size: 0.9rem;"></i> Link</a>`; 
-              mobileBtnUrl = `<a href="${urlSchedule}" target="_blank" class="btn btn-sm btn-outline-primary w-100 mt-2"><i class="bi bi-link-45deg me-1"></i> Buka Schedule</a>`;
-          } 
+          let btnUrl = "-"; let mobileBtnUrl = "";
+          if (urlSchedule && urlSchedule.includes("http")) { btnUrl = `<a href="${urlSchedule}" target="_blank" class="btn btn-primary btn-sm d-inline-flex align-items-center justify-content-center" style="font-size: 0.7rem; padding: 2px 8px; height: 24px; min-width: 50px;"><i class="bi bi-link-45deg me-1" style="font-size: 0.9rem;"></i> Link</a>`; mobileBtnUrl = `<a href="${urlSchedule}" target="_blank" class="btn btn-sm btn-outline-primary w-100 mt-2"><i class="bi bi-link-45deg me-1"></i> Buka Schedule</a>`; } 
           let priorityClass = "bg-info"; if (priority === "High") priorityClass = "bg-danger"; else if (priority === "Medium") priorityClass = "bg-warning text-dark"; 
           
-          htmlContent.push(`
-            <tr>
-              <td>
-                <div class="fw-bold fs-6 mb-1 text-dark pe-5">${pekerjaan}</div>
-                
-                <div class="d-flex align-items-center gap-2 mb-2 d-md-none">
-                   <span class="badge ${badgeClass}">${statusText || 'Not Started'}</span>
-                   <span class="badge ${priorityClass} rounded-pill" style="font-size: 0.65rem;">${priority || 'Low'}</span>
-                </div>
-                
-                <div class="d-md-none mt-3">
-                   <div class="small mb-1 text-muted"><i class="bi bi-person-circle me-2"></i>Kordinator: <strong>${kordinator}</strong></div>
-                   
-                   <div class="mobile-detail-group">
-                       <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-light">
-                          <span class="small text-muted">Deadline Kontrak</span>
-                          <span class="small fw-bold">${deadKontrakView}</span>
-                       </div>
-                       <div class="d-flex justify-content-between">
-                          <span class="small text-muted">Deadline Schedule</span>
-                          <span class="small fw-bold">${deadScheduleView}</span>
-                       </div>
-                   </div>
-                   ${notes ? `<div class="mt-2 small text-muted fst-italic bg-light p-2 rounded">"${notes}"</div>` : ''}
-                   ${mobileBtnUrl}
-                </div>
-              </td>
-              <td class="d-none d-md-table-cell">${kordinator}</td>
-              <td class="text-center d-none d-md-table-cell">${btnUrl}</td>
-              <td class="text-center d-none d-md-table-cell"><span class="badge ${priorityClass}">${priority || 'Low'}</span></td>
-              <td class="text-center text-muted small d-none d-md-table-cell">${deadKontrakView}</td>
-              <td class="text-center text-muted small d-none d-md-table-cell">${deadScheduleView}</td>
-              <td class="text-center d-none d-md-table-cell"><span class="badge ${badgeClass}">${statusText || 'Not Started'}</span></td>
-              <td class="small text-muted d-none d-md-table-cell">${notes}</td> 
-            </tr>`); 
-        }
-      tbody.innerHTML = htmlContent.join(''); setupPagination(validRows.length, currentPageProject, 'pagination-project', (p) => renderProject(data, p)); document.getElementById('proj-total').innerText = counts.total; document.getElementById('proj-expired').innerText = counts.expired; document.getElementById('proj-done').innerText = counts.done;
+          htmlContent.push(`<tr><td><div class="fw-bold fs-6 mb-1 text-dark pe-5">${pekerjaan}</div><div class="d-flex align-items-center gap-2 mb-2 d-md-none"><span class="badge ${badgeClass}">${statusText || 'Not Started'}</span><span class="badge ${priorityClass} rounded-pill" style="font-size: 0.65rem;">${priority || 'Low'}</span></div><div class="d-md-none mt-3"><div class="small mb-1 text-muted"><i class="bi bi-person-circle me-2"></i>Kordinator: <strong>${kordinator}</strong></div><div class="mobile-detail-group"><div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-light"><span class="small text-muted">Deadline Kontrak</span><span class="small fw-bold">${deadKontrakView}</span></div><div class="d-flex justify-content-between"><span class="small text-muted">Deadline Schedule</span><span class="small fw-bold">${deadScheduleView}</span></div></div>${notes ? `<div class="mt-2 small text-muted fst-italic bg-light p-2 rounded">"${notes}"</div>` : ''}${mobileBtnUrl}</div></td><td class="d-none d-md-table-cell">${kordinator}</td><td class="text-center d-none d-md-table-cell">${btnUrl}</td><td class="text-center d-none d-md-table-cell"><span class="badge ${priorityClass}">${priority || 'Low'}</span></td><td class="text-center text-muted small d-none d-md-table-cell">${deadKontrakView}</td><td class="text-center text-muted small d-none d-md-table-cell">${deadScheduleView}</td><td class="text-center d-none d-md-table-cell"><span class="badge ${badgeClass}">${statusText || 'Not Started'}</span></td><td class="small text-muted d-none d-md-table-cell">${notes}</td></tr>`); 
+      }
+      tbody.innerHTML = htmlContent.join(''); setupPagination(validRows.length, currentPageProject, 'pagination-project', (p) => renderProject(data, p)); 
     }
 
     function parseDate(dateStr) { if (!dateStr || dateStr.trim() === '-' || dateStr.trim() === '') return null; if(dateStr.includes('T')) return new Date(dateStr); const parts = dateStr.split(' '); if (parts.length < 3) return new Date(dateStr); const day = parseInt(parts[0]); const monthStr = parts[1].toLowerCase(); const year = parseInt(parts[2]); const months = { 'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'mei': 4, 'may': 4, 'jun': 5, 'jul': 6, 'ags': 7, 'aug': 7, 'sep': 8, 'okt': 9, 'oct': 9, 'nov': 10, 'des': 11, 'dec': 11 }; const month = months[monthStr] !== undefined ? months[monthStr] : 0; return new Date(year, month, day); }
@@ -1283,40 +1294,34 @@
 
     const myModal = new bootstrap.Modal(document.getElementById('modalTambahData'));
     
-    // --- MODE TAMBAH: HYBRID FIELD (INPUT AKTIF, SELECT MATI) ---
     function openModalAdd() { 
         document.getElementById('modalLabel').innerHTML = '<i class="bi bi-file-earmark-plus me-2"></i>Input Data Personil'; 
         document.getElementById('formInputData').reset(); 
         document.getElementById('editRowNumber').value = ""; 
         
-        // Atur Tampilan: Mode Input
         document.getElementById('inputNama').readOnly = false;
         document.getElementById('inputPerusahaan').readOnly = false;
         
-        document.getElementById('inputSertifikat').style.display = 'block';      // Show Input
+        document.getElementById('inputSertifikat').style.display = 'block';       
         document.getElementById('inputSertifikat').required = true;
-        document.getElementById('selectSertifikatEdit').style.display = 'none'; // Hide Select
+        document.getElementById('selectSertifikatEdit').style.display = 'none'; 
         document.getElementById('selectSertifikatEdit').required = false;
 
         myModal.show(); 
     }
 
-    // --- MODE EDIT: HYBRID FIELD (INPUT MATI, SELECT AKTIF) ---
     function openModalEditGroup(personName) {
        document.getElementById('modalLabel').innerHTML = '<i class="bi bi-pencil-square me-2"></i>Edit Data Personil';
        document.getElementById('formInputData').reset();
        document.getElementById('editRowNumber').value = ""; 
 
-       // 1. Ambil semua baris milik personil ini
        const personRows = dataSKK.filter(row => row[1] === personName);
        if(personRows.length === 0) return;
 
-       // 2. Isi data umum (Nama & Perusahaan) dari baris pertama
        const firstRow = personRows[0];
        document.getElementById('inputNama').value = firstRow[1];
        document.getElementById('inputPerusahaan').value = firstRow[4];
        
-       // 3. Populate Dropdown Select (Gantikan Input Text)
        const selectEl = document.getElementById('selectSertifikatEdit');
        selectEl.innerHTML = "";
        
@@ -1326,17 +1331,15 @@
            const option = document.createElement('option');
            option.value = rowID;
            option.text = certName;
-           option.setAttribute('data-idx', dataSKK.indexOf(row)); // Simpan index asli array
+           option.setAttribute('data-idx', dataSKK.indexOf(row)); 
            selectEl.appendChild(option);
        });
 
-       // 4. Ubah Tampilan ke Mode Select
-       document.getElementById('inputSertifikat').style.display = 'none';       // Hide Input
+       document.getElementById('inputSertifikat').style.display = 'none';        
        document.getElementById('inputSertifikat').required = false;
-       document.getElementById('selectSertifikatEdit').style.display = 'block'; // Show Select
+       document.getElementById('selectSertifikatEdit').style.display = 'block'; 
        document.getElementById('selectSertifikatEdit').required = true;
 
-       // 5. Trigger load data untuk opsi pertama
        loadSelectedCertificateData(); 
 
        myModal.show();
@@ -1352,10 +1355,8 @@
 
         if(!item) return;
 
-        // Set ID Baris untuk Backend
         document.getElementById('editRowNumber').value = item[item.length - 1];
 
-        // Isi form lainnya sesuai sertifikat yang dipilih
         document.getElementById('inputJenjang').value = item[6]; 
         document.getElementById('inputAsosiasi').value = item[7]; 
         document.getElementById('inputKeterangan').value = item[11] || "";
@@ -1377,7 +1378,6 @@
     async function submitForm() {
       const form = document.getElementById('formInputData'); 
       
-      // Manual check karena hidden required field bisa bikin bug browser validation
       if (!document.getElementById('inputNama').value || !document.getElementById('inputPerusahaan').value) {
           form.reportValidity(); return;
       }
@@ -1385,7 +1385,6 @@
       const isEditMode = document.getElementById('selectSertifikatEdit').style.display === 'block';
       let sertifikatVal = "";
 
-      // Ambil nilai Sertifikat tergantung mode
       if (isEditMode) {
           const sel = document.getElementById('selectSertifikatEdit');
           if(sel.selectedIndex === -1) { Swal.fire('Error', 'Pilih sertifikat', 'error'); return; }
@@ -1399,7 +1398,6 @@
       let editRowNumber = document.getElementById('editRowNumber').value; 
       if (!editRowNumber) editRowNumber = "";
 
-      // Validasi Duplikat
       const isDuplicate = dataSKK.some(row => { 
           const rowNama = (row[1] || "").toString().toLowerCase().trim(); 
           const rowSertifikat = (row[5] || "").toString().toLowerCase().trim(); 
@@ -1407,9 +1405,9 @@
           
           if (rowNama === namaInput && rowSertifikat === sertifikatVal) { 
               if (editRowNumber && String(rowID) === String(editRowNumber)) { 
-                  return false; // Ini baris yang sedang diedit, bukan duplikat
+                  return false; 
               } 
-              return true; // Ketemu baris lain dengan nama & sertifikat sama
+              return true; 
           } 
           return false; 
       });
@@ -1431,12 +1429,11 @@
         Swal.fire({ title: 'Konfirmasi Password', text: 'Masukkan password Anda untuk menyimpan:', input: 'password', inputAttributes: { autocapitalize: 'off', placeholder: 'Password' }, showCancelButton: true, confirmButtonText: 'Simpan', confirmButtonColor: '#000080', showLoaderOnConfirm: true, preConfirm: async (password) => { if (!password) { Swal.showValidationMessage('Password wajib diisi!'); } return await hashPassword(password); } }).then(async (result) => {
           if (result.isConfirmed) {
             const passwordHash = result.value;
-            // Gunakan sertifikatVal yang sudah ditentukan logic-nya di atas
             const payload = { 
                 rowNumber: editRowNumber, 
                 nama: document.getElementById('inputNama').value, 
                 perusahaan: document.getElementById('inputPerusahaan').value, 
-                sertifikat: isEditMode ? document.getElementById('selectSertifikatEdit').options[document.getElementById('selectSertifikatEdit').selectedIndex].text : document.getElementById('inputSertifikat').value, // Pastikan kirim format Text asli
+                sertifikat: isEditMode ? document.getElementById('selectSertifikatEdit').options[document.getElementById('selectSertifikatEdit').selectedIndex].text : document.getElementById('inputSertifikat').value, 
                 jenjang: document.getElementById('inputJenjang').value, 
                 asosiasi: document.getElementById('inputAsosiasi').value, 
                 masaBerlaku: document.getElementById('inputMasaBerlaku').value, 
@@ -1463,6 +1460,3 @@
   </script>
 </body>
 </html>
-
-
-
