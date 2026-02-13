@@ -25,21 +25,21 @@
     .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }
     .btn-primary:hover { background-color: #000060; border-color: #000060; }
 
-    /* --- LOADING STATE (DISABLE INTERACTION) --- */
-    /* Saat class ini ada di body, semua elemen dashboard tidak bisa diklik */
+    /* --- LOADING STATE (TRANSPARENT LOCK) --- */
+    /* Saat class ini aktif:
+       1. Dashboard terlihat NORMAL (tidak redup, tidak tertutup overlay).
+       2. Skeleton Loading akan terlihat jelas.
+       3. TAPI user tidak bisa klik apapun (pointer-events: none).
+    */
     body.data-loading #dashboard-section {
-        pointer-events: none !important; /* Mematikan klik mouse & sentuhan jari */
-        user-select: none; /* Mencegah seleksi teks */
-        opacity: 0.6; /* Membuat dashboard terlihat redup */
-        filter: grayscale(30%); /* Opsional: Sedikit abu-abu */
-        transition: all 0.3s ease;
+        pointer-events: none !important; /* ANTI-CRASH: Mematikan semua interaksi */
+        user-select: none; 
+        cursor: wait; /* Indikator kursor loading di desktop */
     }
     
-    /* Overlay tetap muncul di atas dashboard yang redup */
+    /* Pastikan overlay hilang saat safe loading state aktif */
     body.data-loading #loading-overlay {
-        pointer-events: auto !important; 
-        background: rgba(255, 255, 255, 0.5); /* Background transparan agar dashboard terlihat di belakang */
-        backdrop-filter: blur(2px);
+        display: none !important;
     }
 
     /* --- LOGIN PAGE ANIMATIONS --- */
@@ -773,18 +773,12 @@
     let filterStatusTugas = 'all'; // all, active
     let filterStatusProject = 'all'; // all, expired, done
 
-    // Fungsi untuk Mengaktifkan/Mematikan Mode Loading (Blocking Interaction)
+    // Fungsi HANYA untuk Mengunci/Membuka Klik (Tanpa Visual Overlay)
     function toggleLoadingState(isLoading) {
-        const overlay = document.getElementById('loading-overlay');
-        const loadingText = document.getElementById('loading-text');
-
         if (isLoading) {
-            document.body.classList.add('data-loading'); // Tambah class CSS (blokir klik & redup)
-            overlay.style.display = 'flex'; 
-            if(loadingText) loadingText.innerText = "Sedang Memuat Data...";
+            document.body.classList.add('data-loading'); // Kunci Klik
         } else {
-            document.body.classList.remove('data-loading'); // Hapus class CSS (buka blokir)
-            overlay.style.display = 'none'; 
+            document.body.classList.remove('data-loading'); // Buka Kunci
         }
     }
 
@@ -852,7 +846,10 @@
         currentUserRole = role; 
         sessionStorage.setItem('userRole', role); 
         
-        // 1. TAMPILKAN DASHBOARD SEGERA (Tapi dalam mode terkunci)
+        // 1. Matikan Overlay Login (Agar Skeleton terlihat)
+        document.getElementById('loading-overlay').style.display = 'none';
+
+        // 2. TAMPILKAN DASHBOARD
         document.getElementById('login-section').style.display = 'none'; 
         document.getElementById('dashboard-section').style.display = 'block'; 
         document.body.classList.remove('login-mode'); 
@@ -862,10 +859,10 @@
         applyRoleAccess(currentUserRole); 
         updateGreeting(currentUserRole); 
         
-        // 2. AKTIFKAN MODE LOADING (Dashboard terlihat, tapi tidak bisa diklik)
+        // 3. AKTIFKAN PENGUNCI KLIK (Safe State)
         toggleLoadingState(true);
         
-        // 3. Mulai ambil data
+        // 4. Mulai ambil data
         loadAllData(); 
     }
 
