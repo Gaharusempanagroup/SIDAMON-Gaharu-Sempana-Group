@@ -329,7 +329,8 @@
             width: 0%;
             background: #fff;
             border-radius: 4px;
-            animation: loadProgress 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            /* DURASI ANIMASI DIPERLAMBAT JADI 3.5s */
+            animation: loadProgress 3.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
 
         /* Keyframes khusus Splash */
@@ -880,7 +881,7 @@
     window.addEventListener('DOMContentLoaded', () => {
         // --- LOGIC SPLASH SCREEN (MOBILE APP FEEL) ---
         // Animasi ini hanya aktif di mobile (sesuai CSS @media)
-        // Kita set waktu 2.5 detik agar terlihat premium
+        // Kita set waktu 4 detik (DIPERPANJANG) agar terlihat premium
         setTimeout(() => {
             const splash = document.getElementById('mobile-splash-screen');
             if(splash) {
@@ -888,7 +889,7 @@
                 // Hapus/sembunyikan dari DOM setelah transisi selesai
                 setTimeout(() => { splash.style.display = 'none'; }, 850); 
             }
-        }, 2500);
+        }, 4000); // <-- UBAH KE 4000 (4 Detik)
 
         const storedRole = sessionStorage.getItem('userRole');
         if (storedRole) { loginSuccess(storedRole, false); }
