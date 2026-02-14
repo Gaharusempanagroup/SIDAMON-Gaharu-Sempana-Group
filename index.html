@@ -26,18 +26,12 @@
     .btn-primary:hover { background-color: #000060; border-color: #000060; }
 
     /* --- SAFE LOADING STATE (TRANSPARENT LOCK) --- */
-    /* Saat class 'data-loading' aktif:
-       1. Dashboard terlihat NORMAL (Jelas, tidak redup).
-       2. Skeleton Loading terlihat.
-       3. User TIDAK BISA klik apapun (Anti-Crash).
-    */
     body.data-loading #dashboard-section {
-        pointer-events: none !important; /* KUNCI UTAMA: Mematikan interaksi */
+        pointer-events: none !important;
         user-select: none; 
         cursor: wait; 
     }
     
-    /* Sembunyikan overlay loading agar Skeleton terlihat jelas */
     body.data-loading #loading-overlay {
         display: none !important;
     }
@@ -252,6 +246,99 @@
     .btn-fab { width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 24px; display: flex; align-items: center; justify-content: center; background-color: var(--primary-color); color: white; border: none; transition: transform 0.2s; }
     .btn-fab:active { transform: scale(0.95); }
 
+    /* --- SPLASH SCREEN STYLES (APP FEEL) - MOBILE ONLY --- */
+    #mobile-splash-screen {
+        display: none; /* Desktop default: HIDDEN */
+    }
+
+    /* Media Query Khusus Mobile: Aktifkan Splash Screen */
+    @media (max-width: 768px) {
+        #mobile-splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100000; /* Paling atas */
+            background: linear-gradient(-45deg, #000428, #004e92, #000080);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            display: flex; /* Aktifkan FLEX */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
+        }
+
+        #mobile-splash-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .splash-logo-container {
+            position: relative;
+            margin-bottom: 20px;
+            animation: splashEnter 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .splash-logo-img {
+            width: 100px;
+            height: auto;
+            filter: drop-shadow(0 0 15px rgba(255,255,255,0.4));
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+
+        .splash-text {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            margin-bottom: 5px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out 0.3s forwards;
+        }
+
+        .splash-sub {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out 0.5s forwards;
+        }
+
+        /* Fake Loading Bar */
+        .splash-loader {
+            width: 150px;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 0.8s forwards;
+        }
+
+        .splash-loader::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background: #fff;
+            border-radius: 4px;
+            animation: loadProgress 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        /* Keyframes khusus Splash */
+        @keyframes splashEnter { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes pulseGlow { 0%, 100% { filter: drop-shadow(0 0 15px rgba(255,255,255,0.4)); transform: scale(1); } 50% { filter: drop-shadow(0 0 25px rgba(255,255,255,0.8)); transform: scale(1.05); } }
+        @keyframes loadProgress { 0% { width: 0%; } 40% { width: 70%; } 100% { width: 100%; } }
+    }
+
+
     /* --- RESPONSIVE STYLE (UPDATED FOR CARD VIEW) --- */
     @media (max-width: 768px) {
       .navbar .container-fluid { padding-left: 15px; padding-right: 15px; }
@@ -357,7 +444,7 @@
           font-size: 13px !important;
           padding-top: 1.6rem !important;
           padding-bottom: 0 !important;   
-          min-height: 55px !important;    
+          min-height: 55px !important;     
           display: flex;
           align-items: center;
       }
@@ -368,6 +455,14 @@
 </head>
 <body class="login-mode">
 
+  <div id="mobile-splash-screen">
+    <div class="splash-logo-container">
+      <img src="IMG_0992.PNG" alt="Logo" class="splash-logo-img">
+    </div>
+    <div class="splash-text">SIDAMON</div>
+    <div class="splash-sub">Gaharu Sempana Group</div>
+    <div class="splash-loader"></div>
+  </div>
   <div id="gantt-tooltip" class="custom-tooltip"></div>
 
   <div class="fab-container" id="fabAddData">
@@ -673,23 +768,23 @@
             </div>
             <div class="row g-2">
                 <div class="col-6">
-                   <div class="modern-input-group">
-                     <i class="bi bi-people input-icon"></i>
-                     <div class="form-floating">
-                       <input type="text" class="form-control" id="inputAsosiasi" placeholder="Asosiasi">
-                       <label for="inputAsosiasi">Asosiasi</label>
-                     </div>
-                   </div>
-                </div>
-                <div class="col-6">
-                   <div class="modern-input-group">
-                     <i class="bi bi-calendar-date input-icon"></i>
-                     <div class="form-floating">
-                       <input type="date" class="form-control" id="inputMasaBerlaku" required>
-                       <label for="inputMasaBerlaku">Berlaku Sampai</label>
-                     </div>
-                   </div>
-                </div>
+                    <div class="modern-input-group">
+                      <i class="bi bi-people input-icon"></i>
+                      <div class="form-floating">
+                        <input type="text" class="form-control" id="inputAsosiasi" placeholder="Asosiasi">
+                        <label for="inputAsosiasi">Asosiasi</label>
+                      </div>
+                    </div>
+                 </div>
+                 <div class="col-6">
+                    <div class="modern-input-group">
+                      <i class="bi bi-calendar-date input-icon"></i>
+                      <div class="form-floating">
+                        <input type="date" class="form-control" id="inputMasaBerlaku" required>
+                        <label for="inputMasaBerlaku">Berlaku Sampai</label>
+                      </div>
+                    </div>
+                 </div>
             </div>
             <div class="modern-input-group align-items-start pt-2">
               <i class="bi bi-chat-text input-icon mt-3"></i>
@@ -783,6 +878,18 @@
     try { google.charts.load('current', {'packages':['gantt']}); } catch(e){}
 
     window.addEventListener('DOMContentLoaded', () => {
+        // --- LOGIC SPLASH SCREEN (MOBILE APP FEEL) ---
+        // Animasi ini hanya aktif di mobile (sesuai CSS @media)
+        // Kita set waktu 2.5 detik agar terlihat premium
+        setTimeout(() => {
+            const splash = document.getElementById('mobile-splash-screen');
+            if(splash) {
+                splash.classList.add('hidden'); // Trigger CSS opacity 0
+                // Hapus/sembunyikan dari DOM setelah transisi selesai
+                setTimeout(() => { splash.style.display = 'none'; }, 850); 
+            }
+        }, 2500);
+
         const storedRole = sessionStorage.getItem('userRole');
         if (storedRole) { loginSuccess(storedRole, false); }
         
@@ -1355,7 +1462,7 @@
         document.getElementById('inputNama').readOnly = false;
         document.getElementById('inputPerusahaan').readOnly = false;
         
-        document.getElementById('inputSertifikat').style.display = 'block';       
+        document.getElementById('inputSertifikat').style.display = 'block';        
         document.getElementById('inputSertifikat').required = true;
         document.getElementById('selectSertifikatEdit').style.display = 'none'; 
         document.getElementById('selectSertifikatEdit').required = false;
