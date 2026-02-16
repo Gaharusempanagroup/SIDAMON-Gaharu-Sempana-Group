@@ -177,7 +177,7 @@
     .search-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #aaa; z-index: 5; font-size: 1.1rem; }
     
     /* =======================================================
-       MODIFIED TABLE & CARD VIEW STYLES (FLOATING TABLE)
+       MODIFIED TABLE & CARD VIEW STYLES
        ======================================================= */
     
     .table-card { 
@@ -191,7 +191,7 @@
     /* 1. Atur tabel agar support floating row */
     .table {
         border-collapse: separate !important; 
-        border-spacing: 0 8px !important; /* Jarak vertikal antar baris */
+        border-spacing: 0 8px !important; 
     }
 
     /* 2. Reset style cell tabel bawaan */
@@ -201,18 +201,23 @@
         background-color: transparent;
     }
 
-    /* 3. Header Tabel: Bersih dan Transparan */
+    /* 3. Header Tabel: Distinct & Readable (DIPERBAIKI) */
     .table thead th { 
-        background-color: transparent !important; 
-        color: #64748b; /* Warna teks agak soft */
-        font-weight: 600; 
-        font-size: 0.75rem;
+        background-color: #eef2f7 !important; /* Background abu-muda */
+        color: #34495e !important;            /* Teks gelap (Dark Blue-Grey) */
+        font-weight: 700 !important;          /* Font Tebal */
+        font-size: 0.8rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
         vertical-align: middle; 
-        border-bottom: none;
-        padding-bottom: 10px;
+        border-bottom: 2px solid #cbd5e1 !important; /* Garis Pemisah Bawah */
+        padding: 15px 10px; 
+        white-space: nowrap; 
     }
+
+    /* Membuat Header tumpul (Rounded) di ujung kiri & kanan */
+    .table thead th:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+    .table thead th:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
 
     /* 4. Style Baris (Floating Row) */
     .table tbody tr {
@@ -249,10 +254,6 @@
         border-bottom-right-radius: 12px; 
     }
     
-    /* =======================================================
-       END MODIFIED TABLE STYLES
-       ======================================================= */
-
     .badge-status { padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; white-space: normal; text-align: left; display: inline-block; }
     .status-expired { background-color: #ffe5e5; color: #cc0000; border: 1px solid #ffcccc; }
     .status-active { background-color: #e5ffe5; color: #007700; border: 1px solid #ccffcc; }
