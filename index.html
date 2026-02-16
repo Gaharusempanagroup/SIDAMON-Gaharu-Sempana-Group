@@ -91,18 +91,20 @@
     .mobile-menu-item i { font-size: 1.2rem; color: var(--primary-color); }
     
     /* =======================================================
-       1. MODIFIED MENU: iOS SEGMENTED CONTROL
+       IMPROVED MENU STYLE (CENTERED & SMOOTH)
        ======================================================= */
     .nav-pills { 
         background-color: #e2e8f0; /* Track color */
         padding: 5px; 
         border-radius: 50px; 
-        display: inline-flex; /* Agar posisi di tengah */
+        
+        /* Centering Fix */
+        display: flex;
         justify-content: center;
-        gap: 0;
+        width: fit-content; 
+        margin: 0 auto 30px auto !important; /* Center horizontally */
+        
         border: none;
-        width: auto;
-        margin-bottom: 25px !important;
         box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
     }
     
@@ -110,31 +112,43 @@
     
     .nav-pills .nav-link { 
         border-radius: 50px; 
-        padding: 8px 25px; 
+        padding: 10px 30px; 
         font-weight: 500; 
-        color: #64748b; /* Text muted */
+        color: #64748b; 
         background: transparent; 
         border: none; 
-        transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); /* Animasi smooth */
+        /* Smooth Transition */
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         box-shadow: none;
         white-space: nowrap;
     }
     
-    /* Active State: Putih melayang (Floating) */
+    /* Active State: Floating effect */
     .nav-pills .nav-link.active { 
         background-color: #ffffff; 
         color: var(--primary-color); 
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
         font-weight: 700;
-        transform: scale(1.02); /* Sedikit membesar */
+        transform: scale(1.03); 
     }
     
     .nav-pills .nav-link:hover:not(.active) { 
         color: var(--text-dark); 
-        background-color: rgba(255,255,255,0.5);
-        transform: none;
+        background-color: rgba(255,255,255,0.6);
+        transform: scale(1.01);
     }
     
+    /* Content Animation (Smooth Switch) */
+    .view-section {
+        /* This ensures when display block is toggled, it animates */
+        animation: fadeInUpContent 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    @keyframes fadeInUpContent {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
     .btn:active { transform: scale(0.95) !important; background-color: #f0f0f0; }
     
     .sub-nav .btn { border-radius: 20px; font-size: 0.85rem; font-weight: 600; padding: 6px 15px; border: 1px solid #ddd; background: white; color: #555; transition: all 0.2s ease; touch-action: manipulation; }
@@ -465,7 +479,8 @@
       .nav-pills { 
           display: flex; 
           flex-direction: column; /* Menumpuk vertikal */
-          width: 100%;
+          width: 100% !important; /* Force width full on mobile */
+          margin: 0 0 20px 0 !important;
           border-radius: 16px;
           padding: 6px;
       }
@@ -574,7 +589,7 @@
           font-size: 13px !important;
           padding-top: 1.6rem !important;
           padding-bottom: 0 !important;   
-          min-height: 55px !important;     
+          min-height: 55px !important;      
           display: flex;
           align-items: center;
       }
@@ -1564,11 +1579,33 @@
     window.moveTooltip = function(e) { const x = e.clientX; const y = e.clientY; const tWidth = tooltip.offsetWidth; const winWidth = window.innerWidth; let leftPos = x + 15; if (leftPos + tWidth > winWidth - 20) { leftPos = x - tWidth - 10; } tooltip.style.top = (y + 15) + 'px'; tooltip.style.left = leftPos + 'px'; }
     window.hideTooltip = function() { tooltip.style.display = 'none'; }
 
+    // --- REVISED: SWITCH VIEW WITH SMOOTH ANIMATION ---
     window.switchView = function(viewName) {
+      // 1. Handle Active Class pada Tombol (UI)
       document.querySelectorAll('#pills-tab .nav-link').forEach(btn => btn.classList.remove('active'));
-      let navId = ''; if(viewName === 'skk') navId = 'nav-skk'; else if(viewName === 'penugasan') navId = 'nav-penugasan'; else if(viewName === 'project') navId = 'nav-project';
-      const navEl = document.getElementById(navId); if(navEl) navEl.querySelector('button').classList.add('active');
-      document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none'); document.getElementById('view-'+viewName).style.display = 'block';
+      
+      let navId = ''; 
+      if(viewName === 'skk') navId = 'nav-skk'; 
+      else if(viewName === 'penugasan') navId = 'nav-penugasan'; 
+      else if(viewName === 'project') navId = 'nav-project';
+      
+      const navEl = document.getElementById(navId); 
+      if(navEl) navEl.querySelector('button').classList.add('active');
+
+      // 2. Handle Perpindahan Konten dengan Reset Animasi
+      const allViews = document.querySelectorAll('.view-section');
+      allViews.forEach(el => {
+          el.style.display = 'none';
+          el.classList.remove('active-view-anim'); 
+      });
+
+      const targetView = document.getElementById('view-'+viewName);
+      if(targetView) {
+          targetView.style.display = 'block';
+          // Trigger Reflow (Browser membaca ulang render)
+          void targetView.offsetWidth; 
+          // Animasi CSS dijalankan otomatis karena display berubah dari none ke block
+      }
       
       const fab = document.getElementById('fabAddData');
       if (fab) {
