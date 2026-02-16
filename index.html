@@ -14,12 +14,11 @@
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   
   <style>
-    /* --- GLOBAL VARIABLES --- */
+    /* --- ORIGINAL GLOBAL VARIABLES --- */
     :root { 
         --primary-color: #000080; 
-        --bg-light: #f4f6f9; 
+        --bg-light: #f4f6f9; /* Kembali ke warna asli */
         --text-dark: #333; 
-        --nav-bg: #e2e8f0; /* Background untuk Segmented Control */
     }
     
     html, body { height: 100%; margin: 0; padding: 0; }
@@ -34,7 +33,7 @@
     body.data-loading #dashboard-section { pointer-events: none !important; user-select: none; cursor: wait; }
     body.data-loading #loading-overlay { display: none !important; }
 
-    /* --- LOGIN STYLES --- */
+    /* --- LOGIN STYLES (ORIGINAL) --- */
     #login-section { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(-45deg, #000428, #004e92, #000080, #1cb5e0); background-size: 400% 400%; animation: gradientBG 15s ease infinite; z-index: 9999; padding: 20px; }
     @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     .login-card { width: 100%; max-width: 420px; padding: 40px; border-radius: 20px; background: rgba(255, 255, 255, 0.15); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.18); text-align: center; animation: fadeInUp 0.8s ease-out; }
@@ -44,38 +43,33 @@
     .login-title { color: #ffffff; font-weight: 700; margin-bottom: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
     .login-subtitle { color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; margin-bottom: 30px; font-weight: 300; }
     .login-footer { position: absolute; bottom: 20px; left: 0; width: 100%; text-align: center; color: rgba(255, 255, 255, 0.5); font-size: 0.75rem; }
-    
     .form-floating > .form-control { border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.6); height: 55px; background: rgba(255, 255, 255, 0.25); color: #fff; }
     .form-floating > .form-control:focus { border-color: #fff; background: rgba(255, 255, 255, 0.35); outline: none; }
     .form-floating > label { color: rgba(255, 255, 255, 0.9); }
-    
     .btn-login { background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05)); border: 1px solid rgba(255, 255, 255, 0.6); color: white; height: 55px; border-radius: 50px; font-weight: 600; letter-spacing: 2px; transition: all 0.4s ease; width: 100%; }
     .btn-login:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.25); border-color: #ffffff; }
-    
     #login-alert { display: none; margin-top: 15px; padding: 12px; border-radius: 15px; background: rgba(220, 53, 69, 0.15); border: 1px solid rgba(220, 53, 69, 0.4); color: #ffcccc; font-size: 0.85rem; align-items: center; justify-content: center; gap: 10px; animation: slideDownFade 0.4s; }
     @keyframes slideDownFade { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
 
-    /* --- DASHBOARD & NAV --- */
+    /* --- DASHBOARD STYLES --- */
     #dashboard-section { display: none; padding-bottom: 50px; }
     .logo-wrapper img { height: 50px; width: auto; }
     .greeting-wrapper { padding: 6px 0; margin-left: 15px; cursor: default; }
     
     /* =======================================================
-       IOS SEGMENTED CONTROL MENU (CENTERED + SMOOTH)
+       1. MENU GAYA IOS (Center, Smooth, Mobile Stack)
        ======================================================= */
-    
     .nav-pills {
-        background-color: var(--nav-bg); /* Abu-abu wadah */
+        background-color: #e2e8f0; /* Warna track abu-abu */
         padding: 5px;
-        border-radius: 50px; /* Bentuk kapsul penuh */
-        display: inline-flex; /* Agar wadah menyesuaikan isi dan bisa ditengah */
-        justify-content: center;
-        gap: 0; /* Rapat */
+        border-radius: 50px; /* Full Rounded */
+        display: inline-flex;
+        justify-content: center; /* Tetap di tengah */
+        gap: 0;
         border: none;
         margin-bottom: 25px !important;
         position: relative;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
     }
 
     .nav-pills .nav-item {
@@ -84,23 +78,22 @@
 
     .nav-pills .nav-link {
         border-radius: 50px;
-        color: #64748b; /* Warna teks tidak aktif (muted) */
+        color: #64748b; /* Text Muted */
         font-weight: 500;
         padding: 10px 28px;
         border: none;
         background: transparent;
-        box-shadow: none;
-        transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); /* Animasi sangat halus */
+        transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); /* Animasi Super Smooth */
         white-space: nowrap;
     }
 
-    /* State Aktif: Putih melayang (Floating) */
+    /* Active State: Putih Melayang */
     .nav-pills .nav-link.active {
         background-color: #ffffff;
         color: var(--primary-color);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.12); /* Shadow lembut */
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         font-weight: 700;
-        transform: scale(1.02); /* Sedikit membesar */
+        transform: scale(1.02);
     }
 
     .nav-pills .nav-link:hover:not(.active) {
@@ -108,7 +101,52 @@
         background-color: rgba(255,255,255,0.5);
     }
 
-    /* --- STATS CARDS --- */
+    /* =======================================================
+       2. FLOATING TABLE (Tanpa mengubah warna asli card)
+       ======================================================= */
+    .table-card { 
+        background: white; 
+        border-radius: 12px; 
+        padding: 20px; 
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* Shadow tipis original */
+        border: none; 
+    }
+
+    .table { border-collapse: separate !important; border-spacing: 0 8px !important; }
+    .table>:not(caption)>*>* { border-bottom-width: 0; box-shadow: none; background-color: transparent; }
+    
+    .table thead th { 
+        background-color: transparent !important; 
+        color: #64748b; 
+        font-weight: 600; 
+        font-size: 0.75rem; 
+        text-transform: uppercase; 
+        letter-spacing: 1px; 
+        border-bottom: none; 
+        padding-bottom: 10px; 
+    }
+
+    /* Baris Tabel Mengambang */
+    .table tbody tr {
+        background-color: #ffffff;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        border-radius: 12px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    /* Hover Effect */
+    .table tbody tr:hover {
+        transform: scale(1.005);
+        box-shadow: 0 10px 30px -10px rgba(0,0,128,0.08);
+        z-index: 5;
+        position: relative;
+    }
+
+    .table tbody td { border: none; vertical-align: middle; padding-top: 15px; padding-bottom: 15px; }
+    .table tbody tr td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; padding-left: 15px; }
+    .table tbody tr td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+
+    /* --- ORIGINAL UTILITIES --- */
     .stat-card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.07); transition: transform 0.3s ease; color: white; overflow: hidden; height: 100%; position: relative; }
     .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important; }
     .stat-value { font-size: 2.5rem; font-weight: 700; }
@@ -127,19 +165,6 @@
     .sub-nav .btn { border-radius: 20px; font-size: 0.85rem; font-weight: 600; padding: 6px 15px; border: 1px solid #ddd; background: white; color: #555; }
     .sub-nav .btn.active { background-color: #000080; color: white; border-color: #000080; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
 
-    /* =======================================================
-       FLOATING TABLE STYLES
-       ======================================================= */
-    .table-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: none; }
-    .table { border-collapse: separate !important; border-spacing: 0 8px !important; }
-    .table>:not(caption)>*>* { border-bottom-width: 0; box-shadow: none; background-color: transparent; }
-    .table thead th { background-color: transparent !important; color: #64748b; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: none; padding-bottom: 10px; }
-    .table tbody tr { background-color: #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border-radius: 12px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-    .table tbody tr:hover { transform: scale(1.005); box-shadow: 0 10px 40px -10px rgba(0,0,128,0.08); z-index: 5; position: relative; }
-    .table tbody td { border: none; vertical-align: middle; padding-top: 15px; padding-bottom: 15px; }
-    .table tbody tr td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; padding-left: 15px; }
-    .table tbody tr td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
-
     .badge-status { padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; white-space: normal; display: inline-block; }
     .status-expired { background-color: #ffe5e5; color: #cc0000; border: 1px solid #ffcccc; }
     .status-active { background-color: #e5ffe5; color: #007700; border: 1px solid #ccffcc; }
@@ -149,10 +174,7 @@
     .nested-cell { display: flex; align-items: center; min-height: 45px; border-bottom: 1px solid #f5f5f5; padding: 6px 0; }
     .nested-cell:last-child { border-bottom: none; }
 
-    /* --- VISUAL EMPTY STATE --- */
-    .empty-state-icon { font-size: 4rem; display: block; margin: 0 auto; }
-
-    /* Gantt Chart & Modal Styles Omitted for Brevity (Standard) */
+    /* Gantt & Others */
     .custom-gantt-wrapper { overflow-x: auto; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; }
     .modal-content { border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
     .modern-input-group { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 5px 5px 5px 15px; display: flex; align-items: center; margin-bottom: 15px; }
@@ -166,22 +188,22 @@
       .navbar .container-fluid { padding-left: 15px; padding-right: 15px; }
       .greeting-wrapper { display: none !important; }
       
-      /* MOBILE MENU: STACKED & NO SCROLL */
+      /* 3. MENU MOBILE: STACKING & NO SCROLL (Gaya iOS Card) */
       .nav-pills { 
           display: flex; 
-          flex-direction: column; /* Menumpuk ke bawah */
+          flex-direction: column; /* Menumpuk vertikal */
           width: 100%;
-          border-radius: 20px;
+          border-radius: 16px;
           padding: 6px;
       }
-      .nav-pills .nav-item { width: 100%; margin-bottom: 2px; }
+      .nav-pills .nav-item { width: 100%; margin-bottom: 4px; }
       .nav-pills .nav-link { 
           width: 100%; 
           text-align: center; 
           padding: 12px 0; 
-          border-radius: 15px; 
+          border-radius: 12px; 
       }
-      .nav-pills .nav-link.active { transform: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+      .nav-pills .nav-link.active { transform: none; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 
       /* Table Card View */
       .table thead { display: none; }
@@ -194,10 +216,8 @@
       #btnAddDataContainer { display: none !important; }
       .fab-container.show-fab { display: block !important; }
       
-      /* Mobile Floating Edit */
       .mobile-floating-edit { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; background: #fff; color: var(--primary-color); border: 1px solid #e0e0e0; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 5; }
       
-      /* Labels */
       .mobile-card-label { font-size: 0.7rem; color: #888; text-transform: uppercase; font-weight: 600; margin-bottom: 3px; }
       .mobile-detail-group { background-color: #f8f9fa; border-radius: 8px; padding: 12px; margin-top: 10px; border-left: 3px solid var(--primary-color); }
       .mobile-detail-item { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #e0e0e0; }
