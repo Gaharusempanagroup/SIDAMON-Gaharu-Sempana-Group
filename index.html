@@ -125,7 +125,7 @@
        ======================================================= */
     
     .table-card { 
-        background: white; /* Tetap background putih */
+        background: white; 
         border-radius: 12px; 
         padding: 20px; 
         box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
@@ -186,7 +186,7 @@
     .table tbody tr td:first-child { 
         border-top-left-radius: 12px; 
         border-bottom-left-radius: 12px; 
-        padding-left: 15px; /* Tambahan padding kiri */
+        padding-left: 15px; 
     }
     .table tbody tr td:last-child { 
         border-top-right-radius: 12px; 
@@ -700,21 +700,47 @@
             </div>
         </div>
         <div class="table-card">
-          <div class="row gy-3 align-items-center mb-4">
-            <div class="col-12 col-xl-auto">
+          <div class="row gy-2 gx-3 align-items-center mb-4">
+            <div class="col-12 col-lg-auto">
                <div class="sub-nav btn-group w-100" role="group">
                   <button type="button" class="btn active" onclick="switchTugasSubView('table')" id="btn-tugas-table"><i class="bi bi-table me-1"></i>Tabel</button>
-                  <button type="button" class="btn" onclick="switchTugasSubView('gantt')" id="btn-tugas-gantt"><i class="bi bi-bar-chart-steps me-1"></i>Timeline Penugasan</button>
+                  <button type="button" class="btn" onclick="switchTugasSubView('gantt')" id="btn-tugas-gantt"><i class="bi bi-bar-chart-steps me-1"></i>Timeline</button>
                </div>
             </div>
-            <div class="col-12 col-xl-auto d-flex flex-wrap align-items-center gap-2" id="tugasFilterContainer" style="display:none !important;">
-                <div class="input-group input-group-sm flex-nowrap w-auto flex-grow-1" style="min-width: 140px;"><span class="input-group-text bg-light border-end-0 text-muted">Dari</span><input type="date" id="filterTugasStart" class="form-control border-start-0"></div>
-                <div class="input-group input-group-sm flex-nowrap w-auto flex-grow-1" style="min-width: 140px;"><span class="input-group-text bg-light border-end-0 text-muted">Sampai</span><input type="date" id="filterTugasEnd" class="form-control border-start-0"></div>
-                <div class="d-flex gap-2 w-100 w-xl-auto"><button class="btn btn-sm btn-primary rounded-pill px-3 flex-grow-1 flex-xl-grow-0" onclick="applyTugasDateFilter()">Filter</button><button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="resetTugasDateFilter()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button></div>
+
+            <div class="col-12 col-lg-auto" id="tugasFilterContainer" style="display:none !important;">
+                <div class="d-flex flex-wrap flex-lg-nowrap align-items-center gap-2 w-100">
+                    <div class="input-group input-group-sm flex-nowrap" style="min-width: 130px;">
+                        <span class="input-group-text bg-light border-end-0 text-muted">Dari</span>
+                        <input type="date" id="filterTugasStart" class="form-control border-start-0">
+                    </div>
+                    <div class="input-group input-group-sm flex-nowrap" style="min-width: 130px;">
+                        <span class="input-group-text bg-light border-end-0 text-muted">Sampai</span>
+                        <input type="date" id="filterTugasEnd" class="form-control border-start-0">
+                    </div>
+                    <div class="d-flex gap-1">
+                        <button class="btn btn-sm btn-primary px-3" onclick="applyTugasDateFilter()">Filter</button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="resetTugasDateFilter()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button>
+                    </div>
+                </div>
             </div>
-            <div class="col-12 col-xl ms-xl-auto" id="tugasSearchContainer"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchTugas" class="form-control search-input" placeholder="Cari Nama Personil, Nama Paket Pekerjaan..."></div></div>
-            <div class="col-12 col-xl ms-xl-auto" id="tugasGanttSearchContainer" style="display: none;"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchTugasGantt" class="form-control search-input" placeholder="Cari Nama Personil, Nama Pekerjaan..."></div></div>
+
+            <div class="col-12 col-lg ms-lg-auto">
+                <div id="tugasSearchContainer">
+                    <div class="position-relative w-100">
+                        <i class="bi bi-search search-icon"></i>
+                        <input type="text" id="searchTugas" class="form-control search-input" placeholder="Cari Nama Personil, Nama Paket Pekerjaan...">
+                    </div>
+                </div>
+                <div id="tugasGanttSearchContainer" style="display: none;">
+                    <div class="position-relative w-100">
+                        <i class="bi bi-search search-icon"></i>
+                        <input type="text" id="searchTugasGantt" class="form-control search-input" placeholder="Cari Nama Personil, Nama Pekerjaan...">
+                    </div>
+                </div>
+            </div>
           </div>
+
           <div id="subview-tugas-table">
             <div class="table-responsive">
               <table class="table table-hover align-middle">
@@ -753,22 +779,48 @@
             </div>
         </div>
         <div class="table-card">
-          <div class="row gy-3 align-items-center mb-4">
-            <div class="col-12 col-xl-auto">
+          <div class="row gy-2 gx-3 align-items-center mb-4">
+            <div class="col-12 col-lg-auto">
                <div class="sub-nav btn-group w-100" role="group">
                   <button type="button" class="btn active" onclick="switchSubView('table')" id="btn-sub-table"><i class="bi bi-table me-1"></i>Tabel</button>
                   <button type="button" class="btn" onclick="switchSubView('gantt-kontrak')" id="btn-sub-kontrak"><i class="bi bi-bar-chart-steps me-1"></i>Timeline Kontrak</button>
                   <button type="button" class="btn" onclick="switchSubView('gantt-schedule')" id="btn-sub-schedule"><i class="bi bi-bar-chart-steps me-1"></i>Timeline Schedule</button>
                </div>
             </div>
-            <div class="col-12 col-xl-auto d-flex flex-wrap align-items-center gap-2" id="dateFilterContainer" style="display:none !important;">
-                <div class="input-group input-group-sm flex-nowrap w-auto flex-grow-1" style="min-width: 140px;"><span class="input-group-text bg-light border-end-0 text-muted">Dari</span><input type="date" id="filterStartDate" class="form-control border-start-0"></div>
-                <div class="input-group input-group-sm flex-nowrap w-auto flex-grow-1" style="min-width: 140px;"><span class="input-group-text bg-light border-end-0 text-muted">Sampai</span><input type="date" id="filterEndDate" class="form-control border-start-0"></div>
-                <div class="d-flex gap-2 w-100 w-xl-auto"><button class="btn btn-sm btn-primary rounded-pill px-3 flex-grow-1 flex-xl-grow-0" onclick="applyDateFilter()">Filter</button><button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="resetDateFilter()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button></div>
+
+            <div class="col-12 col-lg-auto" id="dateFilterContainer" style="display:none !important;">
+                <div class="d-flex flex-wrap flex-lg-nowrap align-items-center gap-2 w-100">
+                    <div class="input-group input-group-sm flex-nowrap" style="min-width: 130px;">
+                        <span class="input-group-text bg-light border-end-0 text-muted">Dari</span>
+                        <input type="date" id="filterStartDate" class="form-control border-start-0">
+                    </div>
+                    <div class="input-group input-group-sm flex-nowrap" style="min-width: 130px;">
+                        <span class="input-group-text bg-light border-end-0 text-muted">Sampai</span>
+                        <input type="date" id="filterEndDate" class="form-control border-start-0">
+                    </div>
+                    <div class="d-flex gap-1">
+                        <button class="btn btn-sm btn-primary px-3" onclick="applyDateFilter()">Filter</button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="resetDateFilter()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button>
+                    </div>
+                </div>
             </div>
-            <div class="col-12 col-xl ms-xl-auto" id="searchProjectContainer"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchProject" class="form-control search-input" placeholder="Cari Nama Pekerjaan, Nama Kordinator..."></div></div>
-            <div class="col-12 col-xl ms-xl-auto" id="projectGanttSearchContainer" style="display: none;"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchProjectGantt" class="form-control search-input" placeholder="Cari Nama Pekerjaan..."></div></div>
+
+            <div class="col-12 col-lg ms-lg-auto">
+                <div id="searchProjectContainer">
+                    <div class="position-relative w-100">
+                        <i class="bi bi-search search-icon"></i>
+                        <input type="text" id="searchProject" class="form-control search-input" placeholder="Cari Nama Pekerjaan, Nama Kordinator...">
+                    </div>
+                </div>
+                <div id="projectGanttSearchContainer" style="display: none;">
+                    <div class="position-relative w-100">
+                        <i class="bi bi-search search-icon"></i>
+                        <input type="text" id="searchProjectGantt" class="form-control search-input" placeholder="Cari Nama Pekerjaan...">
+                    </div>
+                </div>
+            </div>
           </div>
+
           <div id="subview-table">
             <div class="table-responsive">
               <table class="table table-hover align-middle" style="font-size: 0.9rem;">
