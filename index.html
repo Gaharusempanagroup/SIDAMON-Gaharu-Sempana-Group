@@ -25,84 +25,46 @@
     .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }
     .btn-primary:hover { background-color: #000060; border-color: #000060; }
 
-    /* --- SAFE LOADING STATE (TRANSPARENT LOCK) --- */
-    body.data-loading #dashboard-section {
-        pointer-events: none !important;
-        user-select: none; 
-        cursor: wait; 
-    }
-    
-    body.data-loading #loading-overlay {
-        display: none !important;
-    }
+    /* --- SAFE LOADING STATE --- */
+    body.data-loading #dashboard-section { pointer-events: none !important; user-select: none; cursor: wait; }
+    body.data-loading #loading-overlay { display: none !important; }
 
-    /* --- LOGIN PAGE ANIMATIONS --- */
-    #login-section { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; height: 100dvh; display: flex; align-items: center; justify-content: center; background: linear-gradient(-45deg, #000428, #004e92, #000080, #1cb5e0); background-size: 400% 400%; animation: gradientBG 15s ease infinite; overflow: hidden; z-index: 9999; padding: 20px; }
+    /* --- LOGIN PAGE STYLES --- */
+    #login-section { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(-45deg, #000428, #004e92, #000080, #1cb5e0); background-size: 400% 400%; animation: gradientBG 15s ease infinite; z-index: 9999; padding: 20px; }
     @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-    
-    .login-card { width: 100%; max-width: 420px; padding: 40px; border-radius: 20px; background: rgba(255, 255, 255, 0.15); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.18); text-align: center; animation: fadeInUp 0.8s ease-out; position: relative; z-index: 10; }
+    .login-card { width: 100%; max-width: 420px; padding: 40px; border-radius: 20px; background: rgba(255, 255, 255, 0.15); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.18); text-align: center; animation: fadeInUp 0.8s ease-out; }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-    
-    /* Breathing Animation for Logo */
-    @keyframes breathing { 0% { transform: scale(1); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); } 50% { transform: scale(1.08); filter: drop-shadow(0 8px 12px rgba(0,0,0,0.4)); } 100% { transform: scale(1); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); } }
+    @keyframes breathing { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
     .login-logo { height: 90px; margin-bottom: 20px; animation: breathing 3s ease-in-out infinite; }
-    
-    .login-title { color: #ffffff; font-weight: 700; margin-bottom: 5px; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+    .login-title { color: #ffffff; font-weight: 700; margin-bottom: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
     .login-subtitle { color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; margin-bottom: 30px; font-weight: 300; }
-    .login-footer { position: absolute; bottom: 20px; left: 0; width: 100%; text-align: center; color: rgba(255, 255, 255, 0.5); font-size: 0.75rem; z-index: 20; pointer-events: none; letter-spacing: 1px; font-weight: 300; }
-    
-    .form-floating > .form-control { border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.6); height: 55px; background: rgba(255, 255, 255, 0.25); color: #fff; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
-    .form-floating > .form-control:focus { border-color: #fff; background: rgba(255, 255, 255, 0.35); box-shadow: 0 0 15px rgba(255, 255, 255, 0.3); outline: none; }
-    .form-floating > label { color: rgba(255, 255, 255, 0.9); font-weight: 500; }
-    .form-floating > .form-control:focus ~ label, .form-floating > .form-control:not(:placeholder-shown) ~ label { color: rgba(255, 255, 255, 1); font-weight: 600; opacity: 1; }
-    .form-floating > .form-control:focus ~ label::after, .form-floating > .form-control:not(:placeholder-shown) ~ label::after { background-color: transparent !important; }
-    
-    /* Button Animations */
-    .btn-login { background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05)); border: 1px solid rgba(255, 255, 255, 0.6); color: white; height: 55px; border-radius: 50px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); backdrop-filter: blur(5px); transition: all 0.4s ease; position: relative; overflow: hidden; width: 100%; touch-action: manipulation; cursor: pointer; }
-    .btn-login:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.25); border-color: #ffffff; box-shadow: 0 0 25px rgba(255, 255, 255, 0.4); color: white !important; }
-    .btn-login:active { transform: scale(0.96); background: rgba(255, 255, 255, 0.3); }
-    
-    #login-alert { display: none; margin-top: 15px; padding: 12px 20px; border-radius: 15px; background: rgba(220, 53, 69, 0.15); border: 1px solid rgba(220, 53, 69, 0.4); color: #ffcccc; font-size: 0.85rem; font-weight: 500; backdrop-filter: blur(5px); align-items: center; justify-content: center; gap: 10px; animation: slideDownFade 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 15px rgba(220, 53, 69, 0.1); }
+    .login-footer { position: absolute; bottom: 20px; left: 0; width: 100%; text-align: center; color: rgba(255, 255, 255, 0.5); font-size: 0.75rem; }
+    .form-floating > .form-control { border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.6); height: 55px; background: rgba(255, 255, 255, 0.25); color: #fff; }
+    .form-floating > .form-control:focus { border-color: #fff; background: rgba(255, 255, 255, 0.35); outline: none; }
+    .form-floating > label { color: rgba(255, 255, 255, 0.9); }
+    .btn-login { background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05)); border: 1px solid rgba(255, 255, 255, 0.6); color: white; height: 55px; border-radius: 50px; font-weight: 600; letter-spacing: 2px; transition: all 0.4s ease; width: 100%; }
+    .btn-login:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.25); border-color: #ffffff; }
+    #login-alert { display: none; margin-top: 15px; padding: 12px; border-radius: 15px; background: rgba(220, 53, 69, 0.15); border: 1px solid rgba(220, 53, 69, 0.4); color: #ffcccc; font-size: 0.85rem; align-items: center; justify-content: center; gap: 10px; animation: slideDownFade 0.4s; }
     @keyframes slideDownFade { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
 
-    /* --- NAVBAR RESPONSIVE --- */
-    .navbar-toggler { border: none; padding: 0.25rem 0.5rem; }
-    .navbar-toggler:focus { box-shadow: none; outline: none; }
-    .offcanvas-header { background-color: var(--primary-color); color: white; }
-    .offcanvas-body { background-color: var(--bg-light); padding: 20px; }
-    .btn-close-white { filter: invert(1) grayscale(100%) brightness(200%); }
-
     /* --- DASHBOARD STYLES --- */
     #dashboard-section { display: none; padding-bottom: 50px; }
-    
-    .logo-wrapper { margin-right: 15px; display: flex; align-items: center; justify-content: center; }
-
-    @keyframes slideInSmooth { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-    .greeting-wrapper { animation: slideInSmooth 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); padding: 6px 0; margin-left: 15px; border: none !important; border-left: none !important; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); cursor: default; }
-    .greeting-wrapper:hover { background: transparent !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; transform: translateY(-2px); }
-    .greeting-wrapper:hover #greeting-role { text-shadow: 0 0 12px rgba(255, 255, 255, 0.8); }
-
-    #greeting-time i { transition: transform 0.4s ease-in-out, filter 0.4s ease-in-out; display: inline-block; }
-    .greeting-wrapper:hover #greeting-time i { transform: rotate(25deg) scale(1.15); filter: drop-shadow(0 0 8px rgba(255, 233, 120, 0.8)); }
-    
-    .mobile-menu-item { background: white; border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: #333; font-weight: 500; transition: all 0.2s; }
-    .mobile-menu-item:active { transform: scale(0.98); background: #f0f0f0; }
-    .mobile-menu-item i { font-size: 1.2rem; color: var(--primary-color); }
+    .logo-wrapper img { height: 50px; width: auto; }
+    .greeting-wrapper { padding: 6px 0; margin-left: 15px; cursor: default; }
     
     /* =======================================================
-       1. MODIFIED MENU: iOS SEGMENTED CONTROL
+       1. FIXED MENU UI (Center & Smooth Animation)
        ======================================================= */
     .nav-pills { 
-        background-color: #e2e8f0; /* Track color */
+        background-color: #e2e8f0; /* Wadah Abu-abu (Track) */
         padding: 5px; 
         border-radius: 50px; 
-        display: inline-flex; /* Agar posisi di tengah */
-        justify-content: center;
+        display: inline-flex; /* Agar ukuran mengikuti isi */
+        width: fit-content;   /* Kunci agar posisi di tengah */
+        margin: 0 auto 25px auto !important; /* Force Center */
         gap: 0;
         border: none;
-        width: auto;
-        margin-bottom: 25px !important;
         box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
     }
     
@@ -110,48 +72,55 @@
     
     .nav-pills .nav-link { 
         border-radius: 50px; 
-        padding: 8px 25px; 
-        font-weight: 500; 
-        color: #64748b; /* Text muted */
+        padding: 10px 25px; 
+        font-weight: 600; /* Font weight stabil di 600 */
+        color: #64748b; /* Warna teks mati */
         background: transparent; 
         border: none; 
-        transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); /* Animasi smooth */
-        box-shadow: none;
         white-space: nowrap;
+        /* HANYA transisi background dan color agar tidak layout shifting */
+        transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     
-    /* Active State: Putih melayang (Floating) */
+    /* Active State: Putih & Sedikit Membesar */
     .nav-pills .nav-link.active { 
         background-color: #ffffff; 
         color: var(--primary-color); 
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
-        font-weight: 700;
-        transform: scale(1.02); /* Sedikit membesar */
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        transform: scale(1.05); /* Efek pop-up */
     }
     
     .nav-pills .nav-link:hover:not(.active) { 
         color: var(--text-dark); 
         background-color: rgba(255,255,255,0.5);
-        transform: none;
     }
     
-    .btn:active { transform: scale(0.95) !important; background-color: #f0f0f0; }
-    
-    .sub-nav .btn { border-radius: 20px; font-size: 0.85rem; font-weight: 600; padding: 6px 15px; border: 1px solid #ddd; background: white; color: #555; transition: all 0.2s ease; touch-action: manipulation; }
+    /* Tombol Sub-Navigasi (Tabel/Gantt) */
+    .sub-nav .btn { border-radius: 20px; font-size: 0.85rem; font-weight: 600; padding: 6px 15px; border: 1px solid #ddd; background: white; color: #555; transition: all 0.2s ease; }
     .sub-nav .btn.active { background-color: #000080; color: white; border-color: #000080; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
     
-    .stats-wrapper { max-width: 1100px; margin: 0 auto; }
-    .stat-card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.07); transition: transform 0.3s ease, box-shadow 0.3s ease; color: white; overflow: hidden; height: 100%; position: relative; z-index: 1; }
-    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important; }
-    .stat-card i { transition: all 0.5s ease; }
-    .stat-card:hover i { transform: scale(1.2) rotate(10deg); opacity: 0.7 !important; }
-    .stat-value { font-size: 2.5rem; font-weight: 700; line-height: 1; }
-    .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
+    .btn:active { transform: scale(0.95); }
 
-    /* --- STATS FILTER ANIMATION & STYLE --- */
-    .clickable-card { cursor: pointer; position: relative; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
-    .stat-card.active-filter { transform: translateY(-8px) scale(1.02); border: 2px solid rgba(255, 255, 255, 0.8); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3) !important; z-index: 10; }
-    .stat-card.active-filter::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 40px; height: 4px; background-color: rgba(255,255,255,0.8); border-radius: 4px; animation: fadeIn 0.5s ease-in-out; }
+    /* =======================================================
+       2. FLOATING TABLE (Style Tetap Rapi)
+       ======================================================= */
+    .table-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: none; }
+    .table { border-collapse: separate !important; border-spacing: 0 8px !important; }
+    .table>:not(caption)>*>* { border-bottom-width: 0; box-shadow: none; background-color: transparent; }
+    .table thead th { background-color: transparent !important; color: #64748b; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: none; padding-bottom: 10px; }
+    .table tbody tr { background-color: #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border-radius: 12px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .table tbody tr:hover { transform: scale(1.005); box-shadow: 0 10px 40px -10px rgba(0,0,128,0.08); z-index: 5; position: relative; }
+    .table tbody td { border: none; vertical-align: middle; padding-top: 15px; padding-bottom: 15px; }
+    .table tbody tr td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; padding-left: 15px; }
+    .table tbody tr td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+
+    /* --- OTHER COMPONENTS --- */
+    .stats-wrapper { max-width: 1100px; margin: 0 auto; }
+    .stat-card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.07); transition: transform 0.3s ease; color: white; overflow: hidden; height: 100%; position: relative; }
+    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important; }
+    .stat-value { font-size: 2.5rem; font-weight: 700; }
+    .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
+    .stat-card.active-filter { transform: translateY(-8px) scale(1.02); border: 2px solid rgba(255, 255, 255, 0.8); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3) !important; }
     
     .bg-gradient-primary { background: linear-gradient(45deg, var(--primary-color), #333399); }
     .bg-gradient-success { background: linear-gradient(45deg, #1cc88a, #13855c); } 
@@ -162,311 +131,42 @@
     .search-input:focus { box-shadow: 0 4px 15px rgba(0, 0, 128, 0.15); border-color: var(--primary-color); }
     .search-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #aaa; z-index: 5; font-size: 1.1rem; }
     
-    /* =======================================================
-       MODIFIED TABLE & CARD VIEW STYLES (FLOATING TABLE)
-       ======================================================= */
-    
-    .table-card { 
-        background: white; 
-        border-radius: 12px; 
-        padding: 20px; 
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
-        border: none; 
-    }
-
-    /* 1. Atur tabel agar support floating row */
-    .table {
-        border-collapse: separate !important; 
-        border-spacing: 0 8px !important; /* Jarak vertikal antar baris */
-    }
-
-    /* 2. Reset style cell tabel bawaan */
-    .table>:not(caption)>*>* {
-        border-bottom-width: 0;
-        box-shadow: none;
-        background-color: transparent;
-    }
-
-    /* 3. Header Tabel: Bersih dan Transparan */
-    .table thead th { 
-        background-color: transparent !important; 
-        color: #64748b; /* Warna teks agak soft */
-        font-weight: 600; 
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        vertical-align: middle; 
-        border-bottom: none;
-        padding-bottom: 10px;
-    }
-
-    /* 4. Style Baris (Floating Row) */
-    .table tbody tr {
-        background-color: #ffffff;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-        border-radius: 12px;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    /* 5. Efek Hover Baris */
-    .table tbody tr:hover {
-        transform: scale(1.005);
-        box-shadow: 0 10px 40px -10px rgba(0,0,128,0.08); /* Soft Shadow */
-        z-index: 5;
-        position: relative;
-    }
-
-    /* 6. Padding Cell */
-    .table tbody td {
-        border: none;
-        vertical-align: middle;
-        padding-top: 15px;
-        padding-bottom: 15px;
-    }
-
-    /* 7. Rounded Corner untuk Baris */
-    .table tbody tr td:first-child { 
-        border-top-left-radius: 12px; 
-        border-bottom-left-radius: 12px; 
-        padding-left: 15px; 
-    }
-    .table tbody tr td:last-child { 
-        border-top-right-radius: 12px; 
-        border-bottom-right-radius: 12px; 
-    }
-    
-    /* =======================================================
-       END MODIFIED TABLE STYLES
-       ======================================================= */
-
-    .badge-status { padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; white-space: normal; text-align: left; display: inline-block; }
+    .badge-status { padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; white-space: normal; display: inline-block; }
     .status-expired { background-color: #ffe5e5; color: #cc0000; border: 1px solid #ffcccc; }
     .status-active { background-color: #e5ffe5; color: #007700; border: 1px solid #ccffcc; }
     .status-used { background-color: #fff4e5; color: #cc7700; border: 1px solid #ffeebb; } 
     .status-not-started { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
-
-    .table-responsive { display: block; width: 100%; overflow-x: auto !important; margin-bottom: 10px; border-radius: 8px; border: none; }
-    
     .nested-cell { display: flex; align-items: center; min-height: 45px; border-bottom: 1px solid #f5f5f5; padding: 6px 0; }
     .nested-cell:last-child { border-bottom: none; }
-    .nested-cell-action { justify-content: center; }
     .align-middle-person { vertical-align: middle !important; }
 
-    /* GANTT BASE STYLES */
-    .custom-gantt-wrapper { display: flex; flex-direction: column; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow-x: auto; position: relative; max-width: 100%; font-family: 'Segoe UI', sans-serif; }
-    .custom-gantt-wrapper::-webkit-scrollbar { height: 8px; width: 8px; }
-    .custom-gantt-wrapper::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 0 0 10px 10px; }
-    .custom-gantt-wrapper::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
-    .g-row-container { display: flex; align-items: stretch; width: max-content; min-width: 100%; border-bottom: 1px solid #f2f2f2; position: relative; }
-    .g-sticky-col { position: sticky; left: 0; z-index: 20; background-color: #fff; width: 320px; flex-shrink: 0; display: flex; align-items: center; padding: 12px 15px; font-size: 13.5px; color: #444; border-right: 1px solid #eee; box-shadow: 4px 0 10px -4px rgba(0,0,0,0.1); }
-    .g-col-personil { position: sticky; left: 0; z-index: 25; background-color: #fff; width: 220px; flex-shrink: 0; display: flex; align-items: center; padding: 8px 10px; font-size: 0.85rem; font-weight: bold; color: #333; border-right: 1px solid #eee; }
-    .g-col-pekerjaan { position: sticky; left: 220px; z-index: 25; background-color: #fff; width: 250px; flex-shrink: 0; display: flex; align-items: center; padding: 8px 10px; font-size: 0.85rem; color: #555; border-right: 1px solid #ddd; box-shadow: 4px 0 5px -2px rgba(0,0,0,0.1); }
-    .g-header-row .g-col-personil, .g-header-row .g-col-pekerjaan { background-color: #f8f9fa; color: #555; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; justify-content: center; text-align: center; }
-    .g-data-row:hover .g-col-personil, .g-data-row:hover .g-col-pekerjaan { background-color: #f0f7ff; color: var(--primary-color); }
-    .g-data-row:hover .g-col-personil { border-left: 3px solid var(--primary-color); padding-left: 7px; }
-    .g-timeline-col { position: relative; flex-grow: 1; background-color: #ffffff; }
-    .g-header-row { background-color: #f8f9fa; height: 55px; border-bottom: 1px solid #dee2e6; }
-    .g-header-row .g-sticky-col { background-color: #f8f9fa; color: #555; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; justify-content: center; border-left: none; }
-    .g-data-row:nth-child(even) .g-sticky-col, .g-data-row:nth-child(even) .g-timeline-col { background-color: #fafbfc; }
-    .g-data-row:hover .g-sticky-col { background-color: #f0f7ff; color: var(--primary-color); border-left: 3px solid var(--primary-color); }
-    .g-data-row:hover .g-timeline-col { background-color: #f0f7ff; }
-    .g-bar { position: absolute; height: 24px; top: 50%; transform: translateY(-50%); border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); cursor: pointer; transition: all 0.2s; z-index: 10; }
-    .g-bar:hover { transform: translateY(-50%) scaleY(1.15); box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 30; }
-    .bar-blue { background: linear-gradient(180deg, #4e73df 0%, #224abe 100%); }
-    .bar-red { background: linear-gradient(180deg, #e74a3b 0%, #be2617 100%); }
-    .bar-green { background: linear-gradient(180deg, #1cc88a 0%, #13855c 100%); }
-    .bar-grey  { background: linear-gradient(180deg, #858796 0%, #60616f 100%); }
-    .month-marker { position: absolute; top: 0; height: 100%; border-left: 1px dashed #e0e0e0; font-size: 11px; padding-left: 8px; padding-top: 18px; color: #888; font-weight: 600; pointer-events: none; text-transform: uppercase; }
-    .g-header-row .month-marker { border-left: 1px solid #d1d3e2; color: #555; }
-    
+    /* Gantt & Helper Classes */
+    .custom-gantt-wrapper { overflow-x: auto; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; }
     .swal2-container { z-index: 20000 !important; }
-    .custom-tooltip { position: fixed; display: none; background: rgba(255, 255, 255, 0.98); border: 1px solid #eee; border-left: 5px solid var(--primary-color); padding: 12px 16px; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 9999; pointer-events: none; min-width: 200px; max-width: 300px; font-size: 0.85rem; animation: fadeIn 0.2s ease-in-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-    .ct-header { font-weight: bold; color: #333; margin-bottom: 5px; line-height: 1.2; font-size: 0.95rem; border-bottom: 1px solid #f0f0f0; padding-bottom: 5px; }
-    .ct-row { margin-bottom: 3px; display: flex; align-items: center; color: #555; }
-    .ct-row i { width: 20px; text-align: center; margin-right: 5px; color: #888; }
-    .ct-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; margin-top: 5px; }
+    .custom-tooltip { position: fixed; display: none; background: rgba(255, 255, 255, 0.98); border: 1px solid #eee; padding: 12px 16px; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 9999; pointer-events: none; }
     
-    #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); display: none; justify-content: center; align-items: center; z-index: 9999; flex-direction: column; }
-    
-    input[list] { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23333" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 12px; padding-right: 2rem; cursor: pointer; }
+    /* Visual Empty State */
+    .empty-state-icon { font-size: 4rem; display: block; margin: 0 auto; color: #dee2e6; }
 
-    /* SKELETON & PAGINATION & LOG */
-    .skeleton { background: #e0e0e0; background: linear-gradient(to right, #e0e0e0 0%, #f0f0f0 50%, #e0e0e0 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite linear; border-radius: 4px; display: inline-block; }
-    .skeleton-text { height: 16px; width: 80%; margin-bottom: 5px; }
-    .skeleton-cell { height: 40px; width: 100%; }
-    @keyframes shimmer { 0% {background-position: -1000px 0;} 100% {background-position: 1000px 0;} }
-    .pagination-wrapper { display: flex; justify-content: center; align-items: center; gap: 5px; margin-top: 15px; }
-    .btn-page { border: 1px solid #ddd; background: white; color: var(--primary-color); border-radius: 8px; padding: 5px 12px; font-size: 0.85rem; transition: all 0.2s; }
-    .btn-page:hover { background: #f0f7ff; border-color: var(--primary-color); }
-    .btn-page.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
-    .btn-page:disabled { opacity: 0.5; cursor: not-allowed; }
-    .log-table-container { max-height: 400px; overflow-y: auto; }
-    .log-entry-row { transition: background 0.2s; font-size: 0.85rem; }
-    .log-entry-row:hover { background: #f8f9fa; }
-
-    /* --- MODERN FORM STYLES --- */
-    .modal-content { border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); overflow: hidden; }
-    
-    #modalTambahData .modal-header { background: linear-gradient(135deg, var(--primary-color), #000050); padding: 20px 30px; }
-    
-    .modern-input-group { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 5px 5px 5px 15px; transition: all 0.3s ease; display: flex; align-items: center; margin-bottom: 15px; position: relative; } /* Added position relative */
-    .modern-input-group:focus-within { border-color: var(--primary-color); box-shadow: 0 4px 12px rgba(0, 0, 128, 0.1); transform: translateY(-2px); }
-    .input-icon { font-size: 1.2rem; color: var(--primary-color); opacity: 0.7; margin-right: 10px; }
-    .modern-input-group .form-floating { flex-grow: 1; }
-    
-    .modern-input-group .form-control { 
-        border: none !important; 
-        box-shadow: none !important; 
-        background: transparent; 
-        padding-top: 1.625rem; 
-        padding-bottom: 0.625rem; 
-        font-weight: 500; 
-        color: #333; 
-        min-height: 58px;
-    }
-    
-    .modern-input-group .form-control:focus { outline: none; }
-    .modern-input-group label { padding-left: 0; color: #888; font-size: 0.9rem; }
-    input[list]::-webkit-calendar-picker-indicator { opacity: 0.6; cursor: pointer; transition: 0.2s; }
-    input[list]:hover::-webkit-calendar-picker-indicator { opacity: 1; transform: scale(1.1); }
-    
-    /* FIX: TAMPILAN DATE PICKER CLEAN */
-    input[type="date"]::-webkit-calendar-picker-indicator {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0;
-        cursor: pointer;
-        z-index: 10;
-    }
-    
-    .form-select {
-        border: none !important;
-        box-shadow: none !important;
-        background-color: transparent;
-        font-weight: 500;
-        color: #333;
-    }
-    .form-select:focus { outline: none; box-shadow: none; }
-
-    /* --- FLOATING ACTION BUTTON (FAB) --- */
+    /* Form & Modal */
+    .modal-content { border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+    .modern-input-group { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 5px 5px 5px 15px; display: flex; align-items: center; margin-bottom: 15px; }
+    .modern-input-group:focus-within { border-color: var(--primary-color); box-shadow: 0 4px 12px rgba(0, 0, 128, 0.1); }
+    .modern-input-group .form-control { border: none !important; box-shadow: none !important; background: transparent; min-height: 58px; padding-top: 1.625rem; font-weight: 500; }
     .fab-container { position: fixed; bottom: 30px; right: 30px; z-index: 999; display: none; }
-    .btn-fab { width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 24px; display: flex; align-items: center; justify-content: center; background-color: var(--primary-color); color: white; border: none; transition: transform 0.2s; }
-    .btn-fab:active { transform: scale(0.95); }
+    .btn-fab { width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 24px; display: flex; align-items: center; justify-content: center; background-color: var(--primary-color); color: white; border: none; }
 
-    /* --- SPLASH SCREEN STYLES (APP FEEL) - MOBILE ONLY --- */
-    #mobile-splash-screen {
-        display: none; /* Desktop default: HIDDEN */
-    }
-
-    /* Media Query Khusus Mobile: Aktifkan Splash Screen */
-    @media (max-width: 768px) {
-        #mobile-splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 100000; /* Paling atas */
-            background: linear-gradient(-45deg, #000428, #004e92, #000080);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            display: flex; /* Aktifkan FLEX */
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
-        }
-
-        #mobile-splash-screen.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        .splash-logo-container {
-            position: relative;
-            margin-bottom: 20px;
-            animation: splashEnter 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        .splash-logo-img {
-            width: 100px;
-            height: auto;
-            filter: drop-shadow(0 0 15px rgba(255,255,255,0.4));
-            animation: pulseGlow 2s infinite ease-in-out;
-        }
-
-        .splash-text {
-            color: white;
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: 4px;
-            margin-bottom: 5px;
-            opacity: 0;
-            animation: fadeInUp 0.8s ease-out 0.3s forwards;
-        }
-
-        .splash-sub {
-            color: rgba(255,255,255,0.7);
-            font-size: 0.75rem;
-            letter-spacing: 1px;
-            margin-bottom: 40px;
-            opacity: 0;
-            animation: fadeInUp 0.8s ease-out 0.5s forwards;
-        }
-
-        /* Fake Loading Bar */
-        .splash-loader {
-            width: 150px;
-            height: 4px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 4px;
-            position: relative;
-            overflow: hidden;
-            opacity: 0;
-            animation: fadeIn 0.5s ease-out 0.8s forwards;
-        }
-
-        .splash-loader::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 0%;
-            background: #fff;
-            border-radius: 4px;
-            /* DURASI ANIMASI DIPERLAMBAT JADI 3.5s */
-            animation: loadProgress 3.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-
-        /* Keyframes khusus Splash */
-        @keyframes splashEnter { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        @keyframes pulseGlow { 0%, 100% { filter: drop-shadow(0 0 15px rgba(255,255,255,0.4)); transform: scale(1); } 50% { filter: drop-shadow(0 0 25px rgba(255,255,255,0.8)); transform: scale(1.05); } }
-        @keyframes loadProgress { 0% { width: 0%; } 40% { width: 70%; } 100% { width: 100%; } }
-    }
-
-
-    /* --- RESPONSIVE STYLE (UPDATED FOR CARD VIEW) --- */
+    /* --- RESPONSIVE STYLE --- */
     @media (max-width: 768px) {
       .navbar .container-fluid { padding-left: 15px; padding-right: 15px; }
-      .logo-wrapper img { height: 35px !important; }
-      .greeting-wrapper { display: none !important; } 
+      .greeting-wrapper { display: none !important; }
       
-      /* ===========================================
-         3. MOBILE MENU: STACKING (NO SCROLL)
-         =========================================== */
+      /* MOBILE MENU: STACKING & FULL WIDTH */
       .nav-pills { 
           display: flex; 
-          flex-direction: column; /* Menumpuk vertikal */
-          width: 100%;
-          border-radius: 16px;
+          flex-direction: column; /* Tombol menumpuk ke bawah */
+          width: 100%; 
+          border-radius: 20px;
           padding: 6px;
       }
       .nav-pills .nav-item { width: 100%; margin-bottom: 4px; }
@@ -474,7 +174,7 @@
           width: 100%; 
           text-align: center; 
           padding: 12px 0; 
-          border-radius: 12px; 
+          border-radius: 15px; 
       }
       .nav-pills .nav-link.active { transform: none; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 
@@ -679,7 +379,7 @@
     </nav>
 
     <div class="container-fluid px-4 px-lg-5"> 
-      <ul class="nav nav-pills mb-4" id="pills-tab">
+      <ul class="nav nav-pills mb-4 justify-content-center" id="pills-tab">
         <li class="nav-item" id="nav-skk"><button class="nav-link active" onclick="switchView('skk')"><i class="bi bi-person-badge me-2"></i>Sertifikat Keahlian</button></li>
         <li class="nav-item" id="nav-penugasan"><button class="nav-link" onclick="switchView('penugasan')"><i class="bi bi-calendar-check me-2"></i>Waktu Penugasan</button></li>
         <li class="nav-item" id="nav-project"><button class="nav-link" onclick="switchView('project')"><i class="bi bi-kanban me-2"></i>Master Project</button></li>
@@ -735,7 +435,7 @@
               <tbody id="bodySkk"></tbody>
             </table>
             <div id="msgSkk" class="text-center py-5 d-none">
-                <i class="bi bi-folder2-open display-1 text-muted opacity-25 mb-3"></i>
+                <i class="bi bi-folder2-open empty-state-icon mb-3"></i>
                 <h5 class="fw-bold text-secondary">Data Tidak Ditemukan</h5>
                 <p class="small text-muted">Silakan sesuaikan filter pencarian Anda.</p>
             </div>
@@ -749,7 +449,7 @@
             <div class="row g-3 mb-4 justify-content-center">
               <div class="col-12 col-sm-6 col-lg-5" onclick="handleStatClick('tugas', 'all', this)">
                   <div class="stat-card bg-gradient-primary p-3 d-flex justify-content-between align-items-center clickable-card active-filter">
-                    <div><div class="stat-label">Total Paket Pekerjaan</div><div class="stat-value" id="tugas-total">0</div></div>
+                    <div><div class="stat-label">Total Paket</div><div class="stat-value" id="tugas-total">0</div></div>
                     <i class="bi bi-list-task fs-1 opacity-50"></i>
                   </div>
               </div>
@@ -788,7 +488,7 @@
                 <tbody id="bodyTugas"></tbody>
               </table>
               <div id="msgTugas" class="text-center py-5 d-none">
-                <i class="bi bi-clipboard-x display-1 text-muted opacity-25 mb-3"></i>
+                <i class="bi bi-clipboard-x empty-state-icon mb-3"></i>
                 <h5 class="fw-bold text-secondary">Belum Ada Penugasan</h5>
                 <p class="small text-muted">Tidak ada data penugasan yang sesuai kriteria.</p>
               </div>
@@ -827,8 +527,8 @@
             <div class="col-12 col-lg-auto">
                <div class="sub-nav btn-group w-100" role="group">
                   <button type="button" class="btn active" onclick="switchSubView('table')" id="btn-sub-table"><i class="bi bi-table me-1"></i>Tabel</button>
-                  <button type="button" class="btn" onclick="switchSubView('gantt-kontrak')" id="btn-sub-kontrak"><i class="bi bi-bar-chart-steps me-1"></i>Timeline Kontrak</button>
-                  <button type="button" class="btn" onclick="switchSubView('gantt-schedule')" id="btn-sub-schedule"><i class="bi bi-bar-chart-steps me-1"></i>Timeline Schedule</button>
+                  <button type="button" class="btn" onclick="switchSubView('gantt-kontrak')" id="btn-sub-kontrak"><i class="bi bi-bar-chart-steps me-1"></i>Kontrak</button>
+                  <button type="button" class="btn" onclick="switchSubView('gantt-schedule')" id="btn-sub-schedule"><i class="bi bi-bar-chart-steps me-1"></i>Schedule</button>
                </div>
             </div>
             <div class="col-12 col-lg-auto" id="dateFilterContainer" style="display:none !important;">
@@ -839,8 +539,8 @@
                 </div>
             </div>
             <div class="col-12 col-lg ms-lg-auto">
-                <div id="searchProjectContainer"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchProject" class="form-control search-input" placeholder="Cari Nama Pekerjaan, Nama Kordinator..."></div></div>
-                <div id="projectGanttSearchContainer" style="display: none;"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchProjectGantt" class="form-control search-input" placeholder="Cari Nama Pekerjaan..."></div></div>
+                <div id="searchProjectContainer"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchProject" class="form-control search-input" placeholder="Cari Pekerjaan / Kordinator..."></div></div>
+                <div id="projectGanttSearchContainer" style="display: none;"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchProjectGantt" class="form-control search-input" placeholder="Cari di Timeline..."></div></div>
             </div>
           </div>
           <div id="subview-table">
