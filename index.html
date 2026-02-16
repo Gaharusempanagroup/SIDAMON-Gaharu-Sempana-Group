@@ -90,10 +90,52 @@
     .mobile-menu-item:active { transform: scale(0.98); background: #f0f0f0; }
     .mobile-menu-item i { font-size: 1.2rem; color: var(--primary-color); }
     
-    .nav-pills .nav-link { border-radius: 50px; padding: 10px 25px; font-weight: 600; color: #555; background: white; border: 1px solid #ddd; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; touch-action: manipulation; }
-    .nav-pills .nav-link.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); box-shadow: 0 4px 15px rgba(0, 0, 128, 0.3); }
-    .nav-pills .nav-link:hover:not(.active) { background-color: #f8f9fa; transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); color: var(--primary-color); }
-    .btn:active, .nav-link:active { transform: scale(0.95) !important; background-color: #f0f0f0; }
+    /* =======================================================
+       1. MODIFIED MENU: iOS SEGMENTED CONTROL
+       ======================================================= */
+    .nav-pills { 
+        background-color: #e2e8f0; /* Track color */
+        padding: 5px; 
+        border-radius: 50px; 
+        display: inline-flex; /* Agar posisi di tengah */
+        justify-content: center;
+        gap: 0;
+        border: none;
+        width: auto;
+        margin-bottom: 25px !important;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .nav-pills .nav-item { margin-bottom: 0; }
+    
+    .nav-pills .nav-link { 
+        border-radius: 50px; 
+        padding: 8px 25px; 
+        font-weight: 500; 
+        color: #64748b; /* Text muted */
+        background: transparent; 
+        border: none; 
+        transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); /* Animasi smooth */
+        box-shadow: none;
+        white-space: nowrap;
+    }
+    
+    /* Active State: Putih melayang (Floating) */
+    .nav-pills .nav-link.active { 
+        background-color: #ffffff; 
+        color: var(--primary-color); 
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+        font-weight: 700;
+        transform: scale(1.02); /* Sedikit membesar */
+    }
+    
+    .nav-pills .nav-link:hover:not(.active) { 
+        color: var(--text-dark); 
+        background-color: rgba(255,255,255,0.5);
+        transform: none;
+    }
+    
+    .btn:active { transform: scale(0.95) !important; background-color: #f0f0f0; }
     
     .sub-nav .btn { border-radius: 20px; font-size: 0.85rem; font-weight: 600; padding: 6px 15px; border: 1px solid #ddd; background: white; color: #555; transition: all 0.2s ease; touch-action: manipulation; }
     .sub-nav .btn.active { background-color: #000080; color: white; border-color: #000080; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
@@ -416,10 +458,26 @@
       .navbar .container-fluid { padding-left: 15px; padding-right: 15px; }
       .logo-wrapper img { height: 35px !important; }
       .greeting-wrapper { display: none !important; } 
-      .nav-pills { flex-direction: column; overflow-x: visible; }
-      .nav-pills .nav-item { width: 100%; margin-bottom: 8px; }
-      .nav-pills .nav-link { width: 100%; text-align: left; padding: 12px 20px; border-radius: 12px; }
-      .nav-pills .nav-link i { margin-right: 10px; width: 20px; text-align: center; }
+      
+      /* ===========================================
+         3. MOBILE MENU: STACKING (NO SCROLL)
+         =========================================== */
+      .nav-pills { 
+          display: flex; 
+          flex-direction: column; /* Menumpuk vertikal */
+          width: 100%;
+          border-radius: 16px;
+          padding: 6px;
+      }
+      .nav-pills .nav-item { width: 100%; margin-bottom: 4px; }
+      .nav-pills .nav-link { 
+          width: 100%; 
+          text-align: center; 
+          padding: 12px 0; 
+          border-radius: 12px; 
+      }
+      .nav-pills .nav-link.active { transform: none; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+
       .stat-card { margin-bottom: 10px; }
       .stat-value { font-size: 2rem; }
       #btnAddDataContainer { display: none !important; } /* Hide Top Btn */
@@ -621,7 +679,7 @@
     </nav>
 
     <div class="container-fluid px-4 px-lg-5"> 
-      <ul class="nav nav-pills mb-4 justify-content-center gap-3" id="pills-tab">
+      <ul class="nav nav-pills mb-4" id="pills-tab">
         <li class="nav-item" id="nav-skk"><button class="nav-link active" onclick="switchView('skk')"><i class="bi bi-person-badge me-2"></i>Sertifikat Keahlian</button></li>
         <li class="nav-item" id="nav-penugasan"><button class="nav-link" onclick="switchView('penugasan')"><i class="bi bi-calendar-check me-2"></i>Waktu Penugasan</button></li>
         <li class="nav-item" id="nav-project"><button class="nav-link" onclick="switchView('project')"><i class="bi bi-kanban me-2"></i>Master Project</button></li>
@@ -676,7 +734,11 @@
               </thead>
               <tbody id="bodySkk"></tbody>
             </table>
-            <div id="msgSkk" class="text-center py-4 text-muted d-none">Data tidak ditemukan.</div>
+            <div id="msgSkk" class="text-center py-5 d-none">
+                <i class="bi bi-folder2-open display-1 text-muted opacity-25 mb-3"></i>
+                <h5 class="fw-bold text-secondary">Data Tidak Ditemukan</h5>
+                <p class="small text-muted">Silakan sesuaikan filter pencarian Anda.</p>
+            </div>
           </div>
           <div id="pagination-skk" class="pagination-wrapper"></div>
         </div>
@@ -707,47 +769,29 @@
                   <button type="button" class="btn" onclick="switchTugasSubView('gantt')" id="btn-tugas-gantt"><i class="bi bi-bar-chart-steps me-1"></i>Timeline</button>
                </div>
             </div>
-
             <div class="col-12 col-lg-auto" id="tugasFilterContainer" style="display:none !important;">
                 <div class="d-flex flex-wrap flex-lg-nowrap align-items-center gap-2 w-100">
-                    <div class="input-group input-group-sm flex-nowrap" style="min-width: 130px;">
-                        <span class="input-group-text bg-light border-end-0 text-muted">Dari</span>
-                        <input type="date" id="filterTugasStart" class="form-control border-start-0">
-                    </div>
-                    <div class="input-group input-group-sm flex-nowrap" style="min-width: 130px;">
-                        <span class="input-group-text bg-light border-end-0 text-muted">Sampai</span>
-                        <input type="date" id="filterTugasEnd" class="form-control border-start-0">
-                    </div>
-                    <div class="d-flex gap-1">
-                        <button class="btn btn-sm btn-primary px-3" onclick="applyTugasDateFilter()">Filter</button>
-                        <button class="btn btn-sm btn-outline-secondary" onclick="resetTugasDateFilter()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button>
-                    </div>
+                    <div class="input-group input-group-sm flex-nowrap" style="min-width: 130px;"><span class="input-group-text bg-light border-end-0 text-muted">Dari</span><input type="date" id="filterTugasStart" class="form-control border-start-0"></div>
+                    <div class="input-group input-group-sm flex-nowrap" style="min-width: 130px;"><span class="input-group-text bg-light border-end-0 text-muted">Sampai</span><input type="date" id="filterTugasEnd" class="form-control border-start-0"></div>
+                    <div class="d-flex gap-1"><button class="btn btn-sm btn-primary px-3" onclick="applyTugasDateFilter()">Filter</button><button class="btn btn-sm btn-outline-secondary" onclick="resetTugasDateFilter()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button></div>
                 </div>
             </div>
-
             <div class="col-12 col-lg ms-lg-auto">
-                <div id="tugasSearchContainer">
-                    <div class="position-relative w-100">
-                        <i class="bi bi-search search-icon"></i>
-                        <input type="text" id="searchTugas" class="form-control search-input" placeholder="Cari Nama Personil, Nama Paket Pekerjaan...">
-                    </div>
-                </div>
-                <div id="tugasGanttSearchContainer" style="display: none;">
-                    <div class="position-relative w-100">
-                        <i class="bi bi-search search-icon"></i>
-                        <input type="text" id="searchTugasGantt" class="form-control search-input" placeholder="Cari Nama Personil, Nama Pekerjaan...">
-                    </div>
-                </div>
+                <div id="tugasSearchContainer"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchTugas" class="form-control search-input" placeholder="Cari Nama Personil, Nama Paket Pekerjaan..."></div></div>
+                <div id="tugasGanttSearchContainer" style="display: none;"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchTugasGantt" class="form-control search-input" placeholder="Cari Nama Personil, Nama Pekerjaan..."></div></div>
             </div>
           </div>
-
           <div id="subview-tugas-table">
             <div class="table-responsive">
               <table class="table table-hover align-middle">
                 <thead class="table-light"><tr><th style="min-width: 180px;">Nama Personil</th><th style="min-width: 200px;">Nama Paket Pekerjaan</th><th class="text-center">LPSE</th><th class="text-center">PL/Tender</th><th class="text-center">Jenis Kontrak</th><th>Sertifikat Digunakan</th><th class="text-center">Start Date</th><th class="text-center">End Date</th><th class="text-center">Status</th></tr></thead>
                 <tbody id="bodyTugas"></tbody>
               </table>
-              <div id="msgTugas" class="text-center py-4 text-muted d-none">Data tidak ditemukan.</div>
+              <div id="msgTugas" class="text-center py-5 d-none">
+                <i class="bi bi-clipboard-x display-1 text-muted opacity-25 mb-3"></i>
+                <h5 class="fw-bold text-secondary">Belum Ada Penugasan</h5>
+                <p class="small text-muted">Tidak ada data penugasan yang sesuai kriteria.</p>
+              </div>
             </div>
              <div id="pagination-tugas" class="pagination-wrapper"></div>
           </div>
@@ -787,40 +831,18 @@
                   <button type="button" class="btn" onclick="switchSubView('gantt-schedule')" id="btn-sub-schedule"><i class="bi bi-bar-chart-steps me-1"></i>Timeline Schedule</button>
                </div>
             </div>
-
             <div class="col-12 col-lg-auto" id="dateFilterContainer" style="display:none !important;">
                 <div class="d-flex flex-wrap flex-lg-nowrap align-items-center gap-2 w-100">
-                    <div class="input-group input-group-sm flex-nowrap" style="min-width: 130px;">
-                        <span class="input-group-text bg-light border-end-0 text-muted">Dari</span>
-                        <input type="date" id="filterStartDate" class="form-control border-start-0">
-                    </div>
-                    <div class="input-group input-group-sm flex-nowrap" style="min-width: 130px;">
-                        <span class="input-group-text bg-light border-end-0 text-muted">Sampai</span>
-                        <input type="date" id="filterEndDate" class="form-control border-start-0">
-                    </div>
-                    <div class="d-flex gap-1">
-                        <button class="btn btn-sm btn-primary px-3" onclick="applyDateFilter()">Filter</button>
-                        <button class="btn btn-sm btn-outline-secondary" onclick="resetDateFilter()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button>
-                    </div>
+                    <div class="input-group input-group-sm flex-nowrap" style="min-width: 130px;"><span class="input-group-text bg-light border-end-0 text-muted">Dari</span><input type="date" id="filterStartDate" class="form-control border-start-0"></div>
+                    <div class="input-group input-group-sm flex-nowrap" style="min-width: 130px;"><span class="input-group-text bg-light border-end-0 text-muted">Sampai</span><input type="date" id="filterEndDate" class="form-control border-start-0"></div>
+                    <div class="d-flex gap-1"><button class="btn btn-sm btn-primary px-3" onclick="applyDateFilter()">Filter</button><button class="btn btn-sm btn-outline-secondary" onclick="resetDateFilter()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button></div>
                 </div>
             </div>
-
             <div class="col-12 col-lg ms-lg-auto">
-                <div id="searchProjectContainer">
-                    <div class="position-relative w-100">
-                        <i class="bi bi-search search-icon"></i>
-                        <input type="text" id="searchProject" class="form-control search-input" placeholder="Cari Nama Pekerjaan, Nama Kordinator...">
-                    </div>
-                </div>
-                <div id="projectGanttSearchContainer" style="display: none;">
-                    <div class="position-relative w-100">
-                        <i class="bi bi-search search-icon"></i>
-                        <input type="text" id="searchProjectGantt" class="form-control search-input" placeholder="Cari Nama Pekerjaan...">
-                    </div>
-                </div>
+                <div id="searchProjectContainer"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchProject" class="form-control search-input" placeholder="Cari Nama Pekerjaan, Nama Kordinator..."></div></div>
+                <div id="projectGanttSearchContainer" style="display: none;"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchProjectGantt" class="form-control search-input" placeholder="Cari Nama Pekerjaan..."></div></div>
             </div>
           </div>
-
           <div id="subview-table">
             <div class="table-responsive">
               <table class="table table-hover align-middle" style="font-size: 0.9rem;">
