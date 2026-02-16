@@ -1266,23 +1266,26 @@
       
       let statTotal = 0, statUsed = 0, statExpired = 0;
       
-      const activeAssignmentsMap = new Map();
-      const getFingerprint = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+      // LOGIC BARU: MENGGUNAKAN SET UNTUK MENGHINDARI DUPLIKASI
+      const activeAssignmentsMap = new Map(); // Key: nama personil (lowercase), Value: Set of LPSE strings
 
       if(dataTugas && dataTugas.length > 0) { 
           for(let i=0; i<dataTugas.length; i++){ 
               const row = dataTugas[i]; 
-              const pNameOriginal = (row[1] || "").trim();
-              const pNameKey = getFingerprint(pNameOriginal);
+              const pName = (row[1] || "").trim().toLowerCase();
               const pStatus = (row[12] || "").toLowerCase(); 
-              if (pNameKey && pStatus.includes('active')) { 
-                  const lpse = (row[5] || "").trim();
+              
+              if (pName && pStatus.includes('active')) { 
+                  let lpse = (row[5] || "").trim();
+                  // Normalisasi spasi: mengubah spasi ganda/tab menjadi satu spasi
+                  lpse = lpse.replace(/\s+/g, ' ');
+                  
                   if(lpse) {
-                      if (!activeAssignmentsMap.has(pNameKey)) activeAssignmentsMap.set(pNameKey, new Map());
-                      const fingerprint = getFingerprint(lpse);
-                      if(!activeAssignmentsMap.get(pNameKey).has(fingerprint)){
-                          activeAssignmentsMap.get(pNameKey).set(fingerprint, lpse.replace(/\s+/g, ' '));
+                      if (!activeAssignmentsMap.has(pName)) {
+                          activeAssignmentsMap.set(pName, new Set());
                       }
+                      // Set otomatis menolak duplikat string yang persis sama
+                      activeAssignmentsMap.get(pName).add(lpse);
                   }
               } 
           } 
@@ -1306,7 +1309,7 @@
              if ((item.statusRaw||"").toLowerCase().includes('expired')) statExpired++; 
              if ((item.statusRaw||"").toLowerCase().includes('used') || (item.ketRaw||"").toLowerCase().includes('used')) isUsed = true; 
           }); 
-          const keyNormalized = getFingerprint(person.nama);
+          const keyNormalized = person.nama.toLowerCase().trim();
           if (activeAssignmentsMap.has(keyNormalized)) isUsed = true; 
           if (isUsed) statUsed++; 
       });
@@ -1321,7 +1324,7 @@
       if (filterStatusSKK !== 'all') {
           allKeys = allKeys.filter(key => {
               const person = groupedData[key];
-              const keyNormalized = getFingerprint(person.nama);
+              const keyNormalized = person.nama.toLowerCase().trim();
               
               if (filterStatusSKK === 'expired') {
                   return person.items.some(item => (item.statusRaw||"").toLowerCase().includes('expired'));
@@ -1368,14 +1371,18 @@
               if (s.includes('active') || s.includes('available')) hasActive = true; 
           }
           
-          const keyNormalized = getFingerprint(person.nama);
-          const activeLpseMap = activeAssignmentsMap.get(keyNormalized);
+          const keyNormalized = person.nama.toLowerCase().trim();
           
-          if (activeLpseMap && activeLpseMap.size > 0) { 
-              isUsed = true; 
-              const lpseArray = Array.from(activeLpseMap.values());
-              let lpseString = lpseArray.length === 1 ? lpseArray[0] : (lpseArray.length === 2 ? `${lpseArray[0]} dan ${lpseArray[1]}` : `${lpseArray.join(", ")}, dan ${lpseArray.pop()}`);
-              usedProjectName = `Used in ${lpseString}`; 
+          // --- LOGIC DISPLAY LPSE UNIK ---
+          if (activeAssignmentsMap.has(keyNormalized)) { 
+              const lpseSet = activeAssignmentsMap.get(keyNormalized);
+              if (lpseSet.size > 0) {
+                  isUsed = true; 
+                  // Konversi Set ke Array untuk display
+                  const lpseArray = Array.from(lpseSet);
+                  let lpseString = lpseArray.length === 1 ? lpseArray[0] : (lpseArray.length === 2 ? `${lpseArray[0]} dan ${lpseArray[1]}` : `${lpseArray.slice(0, -1).join(", ")}, dan ${lpseArray[lpseArray.length - 1]}`);
+                  usedProjectName = `Used in ${lpseString}`; 
+              }
           } else if (isUsed) { 
               usedProjectName = spreadsheetUsedText ? spreadsheetUsedText : "Used"; 
           }
