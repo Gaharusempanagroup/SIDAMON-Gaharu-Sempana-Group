@@ -15,21 +15,11 @@
   
   <style>
     /* --- GLOBAL VARIABLES --- */
-    :root {
-    --primary-color: #000080;
-    --primary-light: #ececf9; /* Warna background lembut untuk elemen aktif */
-    --accent-color: #3b82f6; /* Biru yang lebih cerah untuk highlight */
-    --bg-light: #f8faff; /* Background body sedikit kebiruan agar tidak putih mati */
-    --text-dark: #1e293b;
-    --text-muted: #64748b;
-    --shadow-soft: 0 10px 40px -10px rgba(0,0,128,0.08); /* Shadow halus */
-    --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    --radius-md: 16px;
-}
+    :root { --primary-color: #000080; --bg-light: #f4f6f9; --text-dark: #333; }
     
     html, body { height: 100%; margin: 0; padding: 0; }
     body.login-mode { overflow: hidden; position: fixed; width: 100%; }
-    body { background-color: var(--bg-light); font-family: 'Poppins', 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; color: var(--text-dark); }
+    body { background-color: var(--bg-light); font-family: 'Poppins', 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
     
     .bg-primary { background-color: var(--primary-color) !important; }
     .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }
@@ -109,18 +99,10 @@
     .sub-nav .btn.active { background-color: #000080; color: white; border-color: #000080; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
     
     .stats-wrapper { max-width: 1100px; margin: 0 auto; }
-   .stat-card, .table-card {
-    border: 1px solid rgba(255,255,255,0.7);
-    box-shadow: var(--shadow-card);
-    backdrop-filter: blur(10px); /* Efek modern */
-    border-radius: var(--radius-md);
-}
+    .stat-card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.07); transition: transform 0.3s ease, box-shadow 0.3s ease; color: white; overflow: hidden; height: 100%; position: relative; z-index: 1; }
     .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important; }
     .stat-card i { transition: all 0.5s ease; }
-    .stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-soft) !important;
-}
+    .stat-card:hover i { transform: scale(1.2) rotate(10deg); opacity: 0.7 !important; }
     .stat-value { font-size: 2.5rem; font-weight: 700; line-height: 1; }
     .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
 
@@ -1639,4 +1621,3 @@
   </script>
 </body>
 </html>
-
