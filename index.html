@@ -120,91 +120,20 @@
     .search-input:focus { box-shadow: 0 4px 15px rgba(0, 0, 128, 0.15); border-color: var(--primary-color); }
     .search-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #aaa; z-index: 5; font-size: 1.1rem; }
     
-    /* =======================================================
-       MODIFIED TABLE & CARD VIEW STYLES (FLOATING TABLE)
-       ======================================================= */
-    
-    .table-card { 
-        background: white; 
-        border-radius: 12px; 
-        padding: 20px; 
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
-        border: none; 
-    }
-
-    /* 1. Atur tabel agar support floating row */
-    .table {
-        border-collapse: separate !important; 
-        border-spacing: 0 8px !important; /* Jarak vertikal antar baris */
-    }
-
-    /* 2. Reset style cell tabel bawaan */
-    .table>:not(caption)>*>* {
-        border-bottom-width: 0;
-        box-shadow: none;
-        background-color: transparent;
-    }
-
-    /* 3. Header Tabel: Bersih dan Transparan */
-    .table thead th { 
-        background-color: transparent !important; 
-        color: #64748b; /* Warna teks agak soft */
-        font-weight: 600; 
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        vertical-align: middle; 
-        border-bottom: none;
-        padding-bottom: 10px;
-    }
-
-    /* 4. Style Baris (Floating Row) */
-    .table tbody tr {
-        background-color: #ffffff;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-        border-radius: 12px;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    /* 5. Efek Hover Baris */
-    .table tbody tr:hover {
-        transform: scale(1.005);
-        box-shadow: 0 10px 40px -10px rgba(0,0,128,0.08); /* Soft Shadow */
-        z-index: 5;
-        position: relative;
-    }
-
-    /* 6. Padding Cell */
-    .table tbody td {
-        border: none;
-        vertical-align: middle;
-        padding-top: 15px;
-        padding-bottom: 15px;
-    }
-
-    /* 7. Rounded Corner untuk Baris */
-    .table tbody tr td:first-child { 
-        border-top-left-radius: 12px; 
-        border-bottom-left-radius: 12px; 
-        padding-left: 15px; 
-    }
-    .table tbody tr td:last-child { 
-        border-top-right-radius: 12px; 
-        border-bottom-right-radius: 12px; 
-    }
-    
-    /* =======================================================
-       END MODIFIED TABLE STYLES
-       ======================================================= */
-
+    /* TABLE & CARD VIEW STYLES */
+    .table-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: none; }
+    .table thead th { background-color: #f8f9fc; color: #5a5c69; font-weight: 600; vertical-align: middle; border-bottom: 2px solid #eaecf4; }
     .badge-status { padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; white-space: normal; text-align: left; display: inline-block; }
     .status-expired { background-color: #ffe5e5; color: #cc0000; border: 1px solid #ffcccc; }
     .status-active { background-color: #e5ffe5; color: #007700; border: 1px solid #ccffcc; }
     .status-used { background-color: #fff4e5; color: #cc7700; border: 1px solid #ffeebb; } 
     .status-not-started { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
 
-    .table-responsive { display: block; width: 100%; overflow-x: auto !important; margin-bottom: 10px; border-radius: 8px; border: none; }
-    
+    .table-responsive { display: block; width: 100%; overflow-x: auto !important; margin-bottom: 10px; border: 1px solid #f0f0f0; border-radius: 8px; }
+    .table th:first-child, .table td:first-child { position: static !important; z-index: auto !important; padding-left: 15px; }
+    .table thead th:first-child { background-color: #f8f9fc !important; }
+    .table tbody td:first-child { background-color: #fff !important; }
+
     .nested-cell { display: flex; align-items: center; min-height: 45px; border-bottom: 1px solid #f5f5f5; padding: 6px 0; }
     .nested-cell:last-child { border-bottom: none; }
     .nested-cell-action { justify-content: center; }
@@ -700,47 +629,21 @@
             </div>
         </div>
         <div class="table-card">
-          <div class="row gy-2 gx-3 align-items-center mb-4">
-            <div class="col-12 col-lg-auto">
+          <div class="row gy-3 align-items-center mb-4">
+            <div class="col-12 col-xl-auto">
                <div class="sub-nav btn-group w-100" role="group">
                   <button type="button" class="btn active" onclick="switchTugasSubView('table')" id="btn-tugas-table"><i class="bi bi-table me-1"></i>Tabel</button>
-                  <button type="button" class="btn" onclick="switchTugasSubView('gantt')" id="btn-tugas-gantt"><i class="bi bi-bar-chart-steps me-1"></i>Timeline</button>
+                  <button type="button" class="btn" onclick="switchTugasSubView('gantt')" id="btn-tugas-gantt"><i class="bi bi-bar-chart-steps me-1"></i>Timeline Penugasan</button>
                </div>
             </div>
-
-            <div class="col-12 col-lg-auto" id="tugasFilterContainer" style="display:none !important;">
-                <div class="d-flex flex-wrap flex-lg-nowrap align-items-center gap-2 w-100">
-                    <div class="input-group input-group-sm flex-nowrap" style="min-width: 130px;">
-                        <span class="input-group-text bg-light border-end-0 text-muted">Dari</span>
-                        <input type="date" id="filterTugasStart" class="form-control border-start-0">
-                    </div>
-                    <div class="input-group input-group-sm flex-nowrap" style="min-width: 130px;">
-                        <span class="input-group-text bg-light border-end-0 text-muted">Sampai</span>
-                        <input type="date" id="filterTugasEnd" class="form-control border-start-0">
-                    </div>
-                    <div class="d-flex gap-1">
-                        <button class="btn btn-sm btn-primary px-3" onclick="applyTugasDateFilter()">Filter</button>
-                        <button class="btn btn-sm btn-outline-secondary" onclick="resetTugasDateFilter()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button>
-                    </div>
-                </div>
+            <div class="col-12 col-xl-auto d-flex flex-wrap align-items-center gap-2" id="tugasFilterContainer" style="display:none !important;">
+                <div class="input-group input-group-sm flex-nowrap w-auto flex-grow-1" style="min-width: 140px;"><span class="input-group-text bg-light border-end-0 text-muted">Dari</span><input type="date" id="filterTugasStart" class="form-control border-start-0"></div>
+                <div class="input-group input-group-sm flex-nowrap w-auto flex-grow-1" style="min-width: 140px;"><span class="input-group-text bg-light border-end-0 text-muted">Sampai</span><input type="date" id="filterTugasEnd" class="form-control border-start-0"></div>
+                <div class="d-flex gap-2 w-100 w-xl-auto"><button class="btn btn-sm btn-primary rounded-pill px-3 flex-grow-1 flex-xl-grow-0" onclick="applyTugasDateFilter()">Filter</button><button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="resetTugasDateFilter()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button></div>
             </div>
-
-            <div class="col-12 col-lg ms-lg-auto">
-                <div id="tugasSearchContainer">
-                    <div class="position-relative w-100">
-                        <i class="bi bi-search search-icon"></i>
-                        <input type="text" id="searchTugas" class="form-control search-input" placeholder="Cari Nama Personil, Nama Paket Pekerjaan...">
-                    </div>
-                </div>
-                <div id="tugasGanttSearchContainer" style="display: none;">
-                    <div class="position-relative w-100">
-                        <i class="bi bi-search search-icon"></i>
-                        <input type="text" id="searchTugasGantt" class="form-control search-input" placeholder="Cari Nama Personil, Nama Pekerjaan...">
-                    </div>
-                </div>
-            </div>
+            <div class="col-12 col-xl ms-xl-auto" id="tugasSearchContainer"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchTugas" class="form-control search-input" placeholder="Cari Nama Personil, Nama Paket Pekerjaan..."></div></div>
+            <div class="col-12 col-xl ms-xl-auto" id="tugasGanttSearchContainer" style="display: none;"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchTugasGantt" class="form-control search-input" placeholder="Cari Nama Personil, Nama Pekerjaan..."></div></div>
           </div>
-
           <div id="subview-tugas-table">
             <div class="table-responsive">
               <table class="table table-hover align-middle">
@@ -779,48 +682,22 @@
             </div>
         </div>
         <div class="table-card">
-          <div class="row gy-2 gx-3 align-items-center mb-4">
-            <div class="col-12 col-lg-auto">
+          <div class="row gy-3 align-items-center mb-4">
+            <div class="col-12 col-xl-auto">
                <div class="sub-nav btn-group w-100" role="group">
                   <button type="button" class="btn active" onclick="switchSubView('table')" id="btn-sub-table"><i class="bi bi-table me-1"></i>Tabel</button>
                   <button type="button" class="btn" onclick="switchSubView('gantt-kontrak')" id="btn-sub-kontrak"><i class="bi bi-bar-chart-steps me-1"></i>Timeline Kontrak</button>
                   <button type="button" class="btn" onclick="switchSubView('gantt-schedule')" id="btn-sub-schedule"><i class="bi bi-bar-chart-steps me-1"></i>Timeline Schedule</button>
                </div>
             </div>
-
-            <div class="col-12 col-lg-auto" id="dateFilterContainer" style="display:none !important;">
-                <div class="d-flex flex-wrap flex-lg-nowrap align-items-center gap-2 w-100">
-                    <div class="input-group input-group-sm flex-nowrap" style="min-width: 130px;">
-                        <span class="input-group-text bg-light border-end-0 text-muted">Dari</span>
-                        <input type="date" id="filterStartDate" class="form-control border-start-0">
-                    </div>
-                    <div class="input-group input-group-sm flex-nowrap" style="min-width: 130px;">
-                        <span class="input-group-text bg-light border-end-0 text-muted">Sampai</span>
-                        <input type="date" id="filterEndDate" class="form-control border-start-0">
-                    </div>
-                    <div class="d-flex gap-1">
-                        <button class="btn btn-sm btn-primary px-3" onclick="applyDateFilter()">Filter</button>
-                        <button class="btn btn-sm btn-outline-secondary" onclick="resetDateFilter()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button>
-                    </div>
-                </div>
+            <div class="col-12 col-xl-auto d-flex flex-wrap align-items-center gap-2" id="dateFilterContainer" style="display:none !important;">
+                <div class="input-group input-group-sm flex-nowrap w-auto flex-grow-1" style="min-width: 140px;"><span class="input-group-text bg-light border-end-0 text-muted">Dari</span><input type="date" id="filterStartDate" class="form-control border-start-0"></div>
+                <div class="input-group input-group-sm flex-nowrap w-auto flex-grow-1" style="min-width: 140px;"><span class="input-group-text bg-light border-end-0 text-muted">Sampai</span><input type="date" id="filterEndDate" class="form-control border-start-0"></div>
+                <div class="d-flex gap-2 w-100 w-xl-auto"><button class="btn btn-sm btn-primary rounded-pill px-3 flex-grow-1 flex-xl-grow-0" onclick="applyDateFilter()">Filter</button><button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="resetDateFilter()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button></div>
             </div>
-
-            <div class="col-12 col-lg ms-lg-auto">
-                <div id="searchProjectContainer">
-                    <div class="position-relative w-100">
-                        <i class="bi bi-search search-icon"></i>
-                        <input type="text" id="searchProject" class="form-control search-input" placeholder="Cari Nama Pekerjaan, Nama Kordinator...">
-                    </div>
-                </div>
-                <div id="projectGanttSearchContainer" style="display: none;">
-                    <div class="position-relative w-100">
-                        <i class="bi bi-search search-icon"></i>
-                        <input type="text" id="searchProjectGantt" class="form-control search-input" placeholder="Cari Nama Pekerjaan...">
-                    </div>
-                </div>
-            </div>
+            <div class="col-12 col-xl ms-xl-auto" id="searchProjectContainer"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchProject" class="form-control search-input" placeholder="Cari Nama Pekerjaan, Nama Kordinator..."></div></div>
+            <div class="col-12 col-xl ms-xl-auto" id="projectGanttSearchContainer" style="display: none;"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchProjectGantt" class="form-control search-input" placeholder="Cari Nama Pekerjaan..."></div></div>
           </div>
-
           <div id="subview-table">
             <div class="table-responsive">
               <table class="table table-hover align-middle" style="font-size: 0.9rem;">
