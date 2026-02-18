@@ -224,7 +224,7 @@
 
     /* =========================================================================
        SPLASH SCREEN STYLES (APP FEEL) - MOBILE ONLY
-       UPDATED: Start from 0 width, smooth bezier curve
+       UPDATED: Smooth continuous animation (No Stops)
        ========================================================================= */
     #mobile-splash-screen {
         display: none; /* Desktop default: HIDDEN */
@@ -299,9 +299,9 @@
             animation: fadeIn 0.5s ease-out 0.8s forwards;
         }
 
-        /* MODIFIED: Loading Bar Fill Animation 
-           1. width: 0% (Start from zero)
-           2. Cubic-bezier untuk efek smooth "Elegance"
+        /* MODIFIED: Super Smooth Continuous Loading 
+           1. width: 0% -> 100% (No intermediate steps)
+           2. cubic-bezier(0.4, 0, 0.2, 1) = Fast out, Slow in (Smooth landing)
         */
         .splash-loader::after {
             content: '';
@@ -309,18 +309,16 @@
             top: 0;
             left: 0;
             height: 100%;
-            width: 0%; /* FORCE START 0 */
+            width: 0%; /* Start 0 */
             background: #fff;
             border-radius: 4px;
-            /* Durasi 3.5 detik, Curve smooth */
-            animation: loaderFill 3.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+            /* Animation 3.5s smooth continuous */
+            animation: loaderFill 3.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
         @keyframes loaderFill {
             0% { width: 0%; }
-            40% { width: 40%; } /* Lambat di awal */
-            70% { width: 80%; } /* Cepat di tengah */
-            100% { width: 100%; } /* Lambat di akhir */
+            100% { width: 100%; }
         }
 
         @keyframes splashEnter { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
