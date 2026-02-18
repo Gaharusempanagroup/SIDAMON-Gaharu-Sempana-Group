@@ -82,61 +82,16 @@
     .mobile-menu-item:active { transform: scale(0.98); background: #f0f0f0; }
     .mobile-menu-item i { font-size: 1.2rem; color: var(--primary-color); }
     
-    /* =======================================================
-       IMPROVED MENU STYLE (CENTERED & SMOOTH)
-       ======================================================= */
-    .nav-pills { 
-        background-color: #e2e8f0; 
-        padding: 5px; 
-        border-radius: 50px; 
-        display: flex;
-        justify-content: center;
-        width: fit-content; 
-        margin: 0 auto 30px auto !important;
-        border: none;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-    }
-    
+    .nav-pills { background-color: #e2e8f0; padding: 5px; border-radius: 50px; display: flex; justify-content: center; width: fit-content; margin: 0 auto 30px auto !important; border: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
     .nav-pills .nav-item { margin-bottom: 0; }
+    .nav-pills .nav-link { border-radius: 50px; padding: 10px 30px; font-weight: 500; color: #64748b; background: transparent; border: none; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: none; white-space: nowrap; }
+    .nav-pills .nav-link.active { background-color: #ffffff; color: var(--primary-color); box-shadow: 0 4px 10px rgba(0,0,0,0.1); font-weight: 700; transform: scale(1.03); }
+    .nav-pills .nav-link:hover:not(.active) { color: var(--text-dark); background-color: rgba(255,255,255,0.6); transform: scale(1.01); }
     
-    .nav-pills .nav-link { 
-        border-radius: 50px; 
-        padding: 10px 30px; 
-        font-weight: 500; 
-        color: #64748b; 
-        background: transparent; 
-        border: none; 
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        box-shadow: none;
-        white-space: nowrap;
-    }
-    
-    .nav-pills .nav-link.active { 
-        background-color: #ffffff; 
-        color: var(--primary-color); 
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
-        font-weight: 700;
-        transform: scale(1.03); 
-    }
-    
-    .nav-pills .nav-link:hover:not(.active) { 
-        color: var(--text-dark); 
-        background-color: rgba(255,255,255,0.6);
-        transform: scale(1.01);
-    }
-    
-    /* Content Animation */
-    .view-section {
-        animation: fadeInUpContent 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-
-    @keyframes fadeInUpContent {
-        from { opacity: 0; transform: translateY(15px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+    .view-section { animation: fadeInUpContent 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    @keyframes fadeInUpContent { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
     .btn:active { transform: scale(0.95) !important; background-color: #f0f0f0; }
-    
     .sub-nav .btn { border-radius: 20px; font-size: 0.85rem; font-weight: 600; padding: 6px 15px; border: 1px solid #ddd; background: white; color: #555; transition: all 0.2s ease; touch-action: manipulation; }
     .sub-nav .btn.active { background-color: #000080; color: white; border-color: #000080; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
     
@@ -161,79 +116,23 @@
     .search-input:focus { box-shadow: 0 4px 15px rgba(0, 0, 128, 0.15); border-color: var(--primary-color); }
     .search-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #aaa; z-index: 5; font-size: 1.1rem; }
     
-    /* =======================================================
-       MODIFIED TABLE & CARD VIEW STYLES
-       ======================================================= */
-    
-    .table-card { 
-        background: white; 
-        border-radius: 12px; 
-        padding: 20px; 
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
-        border: none; 
-    }
-
+    .table-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: none; }
     .table { border-collapse: separate !important; border-spacing: 0 8px !important; }
     .table>:not(caption)>*>* { border-bottom-width: 0; box-shadow: none; background-color: transparent; }
-
-    .table thead th { 
-        background-color: #eef2f7 !important; 
-        color: #34495e !important;            
-        font-weight: 700 !important;          
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        vertical-align: middle; 
-        border-bottom: 2px solid #cbd5e1 !important; 
-        padding: 15px 10px; 
-        white-space: nowrap; 
-    }
-
+    .table thead th { background-color: #eef2f7 !important; color: #34495e !important; font-weight: 700 !important; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; vertical-align: middle; border-bottom: 2px solid #cbd5e1 !important; padding: 15px 10px; white-space: nowrap; }
     .table thead th:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
     .table thead th:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
-
-    .table tbody tr {
-        background-color: #ffffff;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-        border-radius: 12px;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        border-left: 3px solid transparent; 
-    }
-
-    /* Efek Hover Baris - FIX SCROLL HORIZONTAL */
-    .table tbody tr:hover {
-        transform: translateY(-2px) !important; 
-        box-shadow: 0 10px 20px -5px rgba(0,0,128,0.1) !important;
-        z-index: 5;
-        position: relative;
-        background-color: #f8faff !important; 
-        border-left: 3px solid var(--primary-color);
-    }
-
+    .table tbody tr { background-color: #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border-radius: 12px; transition: transform 0.2s ease, box-shadow 0.2s ease; border-left: 3px solid transparent; }
+    .table tbody tr:hover { transform: translateY(-2px) !important; box-shadow: 0 10px 20px -5px rgba(0,0,128,0.1) !important; z-index: 5; position: relative; background-color: #f8faff !important; border-left: 3px solid var(--primary-color); }
     .table tbody td { border: none; vertical-align: middle; padding-top: 15px; padding-bottom: 15px; }
     .table tbody tr td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; padding-left: 15px; }
     .table tbody tr td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
     
-    /* =======================================================
-       MODERN SOFT UI BADGES (NEW UPDATE)
-       ======================================================= */
-    .badge-status { 
-        padding: 6px 12px; 
-        border-radius: 6px; /* Modern rounded-md */
-        font-size: 0.75rem; 
-        font-weight: 600; 
-        white-space: normal; 
-        text-align: center; 
-        display: inline-block;
-        border: none !important; /* Hapus border garis lama */
-        letter-spacing: 0.3px;
-    }
-
-    /* Warna Soft UI (Background Muda + Teks Gelap) */
-    .status-active { background-color: #d1fae5; color: #065f46; } /* Emerald Green */
-    .status-expired { background-color: #fee2e2; color: #991b1b; } /* Rose Red */
-    .status-used { background-color: #ffedd5; color: #9a3412; }    /* Orange */
-    .status-not-started { background-color: #f1f5f9; color: #475569; } /* Slate Grey */
+    .badge-status { padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; white-space: normal; text-align: center; display: inline-block; border: none !important; letter-spacing: 0.3px; }
+    .status-active { background-color: #d1fae5; color: #065f46; }
+    .status-expired { background-color: #fee2e2; color: #991b1b; }
+    .status-used { background-color: #ffedd5; color: #9a3412; }
+    .status-not-started { background-color: #f1f5f9; color: #475569; }
 
     .table-responsive { display: block; width: 100%; overflow-x: auto !important; margin-bottom: 10px; border-radius: 8px; border: none; }
     .table-responsive::-webkit-scrollbar { height: 6px; }
@@ -302,48 +201,20 @@
     
     #modalTambahData .modal-header { background: linear-gradient(135deg, var(--primary-color), #000050); padding: 20px 30px; }
     
-    .modern-input-group { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 5px 5px 5px 15px; transition: all 0.3s ease; display: flex; align-items: center; margin-bottom: 15px; position: relative; } /* Added position relative */
+    .modern-input-group { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 5px 5px 5px 15px; transition: all 0.3s ease; display: flex; align-items: center; margin-bottom: 15px; position: relative; } 
     .modern-input-group:focus-within { border-color: var(--primary-color); box-shadow: 0 4px 12px rgba(0, 0, 128, 0.1); transform: translateY(-2px); }
     .input-icon { font-size: 1.2rem; color: var(--primary-color); opacity: 0.7; margin-right: 10px; }
     .modern-input-group .form-floating { flex-grow: 1; }
     
-    .modern-input-group .form-control { 
-        border: none !important; 
-        box-shadow: none !important; 
-        background: transparent; 
-        padding-top: 1.625rem; 
-        padding-bottom: 0.625rem; 
-        font-weight: 500; 
-        color: #333; 
-        min-height: 58px;
-    }
-    
+    .modern-input-group .form-control { border: none !important; box-shadow: none !important; background: transparent; padding-top: 1.625rem; padding-bottom: 0.625rem; font-weight: 500; color: #333; min-height: 58px; }
     .modern-input-group .form-control:focus { outline: none; }
     .modern-input-group label { padding-left: 0; color: #888; font-size: 0.9rem; }
     input[list]::-webkit-calendar-picker-indicator { opacity: 0.6; cursor: pointer; transition: 0.2s; }
     input[list]:hover::-webkit-calendar-picker-indicator { opacity: 1; transform: scale(1.1); }
     
-    /* FIX: TAMPILAN DATE PICKER CLEAN */
-    input[type="date"]::-webkit-calendar-picker-indicator {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0;
-        cursor: pointer;
-        z-index: 10;
-    }
+    input[type="date"]::-webkit-calendar-picker-indicator { position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; }
     
-    .form-select {
-        border: none !important;
-        box-shadow: none !important;
-        background-color: transparent;
-        font-weight: 500;
-        color: #333;
-    }
+    .form-select { border: none !important; box-shadow: none !important; background-color: transparent; font-weight: 500; color: #333; }
     .form-select:focus { outline: none; box-shadow: none; }
 
     /* --- FLOATING ACTION BUTTON (FAB) --- */
@@ -351,7 +222,10 @@
     .btn-fab { width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 24px; display: flex; align-items: center; justify-content: center; background-color: var(--primary-color); color: white; border: none; transition: transform 0.2s; }
     .btn-fab:active { transform: scale(0.95); }
 
-    /* --- SPLASH SCREEN STYLES (APP FEEL) - MOBILE ONLY --- */
+    /* =========================================================================
+       SPLASH SCREEN STYLES (APP FEEL) - MOBILE ONLY
+       UPDATED: Start from 0 width, smooth bezier curve
+       ========================================================================= */
     #mobile-splash-screen {
         display: none; /* Desktop default: HIDDEN */
     }
@@ -413,7 +287,7 @@
             animation: fadeInUp 0.8s ease-out 0.5s forwards;
         }
 
-        /* Fake Loading Bar */
+        /* Loading Bar Container */
         .splash-loader {
             width: 150px;
             height: 4px;
@@ -425,61 +299,53 @@
             animation: fadeIn 0.5s ease-out 0.8s forwards;
         }
 
+        /* MODIFIED: Loading Bar Fill Animation 
+           1. width: 0% (Start from zero)
+           2. Cubic-bezier untuk efek smooth "Elegance"
+        */
         .splash-loader::after {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             height: 100%;
-            width: 0%;
+            width: 0%; /* FORCE START 0 */
             background: #fff;
             border-radius: 4px;
-            /* DURASI ANIMASI DIPERLAMBAT JADI 3.5s */
-            animation: loadProgress 3.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            /* Durasi 3.5 detik, Curve smooth */
+            animation: loaderFill 3.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
         }
 
-        /* Keyframes khusus Splash */
+        @keyframes loaderFill {
+            0% { width: 0%; }
+            40% { width: 40%; } /* Lambat di awal */
+            70% { width: 80%; } /* Cepat di tengah */
+            100% { width: 100%; } /* Lambat di akhir */
+        }
+
         @keyframes splashEnter { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         @keyframes pulseGlow { 0%, 100% { filter: drop-shadow(0 0 15px rgba(255,255,255,0.4)); transform: scale(1); } 50% { filter: drop-shadow(0 0 25px rgba(255,255,255,0.8)); transform: scale(1.05); } }
-        @keyframes loadProgress { 0% { width: 0%; } 40% { width: 70%; } 100% { width: 100%; } }
     }
 
 
-    /* --- RESPONSIVE STYLE (UPDATED FOR CARD VIEW) --- */
+    /* --- RESPONSIVE STYLE --- */
     @media (max-width: 768px) {
       .navbar .container-fluid { padding-left: 15px; padding-right: 15px; }
       .logo-wrapper img { height: 35px !important; }
       .greeting-wrapper { display: none !important; } 
       
-      /* ===========================================
-         3. MOBILE MENU: STACKING (NO SCROLL)
-         =========================================== */
-      .nav-pills { 
-          display: flex; 
-          flex-direction: column; /* Menumpuk vertikal */
-          width: 100% !important; /* Force width full on mobile */
-          margin: 0 0 20px 0 !important;
-          border-radius: 16px;
-          padding: 6px;
-      }
+      .nav-pills { display: flex; flex-direction: column; width: 100% !important; margin: 0 0 20px 0 !important; border-radius: 16px; padding: 6px; }
       .nav-pills .nav-item { width: 100%; margin-bottom: 4px; }
-      .nav-pills .nav-link { 
-          width: 100%; 
-          text-align: center; 
-          padding: 12px 0; 
-          border-radius: 12px; 
-      }
+      .nav-pills .nav-link { width: 100%; text-align: center; padding: 12px 0; border-radius: 12px; }
       .nav-pills .nav-link.active { transform: none; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 
       .stat-card { margin-bottom: 10px; }
       .stat-value { font-size: 2rem; }
-      #btnAddDataContainer { display: none !important; } /* Hide Top Btn */
+      #btnAddDataContainer { display: none !important; }
       
-      /* FAB Animation */
       .fab-container.show-fab { display: block !important; animation: scaleIn 0.3s ease-out; }
       @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
       
-      /* Gantt Responsive */
       .g-sticky-col, .g-col-personil, .g-col-pekerjaan { position: static !important; box-shadow: none !important; border-right: 1px solid #eee !important; flex-shrink: 0; white-space: normal !important; word-wrap: break-word; font-size: 0.75rem; height: auto !important; display: flex; align-items: center; }
       .g-col-personil { width: 130px !important; min-width: 130px !important; }
       .g-col-pekerjaan { width: 180px !important; min-width: 180px !important; left: auto !important; }
@@ -487,91 +353,23 @@
       .g-row-container { align-items: stretch; width: max-content; min-width: 100%; display: flex; }
       .custom-gantt-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
 
-      /* --- TABLE TO CARD TRANSFORMATION (CARD VIEW) --- */
+      /* TABLE TO CARD TRANSFORMATION */
       .table-responsive { border: none; overflow: visible !important; }
-      .table thead { display: none; } /* Sembunyikan Header Tabel di Mobile */
+      .table thead { display: none; }
       .table, .table tbody, .table tr, .table td { display: block; width: 100%; }
-      .table tr {
-          margin-bottom: 15px;
-          background: #fff;
-          border-radius: 12px;
-          box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-          border: 1px solid #eaeaea;
-          position: relative;
-          padding-bottom: 10px;
-      }
-      .table td {
-          text-align: left !important;
-          padding: 12px 10px !important;
-          border: none;
-          position: relative;
-      }
-      .table td:first-child {
-          border-top-left-radius: 12px;
-          border-top-right-radius: 12px;
-          background: linear-gradient(to right, #ffffff, #f9faff);
-          border-bottom: 1px solid #f0f0f0;
-          padding-top: 15px;
-          padding-bottom: 12px;
-          padding-right: 10px;
-      }
+      .table tr { margin-bottom: 15px; background: #fff; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eaeaea; position: relative; padding-bottom: 10px; }
+      .table td { text-align: left !important; padding: 12px 10px !important; border: none; position: relative; }
+      .table td:first-child { border-top-left-radius: 12px; border-top-right-radius: 12px; background: linear-gradient(to right, #ffffff, #f9faff); border-bottom: 1px solid #f0f0f0; padding-top: 15px; padding-bottom: 12px; padding-right: 10px; }
       
-      /* Mobile Elements Styling */
-      .mobile-card-label {
-          display: block;
-          font-size: 0.7rem;
-          color: #888;
-          text-transform: uppercase;
-          font-weight: 600;
-          letter-spacing: 0.5px;
-          margin-bottom: 3px;
-      }
-      .mobile-detail-group {
-          background-color: #f8f9fa;
-          border-radius: 8px;
-          padding: 12px;
-          margin-top: 10px;
-          border-left: 3px solid var(--primary-color);
-      }
-      .mobile-detail-item {
-          margin-bottom: 8px;
-          padding-bottom: 8px;
-          border-bottom: 1px dashed #e0e0e0;
-      }
-      .mobile-detail-item:last-child {
-          margin-bottom: 0;
-          padding-bottom: 0;
-          border-bottom: none;
-      }
+      .mobile-card-label { display: block; font-size: 0.7rem; color: #888; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 3px; }
+      .mobile-detail-group { background-color: #f8f9fa; border-radius: 8px; padding: 12px; margin-top: 10px; border-left: 3px solid var(--primary-color); }
+      .mobile-detail-item { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #e0e0e0; }
+      .mobile-detail-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
       
-      /* Floating Edit Button inside Card */
-      .mobile-floating-edit {
-          position: absolute;
-          top: 12px;
-          right: 12px;
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          background-color: #fff;
-          color: var(--primary-color);
-          border: 1px solid #e0e0e0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-          z-index: 5;
-      }
+      .mobile-floating-edit { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; background-color: #fff; color: var(--primary-color); border: 1px solid #e0e0e0; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 5; }
       .mobile-floating-edit:active { background-color: #f0f0f0; transform: scale(0.95); }
       
-      .modern-input-group input[type="date"].form-control {
-          font-size: 13px !important;
-          padding-top: 1.6rem !important;
-          padding-bottom: 0 !important;   
-          min-height: 55px !important;      
-          display: flex;
-          align-items: center;
-      }
-
+      .modern-input-group input[type="date"].form-control { font-size: 13px !important; padding-top: 1.6rem !important; padding-bottom: 0 !important; min-height: 55px !important; display: flex; align-items: center; }
       .nested-cell { border-bottom: none !important; padding: 2px 0 !important; min-height: auto !important; display: block !important; }
     }
   </style>
@@ -985,12 +783,11 @@
     let filterStatusTugas = 'all'; // all, active
     let filterStatusProject = 'all'; // all, expired, done
 
-    // Fungsi HANYA untuk Mengunci/Membuka Klik (Tanpa Visual Overlay)
     function toggleLoadingState(isLoading) {
         if (isLoading) {
-            document.body.classList.add('data-loading'); // Kunci Klik
+            document.body.classList.add('data-loading');
         } else {
-            document.body.classList.remove('data-loading'); // Buka Kunci
+            document.body.classList.remove('data-loading');
         }
     }
 
@@ -1017,17 +814,14 @@
     try { google.charts.load('current', {'packages':['gantt']}); } catch(e){}
 
     window.addEventListener('DOMContentLoaded', () => {
-        // --- LOGIC SPLASH SCREEN (MOBILE APP FEEL) ---
-        // Animasi ini hanya aktif di mobile (sesuai CSS @media)
-        // Kita set waktu 4 detik (DIPERPANJANG) agar terlihat premium
+        // --- LOGIC SPLASH SCREEN REFINED ---
         setTimeout(() => {
             const splash = document.getElementById('mobile-splash-screen');
             if(splash) {
-                splash.classList.add('hidden'); // Trigger CSS opacity 0
-                // Hapus/sembunyikan dari DOM setelah transisi selesai
+                splash.classList.add('hidden'); 
                 setTimeout(() => { splash.style.display = 'none'; }, 850); 
             }
-        }, 4000); // <-- UBAH KE 4000 (4 Detik)
+        }, 4000); // 4000ms = 4 detik (Bar loading selesai dalam 3.5 detik, ada jeda 0.5 detik saat penuh)
 
         const storedRole = sessionStorage.getItem('userRole');
         if (storedRole) { loginSuccess(storedRole, false); }
@@ -1070,10 +864,7 @@
         currentUserRole = role; 
         sessionStorage.setItem('userRole', role); 
         
-        // 1. Matikan Overlay Login (Agar Skeleton terlihat)
         document.getElementById('loading-overlay').style.display = 'none';
-
-        // 2. TAMPILKAN DASHBOARD
         document.getElementById('login-section').style.display = 'none'; 
         document.getElementById('dashboard-section').style.display = 'block'; 
         document.body.classList.remove('login-mode'); 
@@ -1083,10 +874,7 @@
         applyRoleAccess(currentUserRole); 
         updateGreeting(currentUserRole); 
         
-        // 3. AKTIFKAN PENGUNCI KLIK (Safe State)
         toggleLoadingState(true);
-        
-        // 4. Mulai ambil data
         loadAllData(); 
     }
 
@@ -1193,14 +981,12 @@
     }
 
     async function loadAllData() {
-      // Tampilkan Skeleton
       if(currentUserRole !== "TEKNIS") { showSkeleton('bodySkk'); showSkeleton('bodyTugas'); }
       if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "TEKNIS") { showSkeleton('bodyProject'); }
       
       const promises = []; 
       let loadSKK = false, loadTugas = false, loadProject = false, loadDropdown = false;
       
-      // Safety: Pastikan state loading aktif (jika dipanggil manual)
       toggleLoadingState(true);
 
       if(currentUserRole !== "TEKNIS") { promises.push(fetchAPI('getDataSKK')); loadSKK = true; promises.push(fetchAPI('getDataPenugasan')); loadTugas = true; }
@@ -1223,7 +1009,6 @@
           console.error(e); 
           alert("Gagal memuat sebagian data. Silakan refresh."); 
       } finally {
-          // --- KUNCI UTAMA: BUKA BLOKIR KLIK DI SINI ---
           toggleLoadingState(false);
       }
     }
@@ -1239,9 +1024,7 @@
         const btnNext = document.createElement('button'); btnNext.className = 'btn-page'; btnNext.innerHTML = '<i class="bi bi-chevron-right"></i>'; btnNext.disabled = currentPage === totalPages; btnNext.onclick = () => renderCallback(currentPage + 1); container.appendChild(btnNext);
     }
 
-    // --- HANDLER FUNCTION FOR CLICKABLE STATS ---
     function handleStatClick(view, type, colElement) {
-        // SAFETY GUARD: Cek apakah data sudah ada. Jika belum, jangan lakukan apa-apa.
         if (view === 'skk' && (!dataSKK || dataSKK.length === 0)) return;
         if (view === 'tugas' && (!dataTugas || dataTugas.length === 0)) return;
         if (view === 'project' && (!dataProject || dataProject.length === 0)) return;
@@ -1273,7 +1056,6 @@
         }
     }
 
-    // --- RENDER SKK: Filter Logic Added ---
     function renderSKK(data, page = 1) {
       currentPageSkk = page; 
       const tbody = document.getElementById('bodySkk'); 
@@ -1281,8 +1063,7 @@
       
       let statTotal = 0, statUsed = 0, statExpired = 0;
       
-      // LOGIC BARU: MENGGUNAKAN SET UNTUK MENGHINDARI DUPLIKASI
-      const activeAssignmentsMap = new Map(); // Key: nama personil (lowercase), Value: Set of LPSE strings
+      const activeAssignmentsMap = new Map(); 
 
       if(dataTugas && dataTugas.length > 0) { 
           for(let i=0; i<dataTugas.length; i++){ 
@@ -1292,14 +1073,12 @@
               
               if (pName && pStatus.includes('active')) { 
                   let lpse = (row[5] || "").trim();
-                  // Normalisasi spasi: mengubah spasi ganda/tab menjadi satu spasi
                   lpse = lpse.replace(/\s+/g, ' ');
                   
                   if(lpse) {
                       if (!activeAssignmentsMap.has(pName)) {
                           activeAssignmentsMap.set(pName, new Set());
                       }
-                      // Set otomatis menolak duplikat string yang persis sama
                       activeAssignmentsMap.get(pName).add(lpse);
                   }
               } 
@@ -1315,7 +1094,6 @@
       
       let allKeys = Object.keys(groupedData);
 
-      // Hitung Stats dari Data Total (bukan halaman ini saja)
       statTotal = allKeys.length;
       allKeys.forEach(key => { 
           const person = groupedData[key]; 
@@ -1329,13 +1107,11 @@
           if (isUsed) statUsed++; 
       });
       
-      // FIX ANIMASI: Mulai dari angka saat ini (bukan 0) agar tidak berkedip saat filter
       const getCurrentVal = (id) => parseInt(document.getElementById(id).innerText.replace(/\D/g,'')) || 0;
       animateValue("skk-total", getCurrentVal("skk-total"), statTotal, 500); 
       animateValue("skk-expired", getCurrentVal("skk-expired"), statExpired, 500); 
       animateValue("skk-used", getCurrentVal("skk-used"), statUsed, 500);
 
-      // --- LOGIC FILTER CARD STATS ---
       if (filterStatusSKK !== 'all') {
           allKeys = allKeys.filter(key => {
               const person = groupedData[key];
@@ -1388,12 +1164,10 @@
           
           const keyNormalized = person.nama.toLowerCase().trim();
           
-          // --- LOGIC DISPLAY LPSE UNIK ---
           if (activeAssignmentsMap.has(keyNormalized)) { 
               const lpseSet = activeAssignmentsMap.get(keyNormalized);
               if (lpseSet.size > 0) {
                   isUsed = true; 
-                  // Konversi Set ke Array untuk display
                   const lpseArray = Array.from(lpseSet);
                   let lpseString = lpseArray.length === 1 ? lpseArray[0] : (lpseArray.length === 2 ? `${lpseArray[0]} dan ${lpseArray[1]}` : `${lpseArray.slice(0, -1).join(", ")}, dan ${lpseArray[lpseArray.length - 1]}`);
                   usedProjectName = `Used in ${lpseString}`; 
@@ -1432,7 +1206,6 @@
       setupPagination(allKeys.length, currentPageSkk, 'pagination-skk', (p) => renderSKK(data, p));
     }
 
-    // --- RENDER TUGAS: Filter Logic Added ---
     function renderTugas(data, page = 1) {
        currentPageTugas = page; const tbody = document.getElementById('bodyTugas'); let htmlContent = []; 
        
@@ -1441,7 +1214,6 @@
        let active = 0; 
        for(let i=0; i<filtered.length; i++) { if((filtered[i][12]||"").toLowerCase().includes('active')) active++; }
        
-       // FIX ANIMASI
        const getCurrentVal = (id) => parseInt(document.getElementById(id).innerText.replace(/\D/g,'')) || 0;
        animateValue("tugas-total", getCurrentVal("tugas-total"), new Set(data.map(r=>r[2])).size, 500); 
        animateValue("tugas-active", getCurrentVal("tugas-active"), active, 500);
@@ -1475,7 +1247,6 @@
        tbody.innerHTML = htmlContent.join(''); setupPagination(persons.length, currentPageTugas, 'pagination-tugas', (p) => renderTugas(data, p));
     }
 
-    // --- RENDER PROJECT: Filter Logic Added ---
     function renderProject(data, page = 1) {
       currentPageProject = page; const tbody = document.getElementById('bodyProject'); let htmlContent = []; 
       let counts = { total: 0, expired: 0, done: 0 }; const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -1484,7 +1255,6 @@
 
       for(let i=0; i<data.length; i++) { const row = data[i]; if (!row[1]) continue; counts.total++; let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13]; const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim(); const isDone = rawStatus.includes('done') || rawStatus.includes('selesai'); const kontrakExpired = !isDone && isExpiredCheck(deadKontrakRaw); const scheduleExpired = !isDone && isExpiredCheck(deadScheduleRaw); if (kontrakExpired || scheduleExpired) counts.expired++; if (isDone) counts.done++; }
       
-      // FIX ANIMASI
       const getCurrentVal = (id) => parseInt(document.getElementById(id).innerText.replace(/\D/g,'')) || 0;
       animateValue("proj-total", getCurrentVal("proj-total"), counts.total, 500);
       animateValue("proj-expired", getCurrentVal("proj-expired"), counts.expired, 500);
@@ -1557,11 +1327,8 @@
     window.moveTooltip = function(e) { const x = e.clientX; const y = e.clientY; const tWidth = tooltip.offsetWidth; const winWidth = window.innerWidth; let leftPos = x + 15; if (leftPos + tWidth > winWidth - 20) { leftPos = x - tWidth - 10; } tooltip.style.top = (y + 15) + 'px'; tooltip.style.left = leftPos + 'px'; }
     window.hideTooltip = function() { tooltip.style.display = 'none'; }
 
-    // --- REVISED: SWITCH VIEW WITH SMOOTH ANIMATION ---
     window.switchView = function(viewName) {
-      // 1. Handle Active Class pada Tombol (UI)
       document.querySelectorAll('#pills-tab .nav-link').forEach(btn => btn.classList.remove('active'));
-      
       let navId = ''; 
       if(viewName === 'skk') navId = 'nav-skk'; 
       else if(viewName === 'penugasan') navId = 'nav-penugasan'; 
@@ -1570,7 +1337,6 @@
       const navEl = document.getElementById(navId); 
       if(navEl) navEl.querySelector('button').classList.add('active');
 
-      // 2. Handle Perpindahan Konten dengan Reset Animasi
       const allViews = document.querySelectorAll('.view-section');
       allViews.forEach(el => {
           el.style.display = 'none';
@@ -1580,9 +1346,7 @@
       const targetView = document.getElementById('view-'+viewName);
       if(targetView) {
           targetView.style.display = 'block';
-          // Trigger Reflow (Browser membaca ulang render)
           void targetView.offsetWidth; 
-          // Animasi CSS dijalankan otomatis karena display berubah dari none ke block
       }
       
       const fab = document.getElementById('fabAddData');
