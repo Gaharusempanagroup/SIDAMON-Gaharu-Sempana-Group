@@ -19,15 +19,28 @@
     
     html, body { height: 100%; margin: 0; padding: 0; }
     body.login-mode { overflow: hidden; position: fixed; width: 100%; }
-    body { background-color: var(--bg-light); font-family: 'Poppins', 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+    body { background-color: var(--bg-light); font-family: 'Poppins', 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
     
     .bg-primary { background-color: var(--primary-color) !important; }
     .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }
     .btn-primary:hover { background-color: #000060; border-color: #000060; }
 
-    /* --- SAFE LOADING STATE --- */
-    body.data-loading #dashboard-section { pointer-events: none !important; user-select: none; cursor: wait; }
-    body.data-loading #loading-overlay { display: none !important; }
+    /* --- SAFE LOADING STATE (TRANSPARENT LOCK) --- */
+    /* Saat class 'data-loading' aktif:
+       1. Dashboard terlihat NORMAL (Jelas, tidak redup).
+       2. Skeleton Loading terlihat.
+       3. User TIDAK BISA klik apapun (Anti-Crash).
+    */
+    body.data-loading #dashboard-section {
+        pointer-events: none !important; /* KUNCI UTAMA: Mematikan interaksi */
+        user-select: none; 
+        cursor: wait; 
+    }
+    
+    /* Sembunyikan overlay loading agar Skeleton terlihat jelas */
+    body.data-loading #loading-overlay {
+        display: none !important;
+    }
 
     /* --- LOGIN PAGE ANIMATIONS --- */
     #login-section { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; height: 100dvh; display: flex; align-items: center; justify-content: center; background: linear-gradient(-45deg, #000428, #004e92, #000080, #1cb5e0); background-size: 400% 400%; animation: gradientBG 15s ease infinite; overflow: hidden; z-index: 9999; padding: 20px; }
@@ -50,6 +63,7 @@
     .form-floating > .form-control:focus ~ label, .form-floating > .form-control:not(:placeholder-shown) ~ label { color: rgba(255, 255, 255, 1); font-weight: 600; opacity: 1; }
     .form-floating > .form-control:focus ~ label::after, .form-floating > .form-control:not(:placeholder-shown) ~ label::after { background-color: transparent !important; }
     
+    /* Button Animations */
     .btn-login { background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05)); border: 1px solid rgba(255, 255, 255, 0.6); color: white; height: 55px; border-radius: 50px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); backdrop-filter: blur(5px); transition: all 0.4s ease; position: relative; overflow: hidden; width: 100%; touch-action: manipulation; cursor: pointer; }
     .btn-login:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.25); border-color: #ffffff; box-shadow: 0 0 25px rgba(255, 255, 255, 0.4); color: white !important; }
     .btn-login:active { transform: scale(0.96); background: rgba(255, 255, 255, 0.3); }
@@ -82,16 +96,11 @@
     .mobile-menu-item:active { transform: scale(0.98); background: #f0f0f0; }
     .mobile-menu-item i { font-size: 1.2rem; color: var(--primary-color); }
     
-    .nav-pills { background-color: #e2e8f0; padding: 5px; border-radius: 50px; display: flex; justify-content: center; width: fit-content; margin: 0 auto 30px auto !important; border: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
-    .nav-pills .nav-item { margin-bottom: 0; }
-    .nav-pills .nav-link { border-radius: 50px; padding: 10px 30px; font-weight: 500; color: #64748b; background: transparent; border: none; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: none; white-space: nowrap; }
-    .nav-pills .nav-link.active { background-color: #ffffff; color: var(--primary-color); box-shadow: 0 4px 10px rgba(0,0,0,0.1); font-weight: 700; transform: scale(1.03); }
-    .nav-pills .nav-link:hover:not(.active) { color: var(--text-dark); background-color: rgba(255,255,255,0.6); transform: scale(1.01); }
+    .nav-pills .nav-link { border-radius: 50px; padding: 10px 25px; font-weight: 600; color: #555; background: white; border: 1px solid #ddd; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; touch-action: manipulation; }
+    .nav-pills .nav-link.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); box-shadow: 0 4px 15px rgba(0, 0, 128, 0.3); }
+    .nav-pills .nav-link:hover:not(.active) { background-color: #f8f9fa; transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); color: var(--primary-color); }
+    .btn:active, .nav-link:active { transform: scale(0.95) !important; background-color: #f0f0f0; }
     
-    .view-section { animation: fadeInUpContent 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
-    @keyframes fadeInUpContent { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-    .btn:active { transform: scale(0.95) !important; background-color: #f0f0f0; }
     .sub-nav .btn { border-radius: 20px; font-size: 0.85rem; font-weight: 600; padding: 6px 15px; border: 1px solid #ddd; background: white; color: #555; transition: all 0.2s ease; touch-action: manipulation; }
     .sub-nav .btn.active { background-color: #000080; color: white; border-color: #000080; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
     
@@ -103,6 +112,7 @@
     .stat-value { font-size: 2.5rem; font-weight: 700; line-height: 1; }
     .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
 
+    /* --- STATS FILTER ANIMATION & STYLE --- */
     .clickable-card { cursor: pointer; position: relative; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
     .stat-card.active-filter { transform: translateY(-8px) scale(1.02); border: 2px solid rgba(255, 255, 255, 0.8); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3) !important; z-index: 10; }
     .stat-card.active-filter::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 40px; height: 4px; background-color: rgba(255,255,255,0.8); border-radius: 4px; animation: fadeIn 0.5s ease-in-out; }
@@ -116,28 +126,20 @@
     .search-input:focus { box-shadow: 0 4px 15px rgba(0, 0, 128, 0.15); border-color: var(--primary-color); }
     .search-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #aaa; z-index: 5; font-size: 1.1rem; }
     
+    /* TABLE & CARD VIEW STYLES */
     .table-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: none; }
-    .table { border-collapse: separate !important; border-spacing: 0 8px !important; }
-    .table>:not(caption)>*>* { border-bottom-width: 0; box-shadow: none; background-color: transparent; }
-    .table thead th { background-color: #eef2f7 !important; color: #34495e !important; font-weight: 700 !important; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; vertical-align: middle; border-bottom: 2px solid #cbd5e1 !important; padding: 15px 10px; white-space: nowrap; }
-    .table thead th:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
-    .table thead th:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
-    .table tbody tr { background-color: #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border-radius: 12px; transition: transform 0.2s ease, box-shadow 0.2s ease; border-left: 3px solid transparent; }
-    .table tbody tr:hover { transform: translateY(-2px) !important; box-shadow: 0 10px 20px -5px rgba(0,0,128,0.1) !important; z-index: 5; position: relative; background-color: #f8faff !important; border-left: 3px solid var(--primary-color); }
-    .table tbody td { border: none; vertical-align: middle; padding-top: 15px; padding-bottom: 15px; }
-    .table tbody tr td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; padding-left: 15px; }
-    .table tbody tr td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
-    
-    .badge-status { padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; white-space: normal; text-align: center; display: inline-block; border: none !important; letter-spacing: 0.3px; }
-    .status-active { background-color: #d1fae5; color: #065f46; }
-    .status-expired { background-color: #fee2e2; color: #991b1b; }
-    .status-used { background-color: #ffedd5; color: #9a3412; }
-    .status-not-started { background-color: #f1f5f9; color: #475569; }
+    .table thead th { background-color: #f8f9fc; color: #5a5c69; font-weight: 600; vertical-align: middle; border-bottom: 2px solid #eaecf4; }
+    .badge-status { padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; white-space: normal; text-align: left; display: inline-block; }
+    .status-expired { background-color: #ffe5e5; color: #cc0000; border: 1px solid #ffcccc; }
+    .status-active { background-color: #e5ffe5; color: #007700; border: 1px solid #ccffcc; }
+    .status-used { background-color: #fff4e5; color: #cc7700; border: 1px solid #ffeebb; } 
+    .status-not-started { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
 
-    .table-responsive { display: block; width: 100%; overflow-x: auto !important; margin-bottom: 10px; border-radius: 8px; border: none; }
-    .table-responsive::-webkit-scrollbar { height: 6px; }
-    .table-responsive::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 3px; }
-    
+    .table-responsive { display: block; width: 100%; overflow-x: auto !important; margin-bottom: 10px; border: 1px solid #f0f0f0; border-radius: 8px; }
+    .table th:first-child, .table td:first-child { position: static !important; z-index: auto !important; padding-left: 15px; }
+    .table thead th:first-child { background-color: #f8f9fc !important; }
+    .table tbody td:first-child { background-color: #fff !important; }
+
     .nested-cell { display: flex; align-items: center; min-height: 45px; border-bottom: 1px solid #f5f5f5; padding: 6px 0; }
     .nested-cell:last-child { border-bottom: none; }
     .nested-cell-action { justify-content: center; }
@@ -201,20 +203,48 @@
     
     #modalTambahData .modal-header { background: linear-gradient(135deg, var(--primary-color), #000050); padding: 20px 30px; }
     
-    .modern-input-group { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 5px 5px 5px 15px; transition: all 0.3s ease; display: flex; align-items: center; margin-bottom: 15px; position: relative; } 
+    .modern-input-group { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 5px 5px 5px 15px; transition: all 0.3s ease; display: flex; align-items: center; margin-bottom: 15px; position: relative; } /* Added position relative */
     .modern-input-group:focus-within { border-color: var(--primary-color); box-shadow: 0 4px 12px rgba(0, 0, 128, 0.1); transform: translateY(-2px); }
     .input-icon { font-size: 1.2rem; color: var(--primary-color); opacity: 0.7; margin-right: 10px; }
     .modern-input-group .form-floating { flex-grow: 1; }
     
-    .modern-input-group .form-control { border: none !important; box-shadow: none !important; background: transparent; padding-top: 1.625rem; padding-bottom: 0.625rem; font-weight: 500; color: #333; min-height: 58px; }
+    .modern-input-group .form-control { 
+        border: none !important; 
+        box-shadow: none !important; 
+        background: transparent; 
+        padding-top: 1.625rem; 
+        padding-bottom: 0.625rem; 
+        font-weight: 500; 
+        color: #333; 
+        min-height: 58px;
+    }
+    
     .modern-input-group .form-control:focus { outline: none; }
     .modern-input-group label { padding-left: 0; color: #888; font-size: 0.9rem; }
     input[list]::-webkit-calendar-picker-indicator { opacity: 0.6; cursor: pointer; transition: 0.2s; }
     input[list]:hover::-webkit-calendar-picker-indicator { opacity: 1; transform: scale(1.1); }
     
-    input[type="date"]::-webkit-calendar-picker-indicator { position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; }
+    /* FIX: TAMPILAN DATE PICKER CLEAN */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+        z-index: 10;
+    }
     
-    .form-select { border: none !important; box-shadow: none !important; background-color: transparent; font-weight: 500; color: #333; }
+    .form-select {
+        border: none !important;
+        box-shadow: none !important;
+        background-color: transparent;
+        font-weight: 500;
+        color: #333;
+    }
     .form-select:focus { outline: none; box-shadow: none; }
 
     /* --- FLOATING ACTION BUTTON (FAB) --- */
@@ -222,128 +252,24 @@
     .btn-fab { width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 24px; display: flex; align-items: center; justify-content: center; background-color: var(--primary-color); color: white; border: none; transition: transform 0.2s; }
     .btn-fab:active { transform: scale(0.95); }
 
-    /* =========================================================================
-       SPLASH SCREEN STYLES (APP FEEL) - MOBILE ONLY
-       UPDATED: Smooth continuous animation (No Stops)
-       ========================================================================= */
-    #mobile-splash-screen {
-        display: none; /* Desktop default: HIDDEN */
-    }
-
-    /* Media Query Khusus Mobile: Aktifkan Splash Screen */
-    @media (max-width: 768px) {
-        #mobile-splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 100000; /* Paling atas */
-            background: linear-gradient(-45deg, #000428, #004e92, #000080);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            display: flex; /* Aktifkan FLEX */
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
-        }
-
-        #mobile-splash-screen.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        .splash-logo-container {
-            position: relative;
-            margin-bottom: 20px;
-            animation: splashEnter 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        .splash-logo-img {
-            width: 100px;
-            height: auto;
-            filter: drop-shadow(0 0 15px rgba(255,255,255,0.4));
-            animation: pulseGlow 2s infinite ease-in-out;
-        }
-
-        .splash-text {
-            color: white;
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: 4px;
-            margin-bottom: 5px;
-            opacity: 0;
-            animation: fadeInUp 0.8s ease-out 0.3s forwards;
-        }
-
-        .splash-sub {
-            color: rgba(255,255,255,0.7);
-            font-size: 0.75rem;
-            letter-spacing: 1px;
-            margin-bottom: 40px;
-            opacity: 0;
-            animation: fadeInUp 0.8s ease-out 0.5s forwards;
-        }
-
-        /* Loading Bar Container */
-        .splash-loader {
-            width: 150px;
-            height: 4px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 4px;
-            position: relative;
-            overflow: hidden;
-            opacity: 0;
-            animation: fadeIn 0.5s ease-out 0.8s forwards;
-        }
-
-        /* MODIFIED: Super Smooth Continuous Loading 
-           1. width: 0% -> 100% (No intermediate steps)
-           2. cubic-bezier(0.4, 0, 0.2, 1) = Fast out, Slow in (Smooth landing)
-        */
-        .splash-loader::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 0%; /* Start 0 */
-            background: #fff;
-            border-radius: 4px;
-            /* Animation 3.5s smooth continuous */
-            animation: loaderFill 3.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-
-        @keyframes loaderFill {
-            0% { width: 0%; }
-            100% { width: 100%; }
-        }
-
-        @keyframes splashEnter { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        @keyframes pulseGlow { 0%, 100% { filter: drop-shadow(0 0 15px rgba(255,255,255,0.4)); transform: scale(1); } 50% { filter: drop-shadow(0 0 25px rgba(255,255,255,0.8)); transform: scale(1.05); } }
-    }
-
-
-    /* --- RESPONSIVE STYLE --- */
+    /* --- RESPONSIVE STYLE (UPDATED FOR CARD VIEW) --- */
     @media (max-width: 768px) {
       .navbar .container-fluid { padding-left: 15px; padding-right: 15px; }
       .logo-wrapper img { height: 35px !important; }
       .greeting-wrapper { display: none !important; } 
-      
-      .nav-pills { display: flex; flex-direction: column; width: 100% !important; margin: 0 0 20px 0 !important; border-radius: 16px; padding: 6px; }
-      .nav-pills .nav-item { width: 100%; margin-bottom: 4px; }
-      .nav-pills .nav-link { width: 100%; text-align: center; padding: 12px 0; border-radius: 12px; }
-      .nav-pills .nav-link.active { transform: none; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-
+      .nav-pills { flex-direction: column; overflow-x: visible; }
+      .nav-pills .nav-item { width: 100%; margin-bottom: 8px; }
+      .nav-pills .nav-link { width: 100%; text-align: left; padding: 12px 20px; border-radius: 12px; }
+      .nav-pills .nav-link i { margin-right: 10px; width: 20px; text-align: center; }
       .stat-card { margin-bottom: 10px; }
       .stat-value { font-size: 2rem; }
-      #btnAddDataContainer { display: none !important; }
+      #btnAddDataContainer { display: none !important; } /* Hide Top Btn */
       
+      /* FAB Animation */
       .fab-container.show-fab { display: block !important; animation: scaleIn 0.3s ease-out; }
       @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
       
+      /* Gantt Responsive */
       .g-sticky-col, .g-col-personil, .g-col-pekerjaan { position: static !important; box-shadow: none !important; border-right: 1px solid #eee !important; flex-shrink: 0; white-space: normal !important; word-wrap: break-word; font-size: 0.75rem; height: auto !important; display: flex; align-items: center; }
       .g-col-personil { width: 130px !important; min-width: 130px !important; }
       .g-col-pekerjaan { width: 180px !important; min-width: 180px !important; left: auto !important; }
@@ -351,37 +277,97 @@
       .g-row-container { align-items: stretch; width: max-content; min-width: 100%; display: flex; }
       .custom-gantt-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
 
-      /* TABLE TO CARD TRANSFORMATION */
+      /* --- TABLE TO CARD TRANSFORMATION (CARD VIEW) --- */
       .table-responsive { border: none; overflow: visible !important; }
-      .table thead { display: none; }
+      .table thead { display: none; } /* Sembunyikan Header Tabel di Mobile */
       .table, .table tbody, .table tr, .table td { display: block; width: 100%; }
-      .table tr { margin-bottom: 15px; background: #fff; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eaeaea; position: relative; padding-bottom: 10px; }
-      .table td { text-align: left !important; padding: 12px 10px !important; border: none; position: relative; }
-      .table td:first-child { border-top-left-radius: 12px; border-top-right-radius: 12px; background: linear-gradient(to right, #ffffff, #f9faff); border-bottom: 1px solid #f0f0f0; padding-top: 15px; padding-bottom: 12px; padding-right: 10px; }
+      .table tr {
+          margin-bottom: 15px;
+          background: #fff;
+          border-radius: 12px;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+          border: 1px solid #eaeaea;
+          position: relative;
+          padding-bottom: 10px;
+      }
+      .table td {
+          text-align: left !important;
+          padding: 12px 10px !important;
+          border: none;
+          position: relative;
+      }
+      .table td:first-child {
+          border-top-left-radius: 12px;
+          border-top-right-radius: 12px;
+          background: linear-gradient(to right, #ffffff, #f9faff);
+          border-bottom: 1px solid #f0f0f0;
+          padding-top: 15px;
+          padding-bottom: 12px;
+          padding-right: 10px;
+      }
       
-      .mobile-card-label { display: block; font-size: 0.7rem; color: #888; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 3px; }
-      .mobile-detail-group { background-color: #f8f9fa; border-radius: 8px; padding: 12px; margin-top: 10px; border-left: 3px solid var(--primary-color); }
-      .mobile-detail-item { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #e0e0e0; }
-      .mobile-detail-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+      /* Mobile Elements Styling */
+      .mobile-card-label {
+          display: block;
+          font-size: 0.7rem;
+          color: #888;
+          text-transform: uppercase;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+          margin-bottom: 3px;
+      }
+      .mobile-detail-group {
+          background-color: #f8f9fa;
+          border-radius: 8px;
+          padding: 12px;
+          margin-top: 10px;
+          border-left: 3px solid var(--primary-color);
+      }
+      .mobile-detail-item {
+          margin-bottom: 8px;
+          padding-bottom: 8px;
+          border-bottom: 1px dashed #e0e0e0;
+      }
+      .mobile-detail-item:last-child {
+          margin-bottom: 0;
+          padding-bottom: 0;
+          border-bottom: none;
+      }
       
-      .mobile-floating-edit { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; background-color: #fff; color: var(--primary-color); border: 1px solid #e0e0e0; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 5; }
+      /* Floating Edit Button inside Card */
+      .mobile-floating-edit {
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background-color: #fff;
+          color: var(--primary-color);
+          border: 1px solid #e0e0e0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+          z-index: 5;
+      }
       .mobile-floating-edit:active { background-color: #f0f0f0; transform: scale(0.95); }
       
-      .modern-input-group input[type="date"].form-control { font-size: 13px !important; padding-top: 1.6rem !important; padding-bottom: 0 !important; min-height: 55px !important; display: flex; align-items: center; }
+      .modern-input-group input[type="date"].form-control {
+          font-size: 13px !important;
+          padding-top: 1.6rem !important;
+          padding-bottom: 0 !important;   
+          min-height: 55px !important;    
+          display: flex;
+          align-items: center;
+      }
+
       .nested-cell { border-bottom: none !important; padding: 2px 0 !important; min-height: auto !important; display: block !important; }
     }
   </style>
 </head>
 <body class="login-mode">
 
-  <div id="mobile-splash-screen">
-    <div class="splash-logo-container">
-      <img src="IMG_0992.PNG" alt="Logo" class="splash-logo-img">
-    </div>
-    <div class="splash-text">SIDAMON</div>
-    <div class="splash-sub">Gaharu Sempana Group</div>
-    <div class="splash-loader"></div>
-  </div>
   <div id="gantt-tooltip" class="custom-tooltip"></div>
 
   <div class="fab-container" id="fabAddData">
@@ -468,7 +454,7 @@
     </nav>
 
     <div class="container-fluid px-4 px-lg-5"> 
-      <ul class="nav nav-pills mb-4" id="pills-tab">
+      <ul class="nav nav-pills mb-4 justify-content-center gap-3" id="pills-tab">
         <li class="nav-item" id="nav-skk"><button class="nav-link active" onclick="switchView('skk')"><i class="bi bi-person-badge me-2"></i>Sertifikat Keahlian</button></li>
         <li class="nav-item" id="nav-penugasan"><button class="nav-link" onclick="switchView('penugasan')"><i class="bi bi-calendar-check me-2"></i>Waktu Penugasan</button></li>
         <li class="nav-item" id="nav-project"><button class="nav-link" onclick="switchView('project')"><i class="bi bi-kanban me-2"></i>Master Project</button></li>
@@ -523,11 +509,7 @@
               </thead>
               <tbody id="bodySkk"></tbody>
             </table>
-            <div id="msgSkk" class="text-center py-5 d-none">
-                <i class="bi bi-folder2-open display-1 text-muted opacity-25 mb-3"></i>
-                <h5 class="fw-bold text-secondary">Data Tidak Ditemukan</h5>
-                <p class="small text-muted">Silakan sesuaikan filter pencarian Anda.</p>
-            </div>
+            <div id="msgSkk" class="text-center py-4 text-muted d-none">Data tidak ditemukan.</div>
           </div>
           <div id="pagination-skk" class="pagination-wrapper"></div>
         </div>
@@ -551,24 +533,20 @@
             </div>
         </div>
         <div class="table-card">
-          <div class="row gy-2 gx-3 align-items-center mb-4">
-            <div class="col-12 col-lg-auto">
+          <div class="row gy-3 align-items-center mb-4">
+            <div class="col-12 col-xl-auto">
                <div class="sub-nav btn-group w-100" role="group">
                   <button type="button" class="btn active" onclick="switchTugasSubView('table')" id="btn-tugas-table"><i class="bi bi-table me-1"></i>Tabel</button>
-                  <button type="button" class="btn" onclick="switchTugasSubView('gantt')" id="btn-tugas-gantt"><i class="bi bi-bar-chart-steps me-1"></i>Timeline</button>
+                  <button type="button" class="btn" onclick="switchTugasSubView('gantt')" id="btn-tugas-gantt"><i class="bi bi-bar-chart-steps me-1"></i>Timeline Penugasan</button>
                </div>
             </div>
-            <div class="col-12 col-lg-auto" id="tugasFilterContainer" style="display:none !important;">
-                <div class="d-flex flex-wrap flex-lg-nowrap align-items-center gap-2 w-100">
-                    <div class="input-group input-group-sm flex-nowrap" style="min-width: 130px;"><span class="input-group-text bg-light border-end-0 text-muted">Dari</span><input type="date" id="filterTugasStart" class="form-control border-start-0"></div>
-                    <div class="input-group input-group-sm flex-nowrap" style="min-width: 130px;"><span class="input-group-text bg-light border-end-0 text-muted">Sampai</span><input type="date" id="filterTugasEnd" class="form-control border-start-0"></div>
-                    <div class="d-flex gap-1"><button class="btn btn-sm btn-primary px-3" onclick="applyTugasDateFilter()">Filter</button><button class="btn btn-sm btn-outline-secondary" onclick="resetTugasDateFilter()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button></div>
-                </div>
+            <div class="col-12 col-xl-auto d-flex flex-wrap align-items-center gap-2" id="tugasFilterContainer" style="display:none !important;">
+                <div class="input-group input-group-sm flex-nowrap w-auto flex-grow-1" style="min-width: 140px;"><span class="input-group-text bg-light border-end-0 text-muted">Dari</span><input type="date" id="filterTugasStart" class="form-control border-start-0"></div>
+                <div class="input-group input-group-sm flex-nowrap w-auto flex-grow-1" style="min-width: 140px;"><span class="input-group-text bg-light border-end-0 text-muted">Sampai</span><input type="date" id="filterTugasEnd" class="form-control border-start-0"></div>
+                <div class="d-flex gap-2 w-100 w-xl-auto"><button class="btn btn-sm btn-primary rounded-pill px-3 flex-grow-1 flex-xl-grow-0" onclick="applyTugasDateFilter()">Filter</button><button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="resetTugasDateFilter()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button></div>
             </div>
-            <div class="col-12 col-lg ms-lg-auto">
-                <div id="tugasSearchContainer"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchTugas" class="form-control search-input" placeholder="Cari Nama Personil, Nama Paket Pekerjaan..."></div></div>
-                <div id="tugasGanttSearchContainer" style="display: none;"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchTugasGantt" class="form-control search-input" placeholder="Cari Nama Personil, Nama Pekerjaan..."></div></div>
-            </div>
+            <div class="col-12 col-xl ms-xl-auto" id="tugasSearchContainer"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchTugas" class="form-control search-input" placeholder="Cari Nama Personil, Nama Paket Pekerjaan..."></div></div>
+            <div class="col-12 col-xl ms-xl-auto" id="tugasGanttSearchContainer" style="display: none;"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchTugasGantt" class="form-control search-input" placeholder="Cari Nama Personil, Nama Pekerjaan..."></div></div>
           </div>
           <div id="subview-tugas-table">
             <div class="table-responsive">
@@ -576,11 +554,7 @@
                 <thead class="table-light"><tr><th style="min-width: 180px;">Nama Personil</th><th style="min-width: 200px;">Nama Paket Pekerjaan</th><th class="text-center">LPSE</th><th class="text-center">PL/Tender</th><th class="text-center">Jenis Kontrak</th><th>Sertifikat Digunakan</th><th class="text-center">Start Date</th><th class="text-center">End Date</th><th class="text-center">Status</th></tr></thead>
                 <tbody id="bodyTugas"></tbody>
               </table>
-              <div id="msgTugas" class="text-center py-5 d-none">
-                <i class="bi bi-clipboard-x display-1 text-muted opacity-25 mb-3"></i>
-                <h5 class="fw-bold text-secondary">Belum Ada Penugasan</h5>
-                <p class="small text-muted">Tidak ada data penugasan yang sesuai kriteria.</p>
-              </div>
+              <div id="msgTugas" class="text-center py-4 text-muted d-none">Data tidak ditemukan.</div>
             </div>
              <div id="pagination-tugas" class="pagination-wrapper"></div>
           </div>
@@ -612,25 +586,21 @@
             </div>
         </div>
         <div class="table-card">
-          <div class="row gy-2 gx-3 align-items-center mb-4">
-            <div class="col-12 col-lg-auto">
+          <div class="row gy-3 align-items-center mb-4">
+            <div class="col-12 col-xl-auto">
                <div class="sub-nav btn-group w-100" role="group">
                   <button type="button" class="btn active" onclick="switchSubView('table')" id="btn-sub-table"><i class="bi bi-table me-1"></i>Tabel</button>
                   <button type="button" class="btn" onclick="switchSubView('gantt-kontrak')" id="btn-sub-kontrak"><i class="bi bi-bar-chart-steps me-1"></i>Timeline Kontrak</button>
                   <button type="button" class="btn" onclick="switchSubView('gantt-schedule')" id="btn-sub-schedule"><i class="bi bi-bar-chart-steps me-1"></i>Timeline Schedule</button>
                </div>
             </div>
-            <div class="col-12 col-lg-auto" id="dateFilterContainer" style="display:none !important;">
-                <div class="d-flex flex-wrap flex-lg-nowrap align-items-center gap-2 w-100">
-                    <div class="input-group input-group-sm flex-nowrap" style="min-width: 130px;"><span class="input-group-text bg-light border-end-0 text-muted">Dari</span><input type="date" id="filterStartDate" class="form-control border-start-0"></div>
-                    <div class="input-group input-group-sm flex-nowrap" style="min-width: 130px;"><span class="input-group-text bg-light border-end-0 text-muted">Sampai</span><input type="date" id="filterEndDate" class="form-control border-start-0"></div>
-                    <div class="d-flex gap-1"><button class="btn btn-sm btn-primary px-3" onclick="applyDateFilter()">Filter</button><button class="btn btn-sm btn-outline-secondary" onclick="resetDateFilter()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button></div>
-                </div>
+            <div class="col-12 col-xl-auto d-flex flex-wrap align-items-center gap-2" id="dateFilterContainer" style="display:none !important;">
+                <div class="input-group input-group-sm flex-nowrap w-auto flex-grow-1" style="min-width: 140px;"><span class="input-group-text bg-light border-end-0 text-muted">Dari</span><input type="date" id="filterStartDate" class="form-control border-start-0"></div>
+                <div class="input-group input-group-sm flex-nowrap w-auto flex-grow-1" style="min-width: 140px;"><span class="input-group-text bg-light border-end-0 text-muted">Sampai</span><input type="date" id="filterEndDate" class="form-control border-start-0"></div>
+                <div class="d-flex gap-2 w-100 w-xl-auto"><button class="btn btn-sm btn-primary rounded-pill px-3 flex-grow-1 flex-xl-grow-0" onclick="applyDateFilter()">Filter</button><button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="resetDateFilter()" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button></div>
             </div>
-            <div class="col-12 col-lg ms-lg-auto">
-                <div id="searchProjectContainer"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchProject" class="form-control search-input" placeholder="Cari Nama Pekerjaan, Nama Kordinator..."></div></div>
-                <div id="projectGanttSearchContainer" style="display: none;"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchProjectGantt" class="form-control search-input" placeholder="Cari Nama Pekerjaan..."></div></div>
-            </div>
+            <div class="col-12 col-xl ms-xl-auto" id="searchProjectContainer"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchProject" class="form-control search-input" placeholder="Cari Nama Pekerjaan, Nama Kordinator..."></div></div>
+            <div class="col-12 col-xl ms-xl-auto" id="projectGanttSearchContainer" style="display: none;"><div class="position-relative w-100"><i class="bi bi-search search-icon"></i><input type="text" id="searchProjectGantt" class="form-control search-input" placeholder="Cari Nama Pekerjaan..."></div></div>
           </div>
           <div id="subview-table">
             <div class="table-responsive">
@@ -703,23 +673,23 @@
             </div>
             <div class="row g-2">
                 <div class="col-6">
-                    <div class="modern-input-group">
-                      <i class="bi bi-people input-icon"></i>
-                      <div class="form-floating">
-                        <input type="text" class="form-control" id="inputAsosiasi" placeholder="Asosiasi">
-                        <label for="inputAsosiasi">Asosiasi</label>
-                      </div>
-                    </div>
-                 </div>
-                 <div class="col-6">
-                    <div class="modern-input-group">
-                      <i class="bi bi-calendar-date input-icon"></i>
-                      <div class="form-floating">
-                        <input type="date" class="form-control" id="inputMasaBerlaku" required>
-                        <label for="inputMasaBerlaku">Berlaku Sampai</label>
-                      </div>
-                    </div>
-                 </div>
+                   <div class="modern-input-group">
+                     <i class="bi bi-people input-icon"></i>
+                     <div class="form-floating">
+                       <input type="text" class="form-control" id="inputAsosiasi" placeholder="Asosiasi">
+                       <label for="inputAsosiasi">Asosiasi</label>
+                     </div>
+                   </div>
+                </div>
+                <div class="col-6">
+                   <div class="modern-input-group">
+                     <i class="bi bi-calendar-date input-icon"></i>
+                     <div class="form-floating">
+                       <input type="date" class="form-control" id="inputMasaBerlaku" required>
+                       <label for="inputMasaBerlaku">Berlaku Sampai</label>
+                     </div>
+                   </div>
+                </div>
             </div>
             <div class="modern-input-group align-items-start pt-2">
               <i class="bi bi-chat-text input-icon mt-3"></i>
@@ -769,7 +739,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    const CONST_API_URL = "https://script.google.com/macros/s/AKfycbw5HBU0rbZ2occIJ77QlUQpt2nMAQrFu_pKdEkS0kJmK8ooi6SQQL1M0xU_3NztAqRACw/exec";
+    const CONST_API_URL = "https://script.google.com/macros/library/d/1gy3zH_ZFiWYVZEDuZbnuE-HQhXKnttRwoxS9BLHN924M7b-upEnn7bwe/15";
     const ITEMS_PER_PAGE = 20; 
     let currentPageSkk = 1; let currentPageTugas = 1; let currentPageProject = 1;
     let dataSKK = [], dataTugas = [], dataProject = [], currentChartView = '', currentUserRole = ''; 
@@ -781,11 +751,12 @@
     let filterStatusTugas = 'all'; // all, active
     let filterStatusProject = 'all'; // all, expired, done
 
+    // Fungsi HANYA untuk Mengunci/Membuka Klik (Tanpa Visual Overlay)
     function toggleLoadingState(isLoading) {
         if (isLoading) {
-            document.body.classList.add('data-loading');
+            document.body.classList.add('data-loading'); // Kunci Klik
         } else {
-            document.body.classList.remove('data-loading');
+            document.body.classList.remove('data-loading'); // Buka Kunci
         }
     }
 
@@ -812,15 +783,6 @@
     try { google.charts.load('current', {'packages':['gantt']}); } catch(e){}
 
     window.addEventListener('DOMContentLoaded', () => {
-        // --- LOGIC SPLASH SCREEN REFINED ---
-        setTimeout(() => {
-            const splash = document.getElementById('mobile-splash-screen');
-            if(splash) {
-                splash.classList.add('hidden'); 
-                setTimeout(() => { splash.style.display = 'none'; }, 850); 
-            }
-        }, 4000); // 4000ms = 4 detik (Bar loading selesai dalam 3.5 detik, ada jeda 0.5 detik saat penuh)
-
         const storedRole = sessionStorage.getItem('userRole');
         if (storedRole) { loginSuccess(storedRole, false); }
         
@@ -862,7 +824,10 @@
         currentUserRole = role; 
         sessionStorage.setItem('userRole', role); 
         
+        // 1. Matikan Overlay Login (Agar Skeleton terlihat)
         document.getElementById('loading-overlay').style.display = 'none';
+
+        // 2. TAMPILKAN DASHBOARD
         document.getElementById('login-section').style.display = 'none'; 
         document.getElementById('dashboard-section').style.display = 'block'; 
         document.body.classList.remove('login-mode'); 
@@ -872,7 +837,10 @@
         applyRoleAccess(currentUserRole); 
         updateGreeting(currentUserRole); 
         
+        // 3. AKTIFKAN PENGUNCI KLIK (Safe State)
         toggleLoadingState(true);
+        
+        // 4. Mulai ambil data
         loadAllData(); 
     }
 
@@ -979,12 +947,14 @@
     }
 
     async function loadAllData() {
+      // Tampilkan Skeleton
       if(currentUserRole !== "TEKNIS") { showSkeleton('bodySkk'); showSkeleton('bodyTugas'); }
       if(currentUserRole === "SUPER_ADMIN" || currentUserRole === "TEKNIS") { showSkeleton('bodyProject'); }
       
       const promises = []; 
       let loadSKK = false, loadTugas = false, loadProject = false, loadDropdown = false;
       
+      // Safety: Pastikan state loading aktif (jika dipanggil manual)
       toggleLoadingState(true);
 
       if(currentUserRole !== "TEKNIS") { promises.push(fetchAPI('getDataSKK')); loadSKK = true; promises.push(fetchAPI('getDataPenugasan')); loadTugas = true; }
@@ -1007,6 +977,7 @@
           console.error(e); 
           alert("Gagal memuat sebagian data. Silakan refresh."); 
       } finally {
+          // --- KUNCI UTAMA: BUKA BLOKIR KLIK DI SINI ---
           toggleLoadingState(false);
       }
     }
@@ -1022,7 +993,9 @@
         const btnNext = document.createElement('button'); btnNext.className = 'btn-page'; btnNext.innerHTML = '<i class="bi bi-chevron-right"></i>'; btnNext.disabled = currentPage === totalPages; btnNext.onclick = () => renderCallback(currentPage + 1); container.appendChild(btnNext);
     }
 
+    // --- HANDLER FUNCTION FOR CLICKABLE STATS ---
     function handleStatClick(view, type, colElement) {
+        // SAFETY GUARD: Cek apakah data sudah ada. Jika belum, jangan lakukan apa-apa.
         if (view === 'skk' && (!dataSKK || dataSKK.length === 0)) return;
         if (view === 'tugas' && (!dataTugas || dataTugas.length === 0)) return;
         if (view === 'project' && (!dataProject || dataProject.length === 0)) return;
@@ -1054,6 +1027,7 @@
         }
     }
 
+    // --- RENDER SKK: Filter Logic Added ---
     function renderSKK(data, page = 1) {
       currentPageSkk = page; 
       const tbody = document.getElementById('bodySkk'); 
@@ -1061,23 +1035,23 @@
       
       let statTotal = 0, statUsed = 0, statExpired = 0;
       
-      const activeAssignmentsMap = new Map(); 
+      const activeAssignmentsMap = new Map();
+      const getFingerprint = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
 
       if(dataTugas && dataTugas.length > 0) { 
           for(let i=0; i<dataTugas.length; i++){ 
               const row = dataTugas[i]; 
-              const pName = (row[1] || "").trim().toLowerCase();
+              const pNameOriginal = (row[1] || "").trim();
+              const pNameKey = getFingerprint(pNameOriginal);
               const pStatus = (row[12] || "").toLowerCase(); 
-              
-              if (pName && pStatus.includes('active')) { 
-                  let lpse = (row[5] || "").trim();
-                  lpse = lpse.replace(/\s+/g, ' ');
-                  
+              if (pNameKey && pStatus.includes('active')) { 
+                  const lpse = (row[5] || "").trim();
                   if(lpse) {
-                      if (!activeAssignmentsMap.has(pName)) {
-                          activeAssignmentsMap.set(pName, new Set());
+                      if (!activeAssignmentsMap.has(pNameKey)) activeAssignmentsMap.set(pNameKey, new Map());
+                      const fingerprint = getFingerprint(lpse);
+                      if(!activeAssignmentsMap.get(pNameKey).has(fingerprint)){
+                          activeAssignmentsMap.get(pNameKey).set(fingerprint, lpse.replace(/\s+/g, ' '));
                       }
-                      activeAssignmentsMap.get(pName).add(lpse);
                   }
               } 
           } 
@@ -1092,6 +1066,7 @@
       
       let allKeys = Object.keys(groupedData);
 
+      // Hitung Stats dari Data Total (bukan halaman ini saja)
       statTotal = allKeys.length;
       allKeys.forEach(key => { 
           const person = groupedData[key]; 
@@ -1100,20 +1075,22 @@
              if ((item.statusRaw||"").toLowerCase().includes('expired')) statExpired++; 
              if ((item.statusRaw||"").toLowerCase().includes('used') || (item.ketRaw||"").toLowerCase().includes('used')) isUsed = true; 
           }); 
-          const keyNormalized = person.nama.toLowerCase().trim();
+          const keyNormalized = getFingerprint(person.nama);
           if (activeAssignmentsMap.has(keyNormalized)) isUsed = true; 
           if (isUsed) statUsed++; 
       });
       
+      // FIX ANIMASI: Mulai dari angka saat ini (bukan 0) agar tidak berkedip saat filter
       const getCurrentVal = (id) => parseInt(document.getElementById(id).innerText.replace(/\D/g,'')) || 0;
       animateValue("skk-total", getCurrentVal("skk-total"), statTotal, 500); 
       animateValue("skk-expired", getCurrentVal("skk-expired"), statExpired, 500); 
       animateValue("skk-used", getCurrentVal("skk-used"), statUsed, 500);
 
+      // --- LOGIC FILTER CARD STATS ---
       if (filterStatusSKK !== 'all') {
           allKeys = allKeys.filter(key => {
               const person = groupedData[key];
-              const keyNormalized = person.nama.toLowerCase().trim();
+              const keyNormalized = getFingerprint(person.nama);
               
               if (filterStatusSKK === 'expired') {
                   return person.items.some(item => (item.statusRaw||"").toLowerCase().includes('expired'));
@@ -1160,16 +1137,14 @@
               if (s.includes('active') || s.includes('available')) hasActive = true; 
           }
           
-          const keyNormalized = person.nama.toLowerCase().trim();
+          const keyNormalized = getFingerprint(person.nama);
+          const activeLpseMap = activeAssignmentsMap.get(keyNormalized);
           
-          if (activeAssignmentsMap.has(keyNormalized)) { 
-              const lpseSet = activeAssignmentsMap.get(keyNormalized);
-              if (lpseSet.size > 0) {
-                  isUsed = true; 
-                  const lpseArray = Array.from(lpseSet);
-                  let lpseString = lpseArray.length === 1 ? lpseArray[0] : (lpseArray.length === 2 ? `${lpseArray[0]} dan ${lpseArray[1]}` : `${lpseArray.slice(0, -1).join(", ")}, dan ${lpseArray[lpseArray.length - 1]}`);
-                  usedProjectName = `Used in ${lpseString}`; 
-              }
+          if (activeLpseMap && activeLpseMap.size > 0) { 
+              isUsed = true; 
+              const lpseArray = Array.from(activeLpseMap.values());
+              let lpseString = lpseArray.length === 1 ? lpseArray[0] : (lpseArray.length === 2 ? `${lpseArray[0]} dan ${lpseArray[1]}` : `${lpseArray.join(", ")}, dan ${lpseArray.pop()}`);
+              usedProjectName = `Used in ${lpseString}`; 
           } else if (isUsed) { 
               usedProjectName = spreadsheetUsedText ? spreadsheetUsedText : "Used"; 
           }
@@ -1204,6 +1179,7 @@
       setupPagination(allKeys.length, currentPageSkk, 'pagination-skk', (p) => renderSKK(data, p));
     }
 
+    // --- RENDER TUGAS: Filter Logic Added ---
     function renderTugas(data, page = 1) {
        currentPageTugas = page; const tbody = document.getElementById('bodyTugas'); let htmlContent = []; 
        
@@ -1212,6 +1188,7 @@
        let active = 0; 
        for(let i=0; i<filtered.length; i++) { if((filtered[i][12]||"").toLowerCase().includes('active')) active++; }
        
+       // FIX ANIMASI
        const getCurrentVal = (id) => parseInt(document.getElementById(id).innerText.replace(/\D/g,'')) || 0;
        animateValue("tugas-total", getCurrentVal("tugas-total"), new Set(data.map(r=>r[2])).size, 500); 
        animateValue("tugas-active", getCurrentVal("tugas-active"), active, 500);
@@ -1245,6 +1222,7 @@
        tbody.innerHTML = htmlContent.join(''); setupPagination(persons.length, currentPageTugas, 'pagination-tugas', (p) => renderTugas(data, p));
     }
 
+    // --- RENDER PROJECT: Filter Logic Added ---
     function renderProject(data, page = 1) {
       currentPageProject = page; const tbody = document.getElementById('bodyProject'); let htmlContent = []; 
       let counts = { total: 0, expired: 0, done: 0 }; const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -1253,6 +1231,7 @@
 
       for(let i=0; i<data.length; i++) { const row = data[i]; if (!row[1]) continue; counts.total++; let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13]; const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim(); const isDone = rawStatus.includes('done') || rawStatus.includes('selesai'); const kontrakExpired = !isDone && isExpiredCheck(deadKontrakRaw); const scheduleExpired = !isDone && isExpiredCheck(deadScheduleRaw); if (kontrakExpired || scheduleExpired) counts.expired++; if (isDone) counts.done++; }
       
+      // FIX ANIMASI
       const getCurrentVal = (id) => parseInt(document.getElementById(id).innerText.replace(/\D/g,'')) || 0;
       animateValue("proj-total", getCurrentVal("proj-total"), counts.total, 500);
       animateValue("proj-expired", getCurrentVal("proj-expired"), counts.expired, 500);
@@ -1327,25 +1306,9 @@
 
     window.switchView = function(viewName) {
       document.querySelectorAll('#pills-tab .nav-link').forEach(btn => btn.classList.remove('active'));
-      let navId = ''; 
-      if(viewName === 'skk') navId = 'nav-skk'; 
-      else if(viewName === 'penugasan') navId = 'nav-penugasan'; 
-      else if(viewName === 'project') navId = 'nav-project';
-      
-      const navEl = document.getElementById(navId); 
-      if(navEl) navEl.querySelector('button').classList.add('active');
-
-      const allViews = document.querySelectorAll('.view-section');
-      allViews.forEach(el => {
-          el.style.display = 'none';
-          el.classList.remove('active-view-anim'); 
-      });
-
-      const targetView = document.getElementById('view-'+viewName);
-      if(targetView) {
-          targetView.style.display = 'block';
-          void targetView.offsetWidth; 
-      }
+      let navId = ''; if(viewName === 'skk') navId = 'nav-skk'; else if(viewName === 'penugasan') navId = 'nav-penugasan'; else if(viewName === 'project') navId = 'nav-project';
+      const navEl = document.getElementById(navId); if(navEl) navEl.querySelector('button').classList.add('active');
+      document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none'); document.getElementById('view-'+viewName).style.display = 'block';
       
       const fab = document.getElementById('fabAddData');
       if (fab) {
@@ -1392,7 +1355,7 @@
         document.getElementById('inputNama').readOnly = false;
         document.getElementById('inputPerusahaan').readOnly = false;
         
-        document.getElementById('inputSertifikat').style.display = 'block';        
+        document.getElementById('inputSertifikat').style.display = 'block';       
         document.getElementById('inputSertifikat').required = true;
         document.getElementById('selectSertifikatEdit').style.display = 'none'; 
         document.getElementById('selectSertifikatEdit').required = false;
