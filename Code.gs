@@ -1,10 +1,10 @@
 // --- Code.gs (Final - Secured & Mobile Optimized) ---
 
 // 1. MASUKKAN ID SPREADSHEET UTAMA
-const MAIN_SS_ID = "1NYw4b9mSXoa_tYxo38mWZizQahq0wBee-9cU9oUk23o"; 
+const MAIN_SS_ID = "16nhWxRDw4wa7GfKc0E1jIn5nM0SVo8UbgqFW0phH60w"; 
 
 // 2. ID Spreadsheet Project
-const PROJECT_SS_ID = "1kPWraQ0VJNB36sdJVlkP7dDZAZKBvisAtrggGYLraqc"; 
+const PROJECT_SS_ID = "1VepG8eqhqscffUOxlYD5p9oGNgkHUPgjgpSB8aVjAuw"; 
 
 // --- KONFIGURASI LOG ---
 const MAX_LOG_ENTRIES = 200; // Batas simpan log otomatis (FIFO)
