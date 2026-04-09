@@ -1375,7 +1375,7 @@ function renderProject(data, page = 1) {
     return isNaN(parsed.getTime()) ? null : parsed;
 }
 
-    function drawGanttChart(type) {
+function drawGanttChart(type) {
     let containerId, startFilterVal, endFilterVal, sourceData, searchKeyword = "";
     
     if (type === 'penugasan') { 
@@ -1413,7 +1413,6 @@ function renderProject(data, page = 1) {
         let barClass = 'bar-blue'; 
         
         if (type === 'penugasan') { 
-            // BUG FIX: Untuk Penugasan, cek Nama Personil (Kolom B / index 1)
             if (!row[1] || String(row[1]).trim() === "") continue; 
             
             personName = row[1]; 
@@ -1430,7 +1429,6 @@ function renderProject(data, page = 1) {
             else barClass = 'bar-green'; 
             
         } else { 
-            // BUG FIX: Untuk Project, cek Nama Pekerjaan (Kolom C / index 2)
             if (!row[2] || String(row[2]).trim() === "") continue;
             
             projectName = row[2]; 
@@ -1455,20 +1453,36 @@ function renderProject(data, page = 1) {
         
         if (searchKeyword && !fullTitle.toLowerCase().includes(searchKeyword)) continue; 
         
-        const itemStart = parseDate(startRaw); 
-        const itemEnd = parseDate(endRaw); 
+        let itemStart = parseDate(startRaw); 
+        let itemEnd = parseDate(endRaw); 
+
+        // --- BUG FIX UTAMA: TANGGAL START KOSONG ---
+        // Jika End Date (Deadline) kosong, lewati karena tidak bisa digambar
+        if (!itemEnd) continue;
+
+        // Jika Start Date kosong tapi Deadline ada, kita buat Start Date = 14 hari sebelum deadline
+        if (!itemStart && itemEnd) {
+            itemStart = new Date(itemEnd.getTime());
+            itemStart.setDate(itemStart.getDate() - 14);
+        }
+
+        // Jika user salah input di Excel (Start > End), kita tukar posisinya agar grafik tidak error
+        if (itemStart > itemEnd) {
+            let temp = itemStart;
+            itemStart = itemEnd;
+            itemEnd = temp;
+        }
+        // -------------------------------------------
         
-        if (itemStart && itemEnd && itemEnd >= itemStart) { 
-            let isValid = true; 
-            if (filterStart && itemEnd < filterStart) isValid = false; 
-            if (filterEnd && itemStart > filterEnd) isValid = false; 
-            
-            if (isValid) { 
-                hasData = true; 
-                if (itemStart < dataMinDate) dataMinDate = new Date(itemStart); 
-                if (itemEnd > dataMaxDate) dataMaxDate = new Date(itemEnd); 
-                validItems.push({ person: personName, project: projectName, title: fullTitle, start: itemStart, end: itemEnd, barClass, status: statusText }); 
-            } 
+        let isValid = true; 
+        if (filterStart && itemEnd < filterStart) isValid = false; 
+        if (filterEnd && itemStart > filterEnd) isValid = false; 
+        
+        if (isValid) { 
+            hasData = true; 
+            if (itemStart < dataMinDate) dataMinDate = new Date(itemStart); 
+            if (itemEnd > dataMaxDate) dataMaxDate = new Date(itemEnd); 
+            validItems.push({ person: personName, project: projectName, title: fullTitle, start: itemStart, end: itemEnd, barClass, status: statusText }); 
         } 
     }
     
