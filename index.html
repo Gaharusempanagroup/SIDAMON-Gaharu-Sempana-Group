@@ -739,7 +739,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    const CONST_API_URL = "https://script.google.com/macros/s/AKfycbympNTmwv0_821sQXwkeISwL3oPJReBvDUhjtd0e3M57XDp29QplD_Cp6YdVGNPUicPKg/exec";
+    const CONST_API_URL = "https://script.google.com/macros/s/AKfycbyqY_4kFRaeeRVJhUHm0dxV5l_M3ci5zgnskv3JY4rVfXhaOXUId3voIfzNWB6YtKOYfw/exec";
     const ITEMS_PER_PAGE = 20; 
     let currentPageSkk = 1; let currentPageTugas = 1; let currentPageProject = 1;
     let dataSKK = [], dataTugas = [], dataProject = [], currentChartView = '', currentUserRole = ''; 
@@ -1376,24 +1376,159 @@ function renderProject(data, page = 1) {
 }
 
     function drawGanttChart(type) {
-      let containerId, startFilterVal, endFilterVal, sourceData, searchKeyword = "";
-      if (type === 'penugasan') { containerId = 'chart_penugasan'; startFilterVal = document.getElementById('filterTugasStart').value; endFilterVal = document.getElementById('filterTugasEnd').value; sourceData = dataTugas; searchKeyword = document.getElementById('searchTugasGantt').value.toLowerCase(); } 
-      else { containerId = type === 'kontrak' ? 'chart_kontrak' : 'chart_schedule'; startFilterVal = document.getElementById('filterStartDate').value; endFilterVal = document.getElementById('filterEndDate').value; sourceData = dataProject; searchKeyword = document.getElementById('searchProjectGantt').value.toLowerCase(); }
-      const container = document.getElementById(containerId); container.innerHTML = ''; const today = new Date(); today.setHours(0,0,0,0); let validItems = [];
-      const filterStart = startFilterVal ? new Date(startFilterVal) : null; if(filterStart) filterStart.setHours(0,0,0,0); const filterEnd = endFilterVal ? new Date(endFilterVal) : null; if(filterEnd) filterEnd.setHours(23,59,59,999); 
-      let dataMinDate = new Date(2099, 11, 31); let dataMaxDate = new Date(1970, 0, 1); let hasData = false;
-      for(let i=0; i<sourceData.length; i++) { const row = sourceData[i]; if (!row[1] || row[1] === "") continue; let personName = "", projectName = "", fullTitle = ""; let startRaw, endRaw, statusText, status; let barClass = 'bar-blue'; 
-        if (type === 'penugasan') { personName = row[1]; projectName = row[2]; fullTitle = `${personName} - ${projectName}`; startRaw = row[9]; endRaw = row[10]; statusText = row[12] || "Unknown"; status = statusText.toLowerCase(); if (status.includes('completed')) continue; if (status.includes('active')) barClass = 'bar-green'; else if (status.includes('not started')) barClass = 'bar-grey'; else barClass = 'bar-green'; } 
-        else { projectName = row[2]; fullTitle = projectName; statusText = row[16] || "Unknown"; status = statusText.toLowerCase(); if (status.includes('done') || status.includes('selesai')) continue; if (type === 'kontrak') { startRaw = row[8]; endRaw = row[9]; } else { startRaw = row[12]; endRaw = row[13]; } const itemEndCheck = parseDate(endRaw); const isExpired = itemEndCheck && itemEndCheck < today; barClass = isExpired ? 'bar-red' : 'bar-blue'; }
-        if (searchKeyword && !fullTitle.toLowerCase().includes(searchKeyword)) { continue; } const itemStart = parseDate(startRaw); const itemEnd = parseDate(endRaw); if (itemStart && itemEnd && itemEnd >= itemStart) { let isValid = true; if (filterStart && itemEnd < filterStart) isValid = false; if (filterEnd && itemStart > filterEnd) isValid = false; if (isValid) { hasData = true; if (itemStart < dataMinDate) dataMinDate = new Date(itemStart); if (itemEnd > dataMaxDate) dataMaxDate = new Date(itemEnd); validItems.push({ person: personName, project: projectName, title: fullTitle, start: itemStart, end: itemEnd, barClass, status: statusText }); } } }
-      if (!hasData) { container.innerHTML = `<div class="text-center py-5 text-muted">Tidak ada data aktif pada rentang tanggal tersebut.</div>`; return; }
-      validItems.sort((a, b) => a.start - b.start); let viewStartDate = filterStart ? new Date(filterStart) : new Date(dataMinDate); let viewEndDate = filterEnd ? new Date(filterEnd) : new Date(dataMaxDate);
-      viewStartDate.setDate(1); viewEndDate.setDate(1); viewEndDate.setMonth(viewEndDate.getMonth() + 1); viewEndDate.setDate(0); const totalDays = Math.max(1, Math.ceil((viewEndDate - viewStartDate) / (1000 * 60 * 60 * 24))); const pxPerDay = 5; const chartWidth = totalDays * pxPerDay; 
-      let headerMarkersArr = []; let curr = new Date(viewStartDate); curr.setDate(1); while (curr <= viewEndDate) { const diffTime = curr - viewStartDate; const diffDays = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24))); const leftPos = diffDays * pxPerDay; if (leftPos < chartWidth) { headerMarkersArr.push(`<span class="month-marker" style="left: ${leftPos}px;">${formatMonthYear(curr)}</span>`); } curr.setMonth(curr.getMonth() + 1); }
-      let stickyHeaderHTML = type === 'penugasan' ? `<div class="g-col-personil">NAMA PERSONIL</div><div class="g-col-pekerjaan">NAMA PEKERJAAN</div>` : `<div class="g-sticky-col">NAMA PEKERJAAN</div>`; const htmlHeader = `<div class="g-row-container g-header-row">${stickyHeaderHTML}<div class="g-timeline-col" style="min-width: ${chartWidth}px;">${headerMarkersArr.join('')}</div></div>`;
-      let htmlBodyArr = []; for(let i=0; i<validItems.length; i++){ const item = validItems[i]; const sDateStr = item.start.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); const eDateStr = item.end.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); const startDiff = Math.ceil((item.start - viewStartDate) / (1000 * 60 * 60 * 24)); const duration = Math.ceil((item.end - item.start) / (1000 * 60 * 60 * 24)); let leftPx = startDiff * pxPerDay; let widthPx = duration * pxPerDay; if (leftPx < 0) { widthPx = widthPx + leftPx; leftPx = 0; } const widthSafe = Math.max(widthPx, 0); const displayStyle = widthSafe > 0 ? '' : 'display:none;'; let stickyColsHTML = type === 'penugasan' ? `<div class="g-col-personil" title="${item.person}">${item.person}</div><div class="g-col-pekerjaan" title="${item.project}">${item.project}</div>` : `<div class="g-sticky-col" title="${item.project}">${item.project}</div>`; htmlBodyArr.push(`<div class="g-row-container g-data-row">${stickyColsHTML}<div class="g-timeline-col" style="min-width: ${chartWidth}px;"><div class="g-bar ${item.barClass}" style="left: ${leftPx}px; width: ${widthSafe}px; ${displayStyle}" data-name="${item.title}" data-start="${sDateStr}" data-end="${eDateStr}" data-status="${item.status}" onmouseenter="showTooltip(event, this)" onmousemove="moveTooltip(event)" onmouseleave="hideTooltip()"></div></div></div>`); }
-      container.innerHTML = `<div class="custom-gantt-wrapper">${htmlHeader}${htmlBodyArr.join('')}</div>`;
+    let containerId, startFilterVal, endFilterVal, sourceData, searchKeyword = "";
+    
+    if (type === 'penugasan') { 
+        containerId = 'chart_penugasan'; 
+        startFilterVal = document.getElementById('filterTugasStart').value; 
+        endFilterVal = document.getElementById('filterTugasEnd').value; 
+        sourceData = dataTugas; 
+        searchKeyword = document.getElementById('searchTugasGantt').value.toLowerCase(); 
+    } else { 
+        containerId = type === 'kontrak' ? 'chart_kontrak' : 'chart_schedule'; 
+        startFilterVal = document.getElementById('filterStartDate').value; 
+        endFilterVal = document.getElementById('filterEndDate').value; 
+        sourceData = dataProject; 
+        searchKeyword = document.getElementById('searchProjectGantt').value.toLowerCase(); 
     }
+    
+    const container = document.getElementById(containerId); 
+    container.innerHTML = ''; 
+    const today = new Date(); today.setHours(0,0,0,0); 
+    let validItems = [];
+    const filterStart = startFilterVal ? new Date(startFilterVal) : null; 
+    if(filterStart) filterStart.setHours(0,0,0,0); 
+    const filterEnd = endFilterVal ? new Date(endFilterVal) : null; 
+    if(filterEnd) filterEnd.setHours(23,59,59,999); 
+    
+    let dataMinDate = new Date(2099, 11, 31); 
+    let dataMaxDate = new Date(1970, 0, 1); 
+    let hasData = false;
+    
+    for(let i=0; i<sourceData.length; i++) { 
+        const row = sourceData[i]; 
+        
+        let personName = "", projectName = "", fullTitle = ""; 
+        let startRaw, endRaw, statusText, status; 
+        let barClass = 'bar-blue'; 
+        
+        if (type === 'penugasan') { 
+            // BUG FIX: Untuk Penugasan, cek Nama Personil (Kolom B / index 1)
+            if (!row[1] || String(row[1]).trim() === "") continue; 
+            
+            personName = row[1]; 
+            projectName = row[2]; 
+            fullTitle = `${personName} - ${projectName}`; 
+            startRaw = row[9]; 
+            endRaw = row[10]; 
+            statusText = row[12] || "Unknown"; 
+            status = statusText.toLowerCase(); 
+            
+            if (status.includes('completed')) continue; 
+            if (status.includes('active')) barClass = 'bar-green'; 
+            else if (status.includes('not started')) barClass = 'bar-grey'; 
+            else barClass = 'bar-green'; 
+            
+        } else { 
+            // BUG FIX: Untuk Project, cek Nama Pekerjaan (Kolom C / index 2)
+            if (!row[2] || String(row[2]).trim() === "") continue;
+            
+            projectName = row[2]; 
+            fullTitle = projectName; 
+            statusText = row[16] || "Unknown"; 
+            status = statusText.toLowerCase(); 
+            
+            if (status.includes('done') || status.includes('selesai') || status === '100%') continue; 
+            
+            if (type === 'kontrak') { 
+                startRaw = row[8]; 
+                endRaw = row[9]; 
+            } else { 
+                startRaw = row[12]; 
+                endRaw = row[13]; 
+            } 
+            
+            const itemEndCheck = parseDate(endRaw); 
+            const isExpired = itemEndCheck && itemEndCheck < today; 
+            barClass = isExpired ? 'bar-red' : 'bar-blue'; 
+        }
+        
+        if (searchKeyword && !fullTitle.toLowerCase().includes(searchKeyword)) continue; 
+        
+        const itemStart = parseDate(startRaw); 
+        const itemEnd = parseDate(endRaw); 
+        
+        if (itemStart && itemEnd && itemEnd >= itemStart) { 
+            let isValid = true; 
+            if (filterStart && itemEnd < filterStart) isValid = false; 
+            if (filterEnd && itemStart > filterEnd) isValid = false; 
+            
+            if (isValid) { 
+                hasData = true; 
+                if (itemStart < dataMinDate) dataMinDate = new Date(itemStart); 
+                if (itemEnd > dataMaxDate) dataMaxDate = new Date(itemEnd); 
+                validItems.push({ person: personName, project: projectName, title: fullTitle, start: itemStart, end: itemEnd, barClass, status: statusText }); 
+            } 
+        } 
+    }
+    
+    if (!hasData) { 
+        container.innerHTML = `<div class="text-center py-5 text-muted">Tidak ada data aktif pada rentang tanggal tersebut.</div>`; 
+        return; 
+    }
+    
+    validItems.sort((a, b) => a.start - b.start); 
+    let viewStartDate = filterStart ? new Date(filterStart) : new Date(dataMinDate); 
+    let viewEndDate = filterEnd ? new Date(filterEnd) : new Date(dataMaxDate);
+    viewStartDate.setDate(1); 
+    viewEndDate.setDate(1); 
+    viewEndDate.setMonth(viewEndDate.getMonth() + 1); 
+    viewEndDate.setDate(0); 
+    
+    const totalDays = Math.max(1, Math.ceil((viewEndDate - viewStartDate) / (1000 * 60 * 60 * 24))); 
+    const pxPerDay = 5; 
+    const chartWidth = totalDays * pxPerDay; 
+    let headerMarkersArr = []; 
+    let curr = new Date(viewStartDate); 
+    curr.setDate(1); 
+    
+    while (curr <= viewEndDate) { 
+        const diffTime = curr - viewStartDate; 
+        const diffDays = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24))); 
+        const leftPos = diffDays * pxPerDay; 
+        if (leftPos < chartWidth) { 
+            headerMarkersArr.push(`<span class="month-marker" style="left: ${leftPos}px;">${formatMonthYear(curr)}</span>`); 
+        } 
+        curr.setMonth(curr.getMonth() + 1); 
+    }
+    
+    let stickyHeaderHTML = type === 'penugasan' ? `<div class="g-col-personil">NAMA PERSONIL</div><div class="g-col-pekerjaan">NAMA PEKERJAAN</div>` : `<div class="g-sticky-col">NAMA PEKERJAAN</div>`; 
+    const htmlHeader = `<div class="g-row-container g-header-row">${stickyHeaderHTML}<div class="g-timeline-col" style="min-width: ${chartWidth}px;">${headerMarkersArr.join('')}</div></div>`;
+    
+    let htmlBodyArr = []; 
+    for(let i=0; i<validItems.length; i++){ 
+        const item = validItems[i]; 
+        const sDateStr = item.start.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); 
+        const eDateStr = item.end.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); 
+        const startDiff = Math.ceil((item.start - viewStartDate) / (1000 * 60 * 60 * 24)); 
+        const duration = Math.ceil((item.end - item.start) / (1000 * 60 * 60 * 24)); 
+        let leftPx = startDiff * pxPerDay; 
+        let widthPx = duration * pxPerDay; 
+        
+        if (leftPx < 0) { 
+            widthPx = widthPx + leftPx; 
+            leftPx = 0; 
+        } 
+        
+        const widthSafe = Math.max(widthPx, 0); 
+        const displayStyle = widthSafe > 0 ? '' : 'display:none;'; 
+        let stickyColsHTML = type === 'penugasan' ? `<div class="g-col-personil" title="${item.person}">${item.person}</div><div class="g-col-pekerjaan" title="${item.project}">${item.project}</div>` : `<div class="g-sticky-col" title="${item.project}">${item.project}</div>`; 
+        
+        htmlBodyArr.push(`<div class="g-row-container g-data-row">${stickyColsHTML}<div class="g-timeline-col" style="min-width: ${chartWidth}px;"><div class="g-bar ${item.barClass}" style="left: ${leftPx}px; width: ${widthSafe}px; ${displayStyle}" data-name="${item.title}" data-start="${sDateStr}" data-end="${eDateStr}" data-status="${item.status}" onmouseenter="showTooltip(event, this)" onmousemove="moveTooltip(event)" onmouseleave="hideTooltip()"></div></div></div>`); 
+    }
+    
+    container.innerHTML = `<div class="custom-gantt-wrapper">${htmlHeader}${htmlBodyArr.join('')}</div>`;
+}
 
     window.showTooltip = function(e, element) { const name = element.getAttribute('data-name'); const start = element.getAttribute('data-start'); const end = element.getAttribute('data-end'); const status = element.getAttribute('data-status'); const color = element.classList.contains('bar-red') ? '#d9534f' : '#000080'; const bgColor = element.classList.contains('bar-red') ? '#ffe5e5' : '#e6f0ff'; tooltip.style.borderLeftColor = color; tooltip.innerHTML = `<div class="ct-header">${name}</div><div class="ct-row"><i class="bi bi-calendar-event"></i> Start: ${start}</div><div class="ct-row"><i class="bi bi-calendar-check"></i> End: ${end}</div><div class="ct-badge" style="background:${bgColor}; color:${color};">${status}</div>`; tooltip.style.display = 'block'; moveTooltip(e); }
     window.moveTooltip = function(e) { const x = e.clientX; const y = e.clientY; const tWidth = tooltip.offsetWidth; const winWidth = window.innerWidth; let leftPos = x + 15; if (leftPos + tWidth > winWidth - 20) { leftPos = x - tWidth - 10; } tooltip.style.top = (y + 15) + 'px'; tooltip.style.left = leftPos + 'px'; }
