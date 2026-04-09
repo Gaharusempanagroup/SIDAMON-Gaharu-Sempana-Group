@@ -766,12 +766,30 @@
     });
 
     async function fetchAPI(action, method = 'GET', data = null) {
-        let url = `${CONST_API_URL}?action=${action}`;
-        const options = { method: method };
-        if (method === 'POST') { options.headers = { "Content-Type": "text/plain;charset=utf-8" }; options.body = JSON.stringify({ action: action, ...data }); }
-        try { const response = await fetch(url, options); if (!response.ok) throw new Error('Network response was not ok'); return await response.json(); } 
-        catch (error) { console.error("Fetch Error:", error); if(action !== 'logout') alert("Gagal menghubungi server: " + error.message); throw error; }
+    let url = `${CONST_API_URL}?action=${action}`;
+    const options = { method: method };
+    if (method === 'POST') { 
+        options.headers = { "Content-Type": "text/plain;charset=utf-8" }; 
+        options.body = JSON.stringify({ action: action, ...data }); 
     }
+    try { 
+        const response = await fetch(url, options); 
+        if (!response.ok) throw new Error('Network response error'); 
+        const json = await response.json();
+        
+        // Tangkap error dari backend yang sekarang terexpose
+        if (json.status === "error") throw new Error(json.message);
+        
+        // Kembalikan hanya payload datanya untuk GET data
+        return json.data !== undefined ? json.data : json;
+    } catch (error) { 
+        console.error(`Fetch API Error (${action}):`, error); 
+        if(action !== 'logout' && action !== 'login') {
+            Swal.fire('Koneksi Gagal', `Gagal mengambil data ${action}. Error: ${error.message}`, 'error');
+        }
+        throw error; 
+    }
+}
 
     async function hashPassword(message) {
         const msgBuffer = new TextEncoder().encode(message);
@@ -1223,62 +1241,139 @@
     }
 
     // --- RENDER PROJECT: Filter Logic Added ---
-    function renderProject(data, page = 1) {
-      currentPageProject = page; const tbody = document.getElementById('bodyProject'); let htmlContent = []; 
-      let counts = { total: 0, expired: 0, done: 0 }; const today = new Date(); today.setHours(0, 0, 0, 0);
-      
-      const isExpiredCheck = (dateStr) => { if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false; const targetDate = parseDate(dateStr); return targetDate && targetDate < today; }; 
+function renderProject(data, page = 1) {
+  currentPageProject = page; 
+  const tbody = document.getElementById('bodyProject'); 
+  let htmlContent = []; 
+  let counts = { total: 0, expired: 0, done: 0 }; 
+  const today = new Date(); today.setHours(0, 0, 0, 0);
 
-      for(let i=0; i<data.length; i++) { const row = data[i]; if (!row[1]) continue; counts.total++; let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13]; const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim(); const isDone = rawStatus.includes('done') || rawStatus.includes('selesai'); const kontrakExpired = !isDone && isExpiredCheck(deadKontrakRaw); const scheduleExpired = !isDone && isExpiredCheck(deadScheduleRaw); if (kontrakExpired || scheduleExpired) counts.expired++; if (isDone) counts.done++; }
-      
-      // FIX ANIMASI
-      const getCurrentVal = (id) => parseInt(document.getElementById(id).innerText.replace(/\D/g,'')) || 0;
-      animateValue("proj-total", getCurrentVal("proj-total"), counts.total, 500);
-      animateValue("proj-expired", getCurrentVal("proj-expired"), counts.expired, 500);
-      animateValue("proj-done", getCurrentVal("proj-done"), counts.done, 500);
+  const isExpiredCheck = (dateStr) => { 
+    if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false; 
+    const targetDate = parseDate(dateStr); 
+    return targetDate && targetDate < today; 
+  }; 
 
-      let validRows = data.filter(r => r[1]);
+  // 1. HITUNG STATISTIK (DENGAN PERBAIKAN INDEX row[2])
+  for(let i=0; i<data.length; i++) { 
+    const row = data[i]; 
+    // BUG FIX: Gunakan row[2] (Pekerjaan), bukan row[1] (No)
+    if (!row[2] || String(row[2]).trim() === "") continue; 
+    
+    counts.total++; 
+    let deadKontrakRaw = row[9]; 
+    let deadScheduleRaw = row[13]; 
+    const statusText = row[16] || ""; 
+    const rawStatus = statusText.toLowerCase().trim(); 
+    const isDone = rawStatus.includes('done') || rawStatus.includes('selesai') || rawStatus === '100%'; 
+    
+    const kontrakExpired = !isDone && isExpiredCheck(deadKontrakRaw); 
+    const scheduleExpired = !isDone && isExpiredCheck(deadScheduleRaw); 
+    
+    if (kontrakExpired || scheduleExpired) counts.expired++; 
+    if (isDone) counts.done++; 
+  }
+  
+  // 2. ANIMASI STATISTIK
+  const getCurrentVal = (id) => parseInt(document.getElementById(id).innerText.replace(/\D/g,'')) || 0;
+  animateValue("proj-total", getCurrentVal("proj-total"), counts.total, 500);
+  animateValue("proj-expired", getCurrentVal("proj-expired"), counts.expired, 500);
+  animateValue("proj-done", getCurrentVal("proj-done"), counts.done, 500);
+
+  // 3. FILTER DATA (DENGAN PERBAIKAN INDEX row[2])
+  let validRows = data.filter(r => r[2] && String(r[2]).trim() !== ""); 
+  
+  if (filterStatusProject === 'done') {
+      validRows = validRows.filter(row => {
+          const rawStatus = (row[16] || "").toLowerCase().trim();
+          return rawStatus.includes('done') || rawStatus.includes('selesai') || rawStatus.includes('completed') || rawStatus === '100%';
+      });
+  } 
+  else if (filterStatusProject === 'expired') {
+      validRows = validRows.filter(row => {
+           const deadKontrakRaw = row[9];
+           const deadScheduleRaw = row[13];
+           const rawStatus = (row[16] || "").toLowerCase().trim();
+           const isDone = rawStatus.includes('done') || rawStatus.includes('selesai') || rawStatus === '100%';
+           if (isDone) return false;
+           return isExpiredCheck(deadKontrakRaw) || isExpiredCheck(deadScheduleRaw);
+      });
+  }
+
+  // 4. PAGINASI & RENDER HTML
+  const startIndex = (page - 1) * ITEMS_PER_PAGE; 
+  const pagedRows = validRows.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  
+  for(let i=0; i<pagedRows.length; i++) { 
+      const row = pagedRows[i]; 
+      const pekerjaan = row[2]; 
+      const kordinator = row[4]; 
+      const urlSchedule = row[5]; 
+      const priority = (row[7] || "").trim(); 
+      let deadKontrakRaw = row[9]; 
+      let deadScheduleRaw = row[13]; 
+      const statusText = row[16] || ""; 
+      const rawStatus = statusText.toLowerCase().trim(); 
+      const notes = row[18] || ""; 
+      const isDone = rawStatus.includes('done') || rawStatus.includes('selesai') || rawStatus.includes('completed') || rawStatus.includes('finish') || rawStatus === '100%'; 
       
-      if (filterStatusProject === 'done') {
-          validRows = validRows.filter(row => {
-              const rawStatus = (row[16] || "").toLowerCase().trim();
-              return rawStatus.includes('done') || rawStatus.includes('selesai') || rawStatus.includes('completed') || rawStatus === '100%';
-          });
+      let deadKontrakView = deadKontrakRaw || '-'; 
+      let deadScheduleView = deadScheduleRaw || '-'; 
+      const iconCheck = '<i class="bi bi-check-circle-fill text-success" style="font-size: 1.2rem;"></i>';
+
+      if (isDone) { 
+        deadKontrakView = iconCheck; 
+        deadScheduleView = iconCheck; 
+      } else { 
+        if (isExpiredCheck(deadKontrakRaw)) deadKontrakView = `<span class="text-danger fw-bold">EXPIRED</span>`; 
+        if (isExpiredCheck(deadScheduleRaw)) deadScheduleView = `<span class="text-danger fw-bold">EXPIRED</span>`; 
       } 
-      else if (filterStatusProject === 'expired') {
-          validRows = validRows.filter(row => {
-               const deadKontrakRaw = row[9];
-               const deadScheduleRaw = row[13];
-               const rawStatus = (row[16] || "").toLowerCase().trim();
-               const isDone = rawStatus.includes('done') || rawStatus.includes('selesai');
-               if (isDone) return false;
-               return isExpiredCheck(deadKontrakRaw) || isExpiredCheck(deadScheduleRaw);
-          });
-      }
+      
+      let badgeClass = "bg-secondary"; 
+      if (rawStatus.includes('ongoing')) badgeClass = "bg-info text-white"; 
+      else if (rawStatus.includes('dummy')) badgeClass = "bg-warning text-dark"; 
+      else if (isDone) badgeClass = "bg-success"; 
+      else if (rawStatus.includes('past')) badgeClass = "bg-danger"; 
+      
+      let btnUrl = "-"; let mobileBtnUrl = "";
+      if (urlSchedule && urlSchedule.includes("http")) { 
+        btnUrl = `<a href="${urlSchedule}" target="_blank" class="btn btn-primary btn-sm d-inline-flex align-items-center justify-content-center" style="font-size: 0.7rem; padding: 2px 8px; height: 24px; min-width: 50px;"><i class="bi bi-link-45deg me-1" style="font-size: 0.9rem;"></i> Link</a>`; 
+        mobileBtnUrl = `<a href="${urlSchedule}" target="_blank" class="btn btn-sm btn-outline-primary w-100 mt-2"><i class="bi bi-link-45deg me-1"></i> Buka Schedule</a>`; 
+      } 
+      
+      let priorityClass = "bg-info"; 
+      if (priority === "High") priorityClass = "bg-danger"; 
+      else if (priority === "Medium") priorityClass = "bg-warning text-dark"; 
+      
+      htmlContent.push(`<tr><td><div class="fw-bold fs-6 mb-1 text-dark pe-5">${pekerjaan}</div><div class="d-flex align-items-center gap-2 mb-2 d-md-none"><span class="badge ${badgeClass}">${statusText || 'Not Started'}</span><span class="badge ${priorityClass} rounded-pill" style="font-size: 0.65rem;">${priority || 'Low'}</span></div><div class="d-md-none mt-3"><div class="small mb-1 text-muted"><i class="bi bi-person-circle me-2"></i>Kordinator: <strong>${kordinator}</strong></div><div class="mobile-detail-group"><div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-light"><span class="small text-muted">Deadline Kontrak</span><span class="small fw-bold">${deadKontrakView}</span></div><div class="d-flex justify-content-between"><span class="small text-muted">Deadline Schedule</span><span class="small fw-bold">${deadScheduleView}</span></div></div>${notes ? `<div class="mt-2 small text-muted fst-italic bg-light p-2 rounded">"${notes}"</div>` : ''}${mobileBtnUrl}</div></td><td class="d-none d-md-table-cell">${kordinator}</td><td class="text-center d-none d-md-table-cell">${btnUrl}</td><td class="text-center d-none d-md-table-cell"><span class="badge ${priorityClass}">${priority || 'Low'}</span></td><td class="text-center text-muted small d-none d-md-table-cell">${deadKontrakView}</td><td class="text-center text-muted small d-none d-md-table-cell">${deadScheduleView}</td><td class="text-center d-none d-md-table-cell"><span class="badge ${badgeClass}">${statusText || 'Not Started'}</span></td><td class="small text-muted d-none d-md-table-cell">${notes}</td></tr>`); 
+  }
+  tbody.innerHTML = htmlContent.join(''); 
+  setupPagination(validRows.length, currentPageProject, 'pagination-project', (p) => renderProject(data, p)); 
+}
 
-      const startIndex = (page - 1) * ITEMS_PER_PAGE; const pagedRows = validRows.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-      for(let i=0; i<pagedRows.length; i++) { 
-          const row = pagedRows[i]; const pekerjaan = row[2]; const kordinator = row[4]; const urlSchedule = row[5]; const priority = (row[7] || "").trim(); let deadKontrakRaw = row[9]; let deadScheduleRaw = row[13]; const statusText = row[16] || ""; const rawStatus = statusText.toLowerCase().trim(); const notes = row[18] || ""; const isDone = rawStatus.includes('done') || rawStatus.includes('selesai') || rawStatus.includes('completed') || rawStatus.includes('finish') || rawStatus === '100%'; 
-          
-          let deadKontrakView = deadKontrakRaw || '-'; 
-          let deadScheduleView = deadScheduleRaw || '-'; 
-          const iconCheck = '<i class="bi bi-check-circle-fill text-success" style="font-size: 1.2rem;"></i>';
+    function parseDate(dateStr) { 
+    if (!dateStr || dateStr.trim() === '-' || dateStr.trim() === '') return null; 
+    if(dateStr.includes('T')) return new Date(dateStr); 
 
-          if (isDone) { deadKontrakView = iconCheck; deadScheduleView = iconCheck; } else { if (isExpiredCheck(deadKontrakRaw)) deadKontrakView = `<span class="text-danger fw-bold">EXPIRED</span>`; if (isExpiredCheck(deadScheduleRaw)) deadScheduleView = `<span class="text-danger fw-bold">EXPIRED</span>`; } 
-          
-          let badgeClass = "bg-secondary"; if (rawStatus.includes('ongoing')) badgeClass = "bg-info text-white"; else if (rawStatus.includes('dummy')) badgeClass = "bg-warning text-dark"; else if (isDone) badgeClass = "bg-success"; else if (rawStatus.includes('past')) badgeClass = "bg-danger"; 
-          
-          let btnUrl = "-"; let mobileBtnUrl = "";
-          if (urlSchedule && urlSchedule.includes("http")) { btnUrl = `<a href="${urlSchedule}" target="_blank" class="btn btn-primary btn-sm d-inline-flex align-items-center justify-content-center" style="font-size: 0.7rem; padding: 2px 8px; height: 24px; min-width: 50px;"><i class="bi bi-link-45deg me-1" style="font-size: 0.9rem;"></i> Link</a>`; mobileBtnUrl = `<a href="${urlSchedule}" target="_blank" class="btn btn-sm btn-outline-primary w-100 mt-2"><i class="bi bi-link-45deg me-1"></i> Buka Schedule</a>`; } 
-          let priorityClass = "bg-info"; if (priority === "High") priorityClass = "bg-danger"; else if (priority === "Medium") priorityClass = "bg-warning text-dark"; 
-          
-          htmlContent.push(`<tr><td><div class="fw-bold fs-6 mb-1 text-dark pe-5">${pekerjaan}</div><div class="d-flex align-items-center gap-2 mb-2 d-md-none"><span class="badge ${badgeClass}">${statusText || 'Not Started'}</span><span class="badge ${priorityClass} rounded-pill" style="font-size: 0.65rem;">${priority || 'Low'}</span></div><div class="d-md-none mt-3"><div class="small mb-1 text-muted"><i class="bi bi-person-circle me-2"></i>Kordinator: <strong>${kordinator}</strong></div><div class="mobile-detail-group"><div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-light"><span class="small text-muted">Deadline Kontrak</span><span class="small fw-bold">${deadKontrakView}</span></div><div class="d-flex justify-content-between"><span class="small text-muted">Deadline Schedule</span><span class="small fw-bold">${deadScheduleView}</span></div></div>${notes ? `<div class="mt-2 small text-muted fst-italic bg-light p-2 rounded">"${notes}"</div>` : ''}${mobileBtnUrl}</div></td><td class="d-none d-md-table-cell">${kordinator}</td><td class="text-center d-none d-md-table-cell">${btnUrl}</td><td class="text-center d-none d-md-table-cell"><span class="badge ${priorityClass}">${priority || 'Low'}</span></td><td class="text-center text-muted small d-none d-md-table-cell">${deadKontrakView}</td><td class="text-center text-muted small d-none d-md-table-cell">${deadScheduleView}</td><td class="text-center d-none d-md-table-cell"><span class="badge ${badgeClass}">${statusText || 'Not Started'}</span></td><td class="small text-muted d-none d-md-table-cell">${notes}</td></tr>`); 
-      }
-      tbody.innerHTML = htmlContent.join(''); setupPagination(validRows.length, currentPageProject, 'pagination-project', (p) => renderProject(data, p)); 
+    // Handle format DD/MM/YYYY
+    if(dateStr.includes('/')) {
+        const p = dateStr.split('/');
+        if(p.length === 3) return new Date(p[2], p[1] - 1, p[0]);
     }
 
-    function parseDate(dateStr) { if (!dateStr || dateStr.trim() === '-' || dateStr.trim() === '') return null; if(dateStr.includes('T')) return new Date(dateStr); const parts = dateStr.split(' '); if (parts.length < 3) return new Date(dateStr); const day = parseInt(parts[0]); const monthStr = parts[1].toLowerCase(); const year = parseInt(parts[2]); const months = { 'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'mei': 4, 'may': 4, 'jun': 5, 'jul': 6, 'ags': 7, 'aug': 7, 'sep': 8, 'okt': 9, 'oct': 9, 'nov': 10, 'des': 11, 'dec': 11 }; const month = months[monthStr] !== undefined ? months[monthStr] : 0; return new Date(year, month, day); }
-    function formatMonthYear(date) { const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"]; return `${months[date.getMonth()]} ${date.getFullYear().toString().substr(2,2)}`; }
+    const parts = dateStr.split(' '); 
+    if (parts.length < 3) return new Date(dateStr); 
+    
+    const day = parseInt(parts[0]); 
+    const monthStr = parts[1].toLowerCase().substring(0, 3);
+    const year = parseInt(parts[2]); 
+    
+    const months = { 'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'mei': 4, 'may': 4, 'jun': 5, 'jul': 6, 'ags': 7, 'aug': 7, 'sep': 8, 'okt': 9, 'oct': 9, 'nov': 10, 'des': 11, 'dec': 11 }; 
+    const month = months[monthStr] !== undefined ? months[monthStr] : 0; 
+    
+    const parsed = new Date(year, month, day);
+    return isNaN(parsed.getTime()) ? null : parsed;
+}
 
     function drawGanttChart(type) {
       let containerId, startFilterVal, endFilterVal, sourceData, searchKeyword = "";
@@ -1513,4 +1608,3 @@
   </script>
 </body>
 </html>
-
