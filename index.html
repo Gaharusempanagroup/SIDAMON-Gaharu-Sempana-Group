@@ -1352,27 +1352,63 @@ function renderProject(data, page = 1) {
 }
 
     function parseDate(dateStr) { 
-    if (!dateStr || dateStr.trim() === '-' || dateStr.trim() === '') return null; 
-    if(dateStr.includes('T')) return new Date(dateStr); 
+    if (!dateStr) return null;
+    let str = String(dateStr).trim();
+    if (str === '-' || str === '') return null;
 
-    // Handle format DD/MM/YYYY
-    if(dateStr.includes('/')) {
-        const p = dateStr.split('/');
-        if(p.length === 3) return new Date(p[2], p[1] - 1, p[0]);
+    // 1. Coba baca pakai sistem bawaan (Cocok untuk YYYY-MM-DD atau format Inggris)
+    let d = new Date(str);
+    if (!isNaN(d.getTime()) && d.getFullYear() > 2000 && str.includes('-') && str.split('-')[0].length === 4) {
+        return d;
     }
 
-    const parts = dateStr.split(' '); 
-    if (parts.length < 3) return new Date(dateStr); 
-    
-    const day = parseInt(parts[0]); 
-    const monthStr = parts[1].toLowerCase().substring(0, 3);
-    const year = parseInt(parts[2]); 
-    
-    const months = { 'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'mei': 4, 'may': 4, 'jun': 5, 'jul': 6, 'ags': 7, 'aug': 7, 'sep': 8, 'okt': 9, 'oct': 9, 'nov': 10, 'des': 11, 'dec': 11 }; 
-    const month = months[monthStr] !== undefined ? months[monthStr] : 0; 
-    
-    const parsed = new Date(year, month, day);
-    return isNaN(parsed.getTime()) ? null : parsed;
+    // 2. Normalisasi pemisah: Ubah garis miring (/) dan strip (-) jadi spasi
+    str = str.replace(/[-/]/g, ' ');
+    let parts = str.split(/\s+/);
+
+    if (parts.length >= 3) {
+        let p1 = parts[0];
+        let p2 = parts[1];
+        let p3 = parts[2];
+
+        let day, month, year;
+
+        // Cek jika formatnya Tahun dulu (YYYY MM DD)
+        if (p1.length === 4) {
+            year = parseInt(p1);
+            month = parseInt(p2) - 1;
+            day = parseInt(p3);
+        } 
+        // Jika formatnya Hari dulu (DD MM YYYY atau DD Bulan YYYY)
+        else {
+            day = parseInt(p1);
+            // Tangani tahun yang ditulis 2 digit (contoh: '26' jadi '2026')
+            year = parseInt(p3);
+            if (year < 100) year += 2000; 
+
+            // Jika bulan ditulis pakai huruf (contoh: "Ags", "Okt", "Jan")
+            if (isNaN(parseInt(p2))) {
+                const monthStr = p2.toLowerCase().substring(0, 3);
+                const months = { 
+                    'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'mei': 4, 'may': 4, 
+                    'jun': 5, 'jul': 6, 'ags': 7, 'aug': 7, 'sep': 8, 
+                    'okt': 9, 'oct': 9, 'nov': 10, 'des': 11, 'dec': 11 
+                };
+                month = months[monthStr] !== undefined ? months[monthStr] : 0;
+            } 
+            // Jika bulan ditulis pakai angka (contoh: 15 08 2026)
+            else {
+                month = parseInt(p2) - 1;
+            }
+        }
+
+        d = new Date(year, month, day);
+        if (!isNaN(d.getTime())) return d;
+    }
+
+    // Fallback terakhir
+    const fallback = new Date(dateStr);
+    return isNaN(fallback.getTime()) ? null : fallback;
 }
 
 function drawGanttChart(type) {
