@@ -1403,7 +1403,7 @@
         return date.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
     }
 
-    // --- PERBAIKAN FUNGSI DRAW GANTT CHART ---
+    // --- PERBAIKAN FUNGSI DRAW GANTT CHART (DONE DIHILANGKAN) ---
     function drawGanttChart(type) {
         let containerId, startFilterVal, endFilterVal, sourceData, searchKeyword = "";
         
@@ -1466,8 +1466,11 @@
                 statusText = row[16] || "Unknown"; 
                 status = statusText.toLowerCase(); 
                 
-                // Deteksi status selesai, JANGAN DI-CONTINUE agar tetap muncul di Gantt
+                // Deteksi status selesai
                 isDone = status.includes('done') || status.includes('selesai') || status.includes('completed') || status === '100%'; 
+                
+                // JIKA STATUS SELESAI, LEWATI (TIDAK MUNCUL DI GANTT CHART)
+                if (isDone) continue; 
                 
                 if (type === 'kontrak') { 
                     startRaw = row[8]; 
@@ -1477,13 +1480,9 @@
                     endRaw = row[13]; 
                 } 
                 
-                if (isDone) {
-                    barClass = 'bar-green';
-                } else {
-                    const itemEndCheck = parseDate(endRaw); 
-                    const isExpired = itemEndCheck && itemEndCheck < today; 
-                    barClass = isExpired ? 'bar-red' : 'bar-blue'; 
-                }
+                const itemEndCheck = parseDate(endRaw); 
+                const isExpired = itemEndCheck && itemEndCheck < today; 
+                barClass = isExpired ? 'bar-red' : 'bar-blue'; 
             }
             
             if (searchKeyword && !fullTitle.toLowerCase().includes(searchKeyword)) continue; 
