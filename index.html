@@ -26,18 +26,12 @@
     .btn-primary:hover { background-color: #000060; border-color: #000060; }
 
     /* --- SAFE LOADING STATE (TRANSPARENT LOCK) --- */
-    /* Saat class 'data-loading' aktif:
-       1. Dashboard terlihat NORMAL (Jelas, tidak redup).
-       2. Skeleton Loading terlihat.
-       3. User TIDAK BISA klik apapun (Anti-Crash).
-    */
     body.data-loading #dashboard-section {
         pointer-events: none !important; /* KUNCI UTAMA: Mematikan interaksi */
         user-select: none; 
         cursor: wait; 
     }
     
-    /* Sembunyikan overlay loading agar Skeleton terlihat jelas */
     body.data-loading #loading-overlay {
         display: none !important;
     }
@@ -49,7 +43,6 @@
     .login-card { width: 100%; max-width: 420px; padding: 40px; border-radius: 20px; background: rgba(255, 255, 255, 0.15); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.18); text-align: center; animation: fadeInUp 0.8s ease-out; position: relative; z-index: 10; }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     
-    /* Breathing Animation for Logo */
     @keyframes breathing { 0% { transform: scale(1); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); } 50% { transform: scale(1.08); filter: drop-shadow(0 8px 12px rgba(0,0,0,0.4)); } 100% { transform: scale(1); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); } }
     .login-logo { height: 90px; margin-bottom: 20px; animation: breathing 3s ease-in-out infinite; }
     
@@ -63,7 +56,6 @@
     .form-floating > .form-control:focus ~ label, .form-floating > .form-control:not(:placeholder-shown) ~ label { color: rgba(255, 255, 255, 1); font-weight: 600; opacity: 1; }
     .form-floating > .form-control:focus ~ label::after, .form-floating > .form-control:not(:placeholder-shown) ~ label::after { background-color: transparent !important; }
     
-    /* Button Animations */
     .btn-login { background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05)); border: 1px solid rgba(255, 255, 255, 0.6); color: white; height: 55px; border-radius: 50px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); backdrop-filter: blur(5px); transition: all 0.4s ease; position: relative; overflow: hidden; width: 100%; touch-action: manipulation; cursor: pointer; }
     .btn-login:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.25); border-color: #ffffff; box-shadow: 0 0 25px rgba(255, 255, 255, 0.4); color: white !important; }
     .btn-login:active { transform: scale(0.96); background: rgba(255, 255, 255, 0.3); }
@@ -383,7 +375,7 @@
 
   <div id="login-section">
     <div class="login-card">
-      <img src="IMG_0992.PNG" alt="Logo" class="login-logo">
+      <img src="IMG_0992.PNG" alt="Logo" class="login-logo" onerror="this.src='https://via.placeholder.com/90'">
       <h3 class="login-title">SIDAMON</h3>
       <p class="login-subtitle">Sistem Database & Monitoring</p>
       
@@ -406,7 +398,7 @@
     <nav class="navbar navbar-dark bg-primary shadow-sm mb-4 py-2 sticky-top">
       <div class="container-fluid px-3 px-lg-5 d-flex justify-content-between align-items-center flex-nowrap">
         <div class="d-flex align-items-center">
-          <div class="logo-wrapper"><img src="IMG_0992.PNG" alt="Logo" style="height: 50px; width: auto;"></div>
+          <div class="logo-wrapper"><img src="IMG_0992.PNG" alt="Logo" style="height: 50px; width: auto;" onerror="this.style.display='none'"></div>
           <div class="d-none d-md-flex flex-column justify-content-center">
             <span class="text-white fw-bold" style="font-size: 1.1rem; letter-spacing: 0.5px; line-height: 1.2;">SIDAMON Gaharu Sempana Group</span>
             <span class="text-white text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px; opacity: 0.85;">Dashboard Sistem Database & Monitoring</span>
@@ -430,7 +422,6 @@
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
           <div class="offcanvas-header bg-primary text-white">
             <div class="d-flex align-items-center">
-               <img src="IMG_0992.PNG" alt="Logo" style="height: 35px; margin-right: 10px; background: rgba(255,255,255,0.2); padding: 4px; border-radius: 6px;">
                <h5 class="offcanvas-title fw-bold" id="offcanvasNavbarLabel">Log Sistem</h5>
             </div>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -1241,344 +1232,362 @@
     }
 
     // --- RENDER PROJECT: Filter Logic Added ---
-function renderProject(data, page = 1) {
-  currentPageProject = page; 
-  const tbody = document.getElementById('bodyProject'); 
-  let htmlContent = []; 
-  let counts = { total: 0, expired: 0, done: 0 }; 
-  const today = new Date(); today.setHours(0, 0, 0, 0);
+    function renderProject(data, page = 1) {
+      currentPageProject = page; 
+      const tbody = document.getElementById('bodyProject'); 
+      let htmlContent = []; 
+      let counts = { total: 0, expired: 0, done: 0 }; 
+      const today = new Date(); today.setHours(0, 0, 0, 0);
 
-  const isExpiredCheck = (dateStr) => { 
-    if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false; 
-    const targetDate = parseDate(dateStr); 
-    return targetDate && targetDate < today; 
-  }; 
+      const isExpiredCheck = (dateStr) => { 
+        if (!dateStr || dateStr === "-" || dateStr.trim() === "") return false; 
+        const targetDate = parseDate(dateStr); 
+        return targetDate && targetDate < today; 
+      }; 
 
-  // 1. HITUNG STATISTIK (DENGAN PERBAIKAN INDEX row[2])
-  for(let i=0; i<data.length; i++) { 
-    const row = data[i]; 
-    // BUG FIX: Gunakan row[2] (Pekerjaan), bukan row[1] (No)
-    if (!row[2] || String(row[2]).trim() === "") continue; 
-    
-    counts.total++; 
-    let deadKontrakRaw = row[9]; 
-    let deadScheduleRaw = row[13]; 
-    const statusText = row[16] || ""; 
-    const rawStatus = statusText.toLowerCase().trim(); 
-    const isDone = rawStatus.includes('done') || rawStatus.includes('selesai') || rawStatus === '100%'; 
-    
-    const kontrakExpired = !isDone && isExpiredCheck(deadKontrakRaw); 
-    const scheduleExpired = !isDone && isExpiredCheck(deadScheduleRaw); 
-    
-    if (kontrakExpired || scheduleExpired) counts.expired++; 
-    if (isDone) counts.done++; 
-  }
-  
-  // 2. ANIMASI STATISTIK
-  const getCurrentVal = (id) => parseInt(document.getElementById(id).innerText.replace(/\D/g,'')) || 0;
-  animateValue("proj-total", getCurrentVal("proj-total"), counts.total, 500);
-  animateValue("proj-expired", getCurrentVal("proj-expired"), counts.expired, 500);
-  animateValue("proj-done", getCurrentVal("proj-done"), counts.done, 500);
-
-  // 3. FILTER DATA (DENGAN PERBAIKAN INDEX row[2])
-  let validRows = data.filter(r => r[2] && String(r[2]).trim() !== ""); 
-  
-  if (filterStatusProject === 'done') {
-      validRows = validRows.filter(row => {
-          const rawStatus = (row[16] || "").toLowerCase().trim();
-          return rawStatus.includes('done') || rawStatus.includes('selesai') || rawStatus.includes('completed') || rawStatus === '100%';
-      });
-  } 
-  else if (filterStatusProject === 'expired') {
-      validRows = validRows.filter(row => {
-           const deadKontrakRaw = row[9];
-           const deadScheduleRaw = row[13];
-           const rawStatus = (row[16] || "").toLowerCase().trim();
-           const isDone = rawStatus.includes('done') || rawStatus.includes('selesai') || rawStatus === '100%';
-           if (isDone) return false;
-           return isExpiredCheck(deadKontrakRaw) || isExpiredCheck(deadScheduleRaw);
-      });
-  }
-
-  // 4. PAGINASI & RENDER HTML
-  const startIndex = (page - 1) * ITEMS_PER_PAGE; 
-  const pagedRows = validRows.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  
-  for(let i=0; i<pagedRows.length; i++) { 
-      const row = pagedRows[i]; 
-      const pekerjaan = row[2]; 
-      const kordinator = row[4]; 
-      const urlSchedule = row[5]; 
-      const priority = (row[7] || "").trim(); 
-      let deadKontrakRaw = row[9]; 
-      let deadScheduleRaw = row[13]; 
-      const statusText = row[16] || ""; 
-      const rawStatus = statusText.toLowerCase().trim(); 
-      const notes = row[18] || ""; 
-      const isDone = rawStatus.includes('done') || rawStatus.includes('selesai') || rawStatus.includes('completed') || rawStatus.includes('finish') || rawStatus === '100%'; 
+      // 1. HITUNG STATISTIK (DENGAN PERBAIKAN INDEX row[2])
+      for(let i=0; i<data.length; i++) { 
+        const row = data[i]; 
+        // BUG FIX: Gunakan row[2] (Pekerjaan), bukan row[1] (No)
+        if (!row[2] || String(row[2]).trim() === "") continue; 
+        
+        counts.total++; 
+        let deadKontrakRaw = row[9]; 
+        let deadScheduleRaw = row[13]; 
+        const statusText = row[16] || ""; 
+        const rawStatus = statusText.toLowerCase().trim(); 
+        const isDone = rawStatus.includes('done') || rawStatus.includes('selesai') || rawStatus === '100%'; 
+        
+        const kontrakExpired = !isDone && isExpiredCheck(deadKontrakRaw); 
+        const scheduleExpired = !isDone && isExpiredCheck(deadScheduleRaw); 
+        
+        if (kontrakExpired || scheduleExpired) counts.expired++; 
+        if (isDone) counts.done++; 
+      }
       
-      let deadKontrakView = deadKontrakRaw || '-'; 
-      let deadScheduleView = deadScheduleRaw || '-'; 
-      const iconCheck = '<i class="bi bi-check-circle-fill text-success" style="font-size: 1.2rem;"></i>';
+      // 2. ANIMASI STATISTIK
+      const getCurrentVal = (id) => parseInt(document.getElementById(id).innerText.replace(/\D/g,'')) || 0;
+      animateValue("proj-total", getCurrentVal("proj-total"), counts.total, 500);
+      animateValue("proj-expired", getCurrentVal("proj-expired"), counts.expired, 500);
+      animateValue("proj-done", getCurrentVal("proj-done"), counts.done, 500);
 
-      if (isDone) { 
-        deadKontrakView = iconCheck; 
-        deadScheduleView = iconCheck; 
-      } else { 
-        if (isExpiredCheck(deadKontrakRaw)) deadKontrakView = `<span class="text-danger fw-bold">EXPIRED</span>`; 
-        if (isExpiredCheck(deadScheduleRaw)) deadScheduleView = `<span class="text-danger fw-bold">EXPIRED</span>`; 
+      // 3. FILTER DATA (DENGAN PERBAIKAN INDEX row[2])
+      let validRows = data.filter(r => r[2] && String(r[2]).trim() !== ""); 
+      
+      if (filterStatusProject === 'done') {
+          validRows = validRows.filter(row => {
+              const rawStatus = (row[16] || "").toLowerCase().trim();
+              return rawStatus.includes('done') || rawStatus.includes('selesai') || rawStatus.includes('completed') || rawStatus === '100%';
+          });
       } 
-      
-      let badgeClass = "bg-secondary"; 
-      if (rawStatus.includes('ongoing')) badgeClass = "bg-info text-white"; 
-      else if (rawStatus.includes('dummy')) badgeClass = "bg-warning text-dark"; 
-      else if (isDone) badgeClass = "bg-success"; 
-      else if (rawStatus.includes('past')) badgeClass = "bg-danger"; 
-      
-      let btnUrl = "-"; let mobileBtnUrl = "";
-      if (urlSchedule && urlSchedule.includes("http")) { 
-        btnUrl = `<a href="${urlSchedule}" target="_blank" class="btn btn-primary btn-sm d-inline-flex align-items-center justify-content-center" style="font-size: 0.7rem; padding: 2px 8px; height: 24px; min-width: 50px;"><i class="bi bi-link-45deg me-1" style="font-size: 0.9rem;"></i> Link</a>`; 
-        mobileBtnUrl = `<a href="${urlSchedule}" target="_blank" class="btn btn-sm btn-outline-primary w-100 mt-2"><i class="bi bi-link-45deg me-1"></i> Buka Schedule</a>`; 
-      } 
-      
-      let priorityClass = "bg-info"; 
-      if (priority === "High") priorityClass = "bg-danger"; 
-      else if (priority === "Medium") priorityClass = "bg-warning text-dark"; 
-      
-      htmlContent.push(`<tr><td><div class="fw-bold fs-6 mb-1 text-dark pe-5">${pekerjaan}</div><div class="d-flex align-items-center gap-2 mb-2 d-md-none"><span class="badge ${badgeClass}">${statusText || 'Not Started'}</span><span class="badge ${priorityClass} rounded-pill" style="font-size: 0.65rem;">${priority || 'Low'}</span></div><div class="d-md-none mt-3"><div class="small mb-1 text-muted"><i class="bi bi-person-circle me-2"></i>Kordinator: <strong>${kordinator}</strong></div><div class="mobile-detail-group"><div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-light"><span class="small text-muted">Deadline Kontrak</span><span class="small fw-bold">${deadKontrakView}</span></div><div class="d-flex justify-content-between"><span class="small text-muted">Deadline Schedule</span><span class="small fw-bold">${deadScheduleView}</span></div></div>${notes ? `<div class="mt-2 small text-muted fst-italic bg-light p-2 rounded">"${notes}"</div>` : ''}${mobileBtnUrl}</div></td><td class="d-none d-md-table-cell">${kordinator}</td><td class="text-center d-none d-md-table-cell">${btnUrl}</td><td class="text-center d-none d-md-table-cell"><span class="badge ${priorityClass}">${priority || 'Low'}</span></td><td class="text-center text-muted small d-none d-md-table-cell">${deadKontrakView}</td><td class="text-center text-muted small d-none d-md-table-cell">${deadScheduleView}</td><td class="text-center d-none d-md-table-cell"><span class="badge ${badgeClass}">${statusText || 'Not Started'}</span></td><td class="small text-muted d-none d-md-table-cell">${notes}</td></tr>`); 
-  }
-  tbody.innerHTML = htmlContent.join(''); 
-  setupPagination(validRows.length, currentPageProject, 'pagination-project', (p) => renderProject(data, p)); 
-}
+      else if (filterStatusProject === 'expired') {
+          validRows = validRows.filter(row => {
+               const deadKontrakRaw = row[9];
+               const deadScheduleRaw = row[13];
+               const rawStatus = (row[16] || "").toLowerCase().trim();
+               const isDone = rawStatus.includes('done') || rawStatus.includes('selesai') || rawStatus === '100%';
+               if (isDone) return false;
+               return isExpiredCheck(deadKontrakRaw) || isExpiredCheck(deadScheduleRaw);
+          });
+      }
 
-    function parseDate(dateStr) { 
-    if (!dateStr) return null;
-    let str = String(dateStr).trim();
-    if (str === '-' || str === '') return null;
+      // 4. PAGINASI & RENDER HTML
+      const startIndex = (page - 1) * ITEMS_PER_PAGE; 
+      const pagedRows = validRows.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+      
+      for(let i=0; i<pagedRows.length; i++) { 
+          const row = pagedRows[i]; 
+          const pekerjaan = row[2]; 
+          const kordinator = row[4]; 
+          const urlSchedule = row[5]; 
+          const priority = (row[7] || "").trim(); 
+          let deadKontrakRaw = row[9]; 
+          let deadScheduleRaw = row[13]; 
+          const statusText = row[16] || ""; 
+          const rawStatus = statusText.toLowerCase().trim(); 
+          const notes = row[18] || ""; 
+          const isDone = rawStatus.includes('done') || rawStatus.includes('selesai') || rawStatus.includes('completed') || rawStatus.includes('finish') || rawStatus === '100%'; 
+          
+          let deadKontrakView = deadKontrakRaw || '-'; 
+          let deadScheduleView = deadScheduleRaw || '-'; 
+          const iconCheck = '<i class="bi bi-check-circle-fill text-success" style="font-size: 1.2rem;"></i>';
 
-    // 1. Coba baca pakai sistem bawaan (Cocok untuk YYYY-MM-DD atau format Inggris)
-    let d = new Date(str);
-    if (!isNaN(d.getTime()) && d.getFullYear() > 2000 && str.includes('-') && str.split('-')[0].length === 4) {
-        return d;
+          if (isDone) { 
+            deadKontrakView = iconCheck; 
+            deadScheduleView = iconCheck; 
+          } else { 
+            if (isExpiredCheck(deadKontrakRaw)) deadKontrakView = `<span class="text-danger fw-bold">EXPIRED</span>`; 
+            if (isExpiredCheck(deadScheduleRaw)) deadScheduleView = `<span class="text-danger fw-bold">EXPIRED</span>`; 
+          } 
+          
+          let badgeClass = "bg-secondary"; 
+          if (rawStatus.includes('ongoing')) badgeClass = "bg-info text-white"; 
+          else if (rawStatus.includes('dummy')) badgeClass = "bg-warning text-dark"; 
+          else if (isDone) badgeClass = "bg-success"; 
+          else if (rawStatus.includes('past')) badgeClass = "bg-danger"; 
+          
+          let btnUrl = "-"; let mobileBtnUrl = "";
+          if (urlSchedule && urlSchedule.includes("http")) { 
+            btnUrl = `<a href="${urlSchedule}" target="_blank" class="btn btn-primary btn-sm d-inline-flex align-items-center justify-content-center" style="font-size: 0.7rem; padding: 2px 8px; height: 24px; min-width: 50px;"><i class="bi bi-link-45deg me-1" style="font-size: 0.9rem;"></i> Link</a>`; 
+            mobileBtnUrl = `<a href="${urlSchedule}" target="_blank" class="btn btn-sm btn-outline-primary w-100 mt-2"><i class="bi bi-link-45deg me-1"></i> Buka Schedule</a>`; 
+          } 
+          
+          let priorityClass = "bg-info"; 
+          if (priority === "High") priorityClass = "bg-danger"; 
+          else if (priority === "Medium") priorityClass = "bg-warning text-dark"; 
+          
+          htmlContent.push(`<tr><td><div class="fw-bold fs-6 mb-1 text-dark pe-5">${pekerjaan}</div><div class="d-flex align-items-center gap-2 mb-2 d-md-none"><span class="badge ${badgeClass}">${statusText || 'Not Started'}</span><span class="badge ${priorityClass} rounded-pill" style="font-size: 0.65rem;">${priority || 'Low'}</span></div><div class="d-md-none mt-3"><div class="small mb-1 text-muted"><i class="bi bi-person-circle me-2"></i>Kordinator: <strong>${kordinator}</strong></div><div class="mobile-detail-group"><div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-light"><span class="small text-muted">Deadline Kontrak</span><span class="small fw-bold">${deadKontrakView}</span></div><div class="d-flex justify-content-between"><span class="small text-muted">Deadline Schedule</span><span class="small fw-bold">${deadScheduleView}</span></div></div>${notes ? `<div class="mt-2 small text-muted fst-italic bg-light p-2 rounded">"${notes}"</div>` : ''}${mobileBtnUrl}</div></td><td class="d-none d-md-table-cell">${kordinator}</td><td class="text-center d-none d-md-table-cell">${btnUrl}</td><td class="text-center d-none d-md-table-cell"><span class="badge ${priorityClass}">${priority || 'Low'}</span></td><td class="text-center text-muted small d-none d-md-table-cell">${deadKontrakView}</td><td class="text-center text-muted small d-none d-md-table-cell">${deadScheduleView}</td><td class="text-center d-none d-md-table-cell"><span class="badge ${badgeClass}">${statusText || 'Not Started'}</span></td><td class="small text-muted d-none d-md-table-cell">${notes}</td></tr>`); 
+      }
+      tbody.innerHTML = htmlContent.join(''); 
+      setupPagination(validRows.length, currentPageProject, 'pagination-project', (p) => renderProject(data, p)); 
     }
 
-    // 2. Normalisasi pemisah: Ubah garis miring (/) dan strip (-) jadi spasi
-    str = str.replace(/[-/]/g, ' ');
-    let parts = str.split(/\s+/);
+    // --- PERBAIKAN FUNGSI PARSE DATE ---
+    function parseDate(dateStr) { 
+        if (!dateStr) return null;
+        let str = String(dateStr).trim();
+        if (str === '-' || str === '') return null;
 
-    if (parts.length >= 3) {
-        let p1 = parts[0];
-        let p2 = parts[1];
-        let p3 = parts[2];
-
-        let day, month, year;
-
-        // Cek jika formatnya Tahun dulu (YYYY MM DD)
-        if (p1.length === 4) {
-            year = parseInt(p1);
-            month = parseInt(p2) - 1;
-            day = parseInt(p3);
-        } 
-        // Jika formatnya Hari dulu (DD MM YYYY atau DD Bulan YYYY)
-        else {
-            day = parseInt(p1);
-            // Tangani tahun yang ditulis 2 digit (contoh: '26' jadi '2026')
-            year = parseInt(p3);
-            if (year < 100) year += 2000; 
-
-            // Jika bulan ditulis pakai huruf (contoh: "Ags", "Okt", "Jan")
-            if (isNaN(parseInt(p2))) {
-                const monthStr = p2.toLowerCase().substring(0, 3);
-                const months = { 
-                    'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'mei': 4, 'may': 4, 
-                    'jun': 5, 'jul': 6, 'ags': 7, 'aug': 7, 'sep': 8, 
-                    'okt': 9, 'oct': 9, 'nov': 10, 'des': 11, 'dec': 11 
-                };
-                month = months[monthStr] !== undefined ? months[monthStr] : 0;
-            } 
-            // Jika bulan ditulis pakai angka (contoh: 15 08 2026)
-            else {
-                month = parseInt(p2) - 1;
-            }
+        // 1. Sistem bawaan
+        let d = new Date(str);
+        if (!isNaN(d.getTime()) && d.getFullYear() >= 2000 && d.getFullYear() <= 2100 && str.includes('-') && str.split('-')[0].length === 4) {
+            return d;
         }
 
-        d = new Date(year, month, day);
-        if (!isNaN(d.getTime())) return d;
-    }
+        // 2. Normalisasi pemisah
+        str = str.replace(/[-/]/g, ' ');
+        let parts = str.split(/\s+/);
 
-    // Fallback terakhir
-    const fallback = new Date(dateStr);
-    return isNaN(fallback.getTime()) ? null : fallback;
-}
+        if (parts.length >= 3) {
+            let p1 = parts[0], p2 = parts[1], p3 = parts[2];
+            let day, month, year;
 
-function drawGanttChart(type) {
-    let containerId, startFilterVal, endFilterVal, sourceData, searchKeyword = "";
-    
-    if (type === 'penugasan') { 
-        containerId = 'chart_penugasan'; 
-        startFilterVal = document.getElementById('filterTugasStart').value; 
-        endFilterVal = document.getElementById('filterTugasEnd').value; 
-        sourceData = dataTugas; 
-        searchKeyword = document.getElementById('searchTugasGantt').value.toLowerCase(); 
-    } else { 
-        containerId = type === 'kontrak' ? 'chart_kontrak' : 'chart_schedule'; 
-        startFilterVal = document.getElementById('filterStartDate').value; 
-        endFilterVal = document.getElementById('filterEndDate').value; 
-        sourceData = dataProject; 
-        searchKeyword = document.getElementById('searchProjectGantt').value.toLowerCase(); 
-    }
-    
-    const container = document.getElementById(containerId); 
-    container.innerHTML = ''; 
-    const today = new Date(); today.setHours(0,0,0,0); 
-    let validItems = [];
-    const filterStart = startFilterVal ? new Date(startFilterVal) : null; 
-    if(filterStart) filterStart.setHours(0,0,0,0); 
-    const filterEnd = endFilterVal ? new Date(endFilterVal) : null; 
-    if(filterEnd) filterEnd.setHours(23,59,59,999); 
-    
-    let dataMinDate = new Date(2099, 11, 31); 
-    let dataMaxDate = new Date(1970, 0, 1); 
-    let hasData = false;
-    
-    for(let i=0; i<sourceData.length; i++) { 
-        const row = sourceData[i]; 
+            if (p1.length === 4) {
+                year = parseInt(p1);
+                month = parseInt(p2) - 1;
+                day = parseInt(p3);
+            } else {
+                day = parseInt(p1);
+                year = parseInt(p3);
+                
+                // Fix Typo Tahun (Misal: 26 jadi 2026, atau 202 jadi tahun saat ini)
+                if (year < 100) year += 2000;
+                else if (year >= 100 && year < 2000) year = new Date().getFullYear(); 
+
+                if (isNaN(parseInt(p2))) {
+                    const monthStr = p2.toLowerCase().substring(0, 3);
+                    const months = { 
+                        'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'mei': 4, 'may': 4, 
+                        'jun': 5, 'jul': 6, 'ags': 7, 'aug': 7, 'sep': 8, 
+                        'okt': 9, 'oct': 9, 'nov': 10, 'des': 11, 'dec': 11 
+                    };
+                    month = months[monthStr] !== undefined ? months[monthStr] : 0;
+                } else {
+                    month = parseInt(p2) - 1;
+                }
+            }
+
+            d = new Date(year, month, day);
+            if (!isNaN(d.getTime()) && d.getFullYear() >= 2000 && d.getFullYear() <= 2100) return d;
+        }
+
+        // 3. Fallback terakhir
+        const fallback = new Date(dateStr);
+        if (!isNaN(fallback.getTime()) && fallback.getFullYear() >= 2000 && fallback.getFullYear() <= 2100) return fallback;
         
-        let personName = "", projectName = "", fullTitle = ""; 
-        let startRaw, endRaw, statusText, status; 
-        let barClass = 'bar-blue'; 
+        return null;
+    }
+
+    // Tambahan helper jika belum ada
+    function formatMonthYear(date) {
+        return date.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+    }
+
+    // --- PERBAIKAN FUNGSI DRAW GANTT CHART ---
+    function drawGanttChart(type) {
+        let containerId, startFilterVal, endFilterVal, sourceData, searchKeyword = "";
         
         if (type === 'penugasan') { 
-            if (!row[1] || String(row[1]).trim() === "") continue; 
-            
-            personName = row[1]; 
-            projectName = row[2]; 
-            fullTitle = `${personName} - ${projectName}`; 
-            startRaw = row[9]; 
-            endRaw = row[10]; 
-            statusText = row[12] || "Unknown"; 
-            status = statusText.toLowerCase(); 
-            
-            if (status.includes('completed')) continue; 
-            if (status.includes('active')) barClass = 'bar-green'; 
-            else if (status.includes('not started')) barClass = 'bar-grey'; 
-            else barClass = 'bar-green'; 
-            
+            containerId = 'chart_penugasan'; 
+            startFilterVal = document.getElementById('filterTugasStart').value; 
+            endFilterVal = document.getElementById('filterTugasEnd').value; 
+            sourceData = dataTugas; 
+            searchKeyword = document.getElementById('searchTugasGantt').value.toLowerCase(); 
         } else { 
-            if (!row[2] || String(row[2]).trim() === "") continue;
+            containerId = type === 'kontrak' ? 'chart_kontrak' : 'chart_schedule'; 
+            startFilterVal = document.getElementById('filterStartDate').value; 
+            endFilterVal = document.getElementById('filterEndDate').value; 
+            sourceData = dataProject; 
+            searchKeyword = document.getElementById('searchProjectGantt').value.toLowerCase(); 
+        }
+        
+        const container = document.getElementById(containerId); 
+        container.innerHTML = ''; 
+        const today = new Date(); today.setHours(0,0,0,0); 
+        let validItems = [];
+        const filterStart = startFilterVal ? new Date(startFilterVal) : null; 
+        if(filterStart) filterStart.setHours(0,0,0,0); 
+        const filterEnd = endFilterVal ? new Date(endFilterVal) : null; 
+        if(filterEnd) filterEnd.setHours(23,59,59,999); 
+        
+        let dataMinDate = new Date(2099, 11, 31); 
+        let dataMaxDate = new Date(1970, 0, 1); 
+        let hasData = false;
+        
+        for(let i=0; i<sourceData.length; i++) { 
+            const row = sourceData[i]; 
             
-            projectName = row[2]; 
-            fullTitle = projectName; 
-            statusText = row[16] || "Unknown"; 
-            status = statusText.toLowerCase(); 
+            let personName = "", projectName = "", fullTitle = ""; 
+            let startRaw, endRaw, statusText, status; 
+            let barClass = 'bar-blue'; 
+            let isDone = false;
             
-            if (status.includes('done') || status.includes('selesai') || status === '100%') continue; 
-            
-            if (type === 'kontrak') { 
-                startRaw = row[8]; 
-                endRaw = row[9]; 
+            if (type === 'penugasan') { 
+                if (!row[1] || String(row[1]).trim() === "") continue; 
+                
+                personName = row[1]; 
+                projectName = row[2]; 
+                fullTitle = `${personName} - ${projectName}`; 
+                startRaw = row[9]; 
+                endRaw = row[10]; 
+                statusText = row[12] || "Unknown"; 
+                status = statusText.toLowerCase(); 
+                
+                if (status.includes('completed')) barClass = 'bar-green'; 
+                else if (status.includes('active')) barClass = 'bar-blue'; 
+                else if (status.includes('not started')) barClass = 'bar-grey'; 
+                else barClass = 'bar-blue'; 
+                
             } else { 
-                startRaw = row[12]; 
-                endRaw = row[13]; 
+                if (!row[2] || String(row[2]).trim() === "") continue;
+                
+                projectName = row[2]; 
+                fullTitle = projectName; 
+                statusText = row[16] || "Unknown"; 
+                status = statusText.toLowerCase(); 
+                
+                // Deteksi status selesai, JANGAN DI-CONTINUE agar tetap muncul di Gantt
+                isDone = status.includes('done') || status.includes('selesai') || status.includes('completed') || status === '100%'; 
+                
+                if (type === 'kontrak') { 
+                    startRaw = row[8]; 
+                    endRaw = row[9]; 
+                } else { 
+                    startRaw = row[12]; 
+                    endRaw = row[13]; 
+                } 
+                
+                if (isDone) {
+                    barClass = 'bar-green';
+                } else {
+                    const itemEndCheck = parseDate(endRaw); 
+                    const isExpired = itemEndCheck && itemEndCheck < today; 
+                    barClass = isExpired ? 'bar-red' : 'bar-blue'; 
+                }
+            }
+            
+            if (searchKeyword && !fullTitle.toLowerCase().includes(searchKeyword)) continue; 
+            
+            let itemStart = parseDate(startRaw); 
+            let itemEnd = parseDate(endRaw); 
+
+            // AUTO FILL: Jika satu tanggal kosong, auto hitung estimasi 14 hari
+            if (!itemStart && itemEnd) {
+                itemStart = new Date(itemEnd.getTime());
+                itemStart.setDate(itemStart.getDate() - 14);
+            } else if (itemStart && !itemEnd) {
+                itemEnd = new Date(itemStart.getTime());
+                itemEnd.setDate(itemEnd.getDate() + 14);
+            }
+
+            // Jika KEDUANYA benar-benar kosong, baru lewati (skip)
+            if (!itemStart || !itemEnd) continue;
+
+            if (itemStart > itemEnd) { 
+                let temp = itemStart; 
+                itemStart = itemEnd; 
+                itemEnd = temp; 
             } 
             
-            const itemEndCheck = parseDate(endRaw); 
-            const isExpired = itemEndCheck && itemEndCheck < today; 
-            barClass = isExpired ? 'bar-red' : 'bar-blue'; 
+            let isValid = true; 
+            if (filterStart && itemEnd < filterStart) isValid = false; 
+            if (filterEnd && itemStart > filterEnd) isValid = false; 
+            
+            if (isValid) { 
+                hasData = true; 
+                if (itemStart < dataMinDate) dataMinDate = new Date(itemStart); 
+                if (itemEnd > dataMaxDate) dataMaxDate = new Date(itemEnd); 
+                
+                // Clean up text format to prevent HTML breaking
+                const safeTitle = String(fullTitle).replace(/"/g, '&quot;');
+                const safeProject = String(projectName).replace(/"/g, '&quot;');
+                const safePerson = String(personName).replace(/"/g, '&quot;');
+                
+                validItems.push({ person: safePerson, project: safeProject, title: safeTitle, start: itemStart, end: itemEnd, barClass, status: statusText }); 
+            } 
         }
         
-        if (searchKeyword && !fullTitle.toLowerCase().includes(searchKeyword)) continue; 
-        
-        let itemStart = parseDate(startRaw); 
-        let itemEnd = parseDate(endRaw); 
-
-        // --- BUG FIX UTAMA: TANGGAL START KOSONG ---
-        // Jika End Date (Deadline) kosong, lewati karena tidak bisa digambar
-        if (!itemEnd) continue;
-
-        // Jika Start Date kosong tapi Deadline ada, kita buat Start Date = 14 hari sebelum deadline
-        if (!itemStart && itemEnd) {
-            itemStart = new Date(itemEnd.getTime());
-            itemStart.setDate(itemStart.getDate() - 14);
+        if (!hasData) { 
+            container.innerHTML = `<div class="text-center py-5 text-muted">Tidak ada data aktif pada rentang tanggal tersebut.</div>`; 
+            return; 
         }
-
-        // Jika user salah input di Excel (Start > End), kita tukar posisinya agar grafik tidak error
-        if (itemStart > itemEnd) {
-            let temp = itemStart;
-            itemStart = itemEnd;
-            itemEnd = temp;
+        
+        validItems.sort((a, b) => a.start - b.start); 
+        let viewStartDate = filterStart ? new Date(filterStart) : new Date(dataMinDate); 
+        let viewEndDate = filterEnd ? new Date(filterEnd) : new Date(dataMaxDate);
+        viewStartDate.setDate(1); 
+        viewEndDate.setDate(1); 
+        viewEndDate.setMonth(viewEndDate.getMonth() + 1); 
+        viewEndDate.setDate(0); 
+        
+        const totalDays = Math.max(1, Math.ceil((viewEndDate - viewStartDate) / (1000 * 60 * 60 * 24))); 
+        const pxPerDay = 5; 
+        const chartWidth = totalDays * pxPerDay; 
+        let headerMarkersArr = []; 
+        let curr = new Date(viewStartDate); 
+        curr.setDate(1); 
+        
+        while (curr <= viewEndDate) { 
+            const diffTime = curr - viewStartDate; 
+            const diffDays = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24))); 
+            const leftPos = diffDays * pxPerDay; 
+            if (leftPos < chartWidth) { 
+                headerMarkersArr.push(`<span class="month-marker" style="left: ${leftPos}px;">${formatMonthYear(curr)}</span>`); 
+            } 
+            curr.setMonth(curr.getMonth() + 1); 
         }
-        // -------------------------------------------
         
-        let isValid = true; 
-        if (filterStart && itemEnd < filterStart) isValid = false; 
-        if (filterEnd && itemStart > filterEnd) isValid = false; 
+        let stickyHeaderHTML = type === 'penugasan' ? `<div class="g-col-personil">NAMA PERSONIL</div><div class="g-col-pekerjaan">NAMA PEKERJAAN</div>` : `<div class="g-sticky-col">NAMA PEKERJAAN</div>`; 
+        const htmlHeader = `<div class="g-row-container g-header-row">${stickyHeaderHTML}<div class="g-timeline-col" style="min-width: ${chartWidth}px;">${headerMarkersArr.join('')}</div></div>`;
         
-        if (isValid) { 
-            hasData = true; 
-            if (itemStart < dataMinDate) dataMinDate = new Date(itemStart); 
-            if (itemEnd > dataMaxDate) dataMaxDate = new Date(itemEnd); 
-            validItems.push({ person: personName, project: projectName, title: fullTitle, start: itemStart, end: itemEnd, barClass, status: statusText }); 
-        } 
+        let htmlBodyArr = []; 
+        for(let i=0; i<validItems.length; i++){ 
+            const item = validItems[i]; 
+            const sDateStr = item.start.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); 
+            const eDateStr = item.end.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); 
+            const startDiff = Math.ceil((item.start - viewStartDate) / (1000 * 60 * 60 * 24)); 
+            
+            // Memastikan bar timeline setidaknya memiliki ketebalan visual 1 hari
+            let duration = Math.ceil((item.end - item.start) / (1000 * 60 * 60 * 24)); 
+            duration = Math.max(1, duration);
+            
+            let leftPx = startDiff * pxPerDay; 
+            let widthPx = duration * pxPerDay; 
+            
+            if (leftPx < 0) { 
+                widthPx = widthPx + leftPx; 
+                leftPx = 0; 
+            } 
+            
+            const widthSafe = Math.max(widthPx, 0); 
+            const displayStyle = widthSafe > 0 ? '' : 'display:none;'; 
+            let stickyColsHTML = type === 'penugasan' ? `<div class="g-col-personil" title="${item.person}">${item.person}</div><div class="g-col-pekerjaan" title="${item.project}">${item.project}</div>` : `<div class="g-sticky-col" title="${item.project}">${item.project}</div>`; 
+            
+            htmlBodyArr.push(`<div class="g-row-container g-data-row">${stickyColsHTML}<div class="g-timeline-col" style="min-width: ${chartWidth}px;"><div class="g-bar ${item.barClass}" style="left: ${leftPx}px; width: ${widthSafe}px; ${displayStyle}" data-name="${item.title}" data-start="${sDateStr}" data-end="${eDateStr}" data-status="${item.status}" onmouseenter="showTooltip(event, this)" onmousemove="moveTooltip(event)" onmouseleave="hideTooltip()"></div></div></div>`); 
+        }
+        
+        container.innerHTML = `<div class="custom-gantt-wrapper">${htmlHeader}${htmlBodyArr.join('')}</div>`;
     }
-    
-    if (!hasData) { 
-        container.innerHTML = `<div class="text-center py-5 text-muted">Tidak ada data aktif pada rentang tanggal tersebut.</div>`; 
-        return; 
-    }
-    
-    validItems.sort((a, b) => a.start - b.start); 
-    let viewStartDate = filterStart ? new Date(filterStart) : new Date(dataMinDate); 
-    let viewEndDate = filterEnd ? new Date(filterEnd) : new Date(dataMaxDate);
-    viewStartDate.setDate(1); 
-    viewEndDate.setDate(1); 
-    viewEndDate.setMonth(viewEndDate.getMonth() + 1); 
-    viewEndDate.setDate(0); 
-    
-    const totalDays = Math.max(1, Math.ceil((viewEndDate - viewStartDate) / (1000 * 60 * 60 * 24))); 
-    const pxPerDay = 5; 
-    const chartWidth = totalDays * pxPerDay; 
-    let headerMarkersArr = []; 
-    let curr = new Date(viewStartDate); 
-    curr.setDate(1); 
-    
-    while (curr <= viewEndDate) { 
-        const diffTime = curr - viewStartDate; 
-        const diffDays = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24))); 
-        const leftPos = diffDays * pxPerDay; 
-        if (leftPos < chartWidth) { 
-            headerMarkersArr.push(`<span class="month-marker" style="left: ${leftPos}px;">${formatMonthYear(curr)}</span>`); 
-        } 
-        curr.setMonth(curr.getMonth() + 1); 
-    }
-    
-    let stickyHeaderHTML = type === 'penugasan' ? `<div class="g-col-personil">NAMA PERSONIL</div><div class="g-col-pekerjaan">NAMA PEKERJAAN</div>` : `<div class="g-sticky-col">NAMA PEKERJAAN</div>`; 
-    const htmlHeader = `<div class="g-row-container g-header-row">${stickyHeaderHTML}<div class="g-timeline-col" style="min-width: ${chartWidth}px;">${headerMarkersArr.join('')}</div></div>`;
-    
-    let htmlBodyArr = []; 
-    for(let i=0; i<validItems.length; i++){ 
-        const item = validItems[i]; 
-        const sDateStr = item.start.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); 
-        const eDateStr = item.end.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); 
-        const startDiff = Math.ceil((item.start - viewStartDate) / (1000 * 60 * 60 * 24)); 
-        const duration = Math.ceil((item.end - item.start) / (1000 * 60 * 60 * 24)); 
-        let leftPx = startDiff * pxPerDay; 
-        let widthPx = duration * pxPerDay; 
-        
-        if (leftPx < 0) { 
-            widthPx = widthPx + leftPx; 
-            leftPx = 0; 
-        } 
-        
-        const widthSafe = Math.max(widthPx, 0); 
-        const displayStyle = widthSafe > 0 ? '' : 'display:none;'; 
-        let stickyColsHTML = type === 'penugasan' ? `<div class="g-col-personil" title="${item.person}">${item.person}</div><div class="g-col-pekerjaan" title="${item.project}">${item.project}</div>` : `<div class="g-sticky-col" title="${item.project}">${item.project}</div>`; 
-        
-        htmlBodyArr.push(`<div class="g-row-container g-data-row">${stickyColsHTML}<div class="g-timeline-col" style="min-width: ${chartWidth}px;"><div class="g-bar ${item.barClass}" style="left: ${leftPx}px; width: ${widthSafe}px; ${displayStyle}" data-name="${item.title}" data-start="${sDateStr}" data-end="${eDateStr}" data-status="${item.status}" onmouseenter="showTooltip(event, this)" onmousemove="moveTooltip(event)" onmouseleave="hideTooltip()"></div></div></div>`); 
-    }
-    
-    container.innerHTML = `<div class="custom-gantt-wrapper">${htmlHeader}${htmlBodyArr.join('')}</div>`;
-}
 
     window.showTooltip = function(e, element) { const name = element.getAttribute('data-name'); const start = element.getAttribute('data-start'); const end = element.getAttribute('data-end'); const status = element.getAttribute('data-status'); const color = element.classList.contains('bar-red') ? '#d9534f' : '#000080'; const bgColor = element.classList.contains('bar-red') ? '#ffe5e5' : '#e6f0ff'; tooltip.style.borderLeftColor = color; tooltip.innerHTML = `<div class="ct-header">${name}</div><div class="ct-row"><i class="bi bi-calendar-event"></i> Start: ${start}</div><div class="ct-row"><i class="bi bi-calendar-check"></i> End: ${end}</div><div class="ct-badge" style="background:${bgColor}; color:${color};">${status}</div>`; tooltip.style.display = 'block'; moveTooltip(e); }
     window.moveTooltip = function(e) { const x = e.clientX; const y = e.clientY; const tWidth = tooltip.offsetWidth; const winWidth = window.innerWidth; let leftPos = x + 15; if (leftPos + tWidth > winWidth - 20) { leftPos = x - tWidth - 10; } tooltip.style.top = (y + 15) + 'px'; tooltip.style.left = leftPos + 'px'; }
@@ -1635,7 +1644,7 @@ function drawGanttChart(type) {
         document.getElementById('inputNama').readOnly = false;
         document.getElementById('inputPerusahaan').readOnly = false;
         
-        document.getElementById('inputSertifikat').style.display = 'block';       
+        document.getElementById('inputSertifikat').style.display = 'block';        
         document.getElementById('inputSertifikat').required = true;
         document.getElementById('selectSertifikatEdit').style.display = 'none'; 
         document.getElementById('selectSertifikatEdit').required = false;
@@ -1668,7 +1677,7 @@ function drawGanttChart(type) {
            selectEl.appendChild(option);
        });
 
-       document.getElementById('inputSertifikat').style.display = 'none';        
+       document.getElementById('inputSertifikat').style.display = 'none';         
        document.getElementById('inputSertifikat').required = false;
        document.getElementById('selectSertifikatEdit').style.display = 'block'; 
        document.getElementById('selectSertifikatEdit').required = true;
